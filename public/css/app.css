@@ -1,0 +1,475 @@
+:root {
+    --brand: #0ea5a4;
+}
+
+body {
+    min-height: 100vh;
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_paginate {
+    font-size: 0.875rem;
+    color: #475569;
+}
+
+table.dataTable thead th {
+    background-color: #f8fafc;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+table.dataTable tbody td {
+    padding: 0.75rem 0.5rem;
+}
+
+.manager-table-card {
+    border: 1px solid #dbe1e8;
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.manager-table-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.manager-table-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c313a;
+}
+
+.manager-table-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.manager-control-input,
+.manager-control-select,
+.manager-control-icon {
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #d7dde5;
+    background: #ffffff;
+    color: #525a66;
+    font-size: 12px;
+}
+
+.manager-control-input {
+    width: 220px;
+    padding: 0 10px;
+}
+
+.manager-control-select {
+    min-width: 130px;
+    padding: 0 10px;
+}
+
+.manager-control-icon {
+    width: 32px;
+    font-weight: 700;
+}
+
+.manager-add-btn {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #0284c7;
+    background: #0ea5e9;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.manager-add-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 12px;
+}
+
+.manager-table-grid {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.manager-table-grid thead th {
+    text-align: left;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+}
+
+.manager-table-grid thead th:last-child {
+    border-right: none;
+}
+
+.manager-table-grid tbody td {
+    color: #4b5563;
+    padding: 9px 12px;
+    border-bottom: 1px solid #eef1f4;
+    border-right: 1px solid #eef1f4;
+    vertical-align: middle;
+}
+
+.manager-table-grid tbody td:last-child {
+    border-right: none;
+}
+
+.manager-table-grid tbody tr:hover {
+    background: #fafcff;
+}
+
+.manager-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #2563eb;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+.manager-avatar-image {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 1px solid #bfdbfe;
+    display: block;
+}
+
+.manager-name-cell {
+    font-weight: 600;
+    color: #374151;
+}
+
+.manager-action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.manager-action-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: 1px solid #dbe2ea;
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+}
+
+.manager-action-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.manager-action-edit {
+    color: #0ea5a4;
+}
+
+.manager-action-delete {
+    color: #ef4444;
+}
+
+.manager-action-view {
+    color: #2563eb;
+}
+
+.manager-action-icon:hover {
+    background: #f8fafc;
+}
+
+.manager-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.manager-badge-approved {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.manager-badge-pending {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+.manager-badge-declined {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.manager-table-footer {
+    padding: 10px 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid #e5e7eb;
+    background: #fafafa;
+}
+
+.manager-page-btn {
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #4b5563;
+    border-radius: 20px;
+    padding: 5px 11px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.manager-page-btn-active {
+    border-color: #0ea5a4;
+    background: #0ea5a4;
+    color: #ffffff;
+}
+
+#modal-content.manager-modal-shell {
+    max-width: 760px;
+    width: 100%;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    overflow: visible;
+}
+
+.manager-modal {
+    padding: 20px;
+    border: 2px solid #0ea5e9;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.manager-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #dbeafe;
+    margin-bottom: 16px;
+}
+
+.manager-modal-header h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 29px;
+    font-weight: 700;
+}
+
+.manager-modal-close {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.manager-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.manager-modal-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 16px;
+}
+
+.manager-modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.manager-modal-field span {
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.manager-modal-field input,
+.manager-modal-field select {
+    width: 100%;
+    height: 40px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    padding: 0 11px;
+    font-size: 12px;
+    color: #334155;
+    outline: none;
+}
+
+.manager-modal-field input[type="file"] {
+    padding: 7px 10px;
+    height: 40px;
+}
+
+.manager-modal-field input:focus,
+.manager-modal-field select:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    background: #ffffff;
+}
+
+.manager-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.manager-modal-submit,
+.manager-modal-cancel {
+    min-width: 84px;
+    height: 38px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+}
+
+.manager-modal-submit {
+    background: #0ea5e9;
+    color: #ffffff;
+}
+
+.manager-modal-cancel {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.manager-modal-compact {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.manager-modal-compact .manager-modal-header {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+}
+
+.manager-modal-compact .manager-modal-header h3 {
+    font-size: 20px;
+}
+
+.manager-view-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+}
+
+.manager-view-grid span {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.manager-view-grid p {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1f2937;
+    min-height: 36px;
+    padding: 8px 10px;
+    border: 1px solid #dbe3ec;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.manager-delete-text {
+    margin: 2px 0 0;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.manager-modal-compact .manager-modal-actions {
+    margin-top: 14px;
+}
+
+.manager-delete-confirm {
+    background: #dc2626;
+}
+
+.profile-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+
+@media (max-width: 900px) {
+    .manager-table-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .manager-table-controls {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .manager-control-input,
+    .manager-control-select {
+        flex: 1 1 180px;
+        width: auto;
+    }
+
+    .manager-modal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .manager-view-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .manager-modal-compact {
+        max-width: 100%;
+    }
+}
