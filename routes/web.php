@@ -36,6 +36,7 @@ $router->group('', function (Router $router): void {
     $router->get('/dashboard/stats', 'DashboardController@getStats');
     $router->get('/managers', 'ManagersController@index');
     $router->post('/managers', 'ManagersController@store');
+    $router->post('/managers/{source}/{id}/approve', 'ManagersController@approve');
     $router->get('/admins', 'AdminsController@index');
     $router->post('/admins', 'AdminsController@store');
 }, [AuthMiddleware::class]);
@@ -44,6 +45,7 @@ $router->group('/users', function (Router $router): void {
     $router->get('', 'UsersController@index');
     $router->get('/create', 'UsersController@create');
     $router->post('', 'UsersController@store');
+    $router->post('/{id}/approve', 'UsersController@approve');
     $router->get('/{id}/edit', 'UsersController@edit');
     $router->put('/{id}', 'UsersController@update');
     $router->delete('/{id}', 'UsersController@delete');

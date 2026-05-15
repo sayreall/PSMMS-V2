@@ -8,17 +8,20 @@ use App\Helpers\Csrf;
 use App\Helpers\Session;
 use App\Helpers\Upload;
 use App\Helpers\Validation;
+use App\Models\ManagerModel;
 use App\Models\UserModel;
 
 class AuthController extends BaseController
 {
     private UserModel $userModel;
+    private ManagerModel $managerModel;
     private const LOGIN_MAX_ATTEMPTS = 5;
     private const LOGIN_LOCKOUT_SECONDS = 300;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
+        $this->managerModel = new ManagerModel();
         $this->layout = 'layouts.auth';
     }
 
@@ -130,6 +133,7 @@ class AuthController extends BaseController
         $name = $this->composeFullName($first_name, $middle_name, $last_name);
         $email = trim($data['email'] ?? '');
         $company_email = trim($data['company_email'] ?? '');
+        $contact_no = trim($data['contact_no'] ?? '');
         $password = $data['password'] ?? '';
         $password_confirmation = $data['password_confirmation'] ?? '';
         $role = trim($data['role'] ?? 'accounting');
@@ -140,13 +144,14 @@ class AuthController extends BaseController
             'last_name'             => 'required|min:2|max:100',
             'email'                 => 'required|email|unique:users.email',
             'company_email'         => 'required|email|unique:users.company_email',
+            'contact_no'            => 'required|min:7|max:30',
             'password'              => 'required|min:8|confirmed',
             'password_confirmation'  => 'required',
             'role'                  => 'required|in:accounting,asm_manager,head_manager',
         ];
 
         $validator = (new Validation)->validate(
-            compact('first_name', 'middle_name', 'last_name', 'email', 'company_email', 'password', 'password_confirmation', 'role'),
+            compact('first_name', 'middle_name', 'last_name', 'email', 'company_email', 'contact_no', 'password', 'password_confirmation', 'role'),
             $rules
         );
 
@@ -155,7 +160,7 @@ class AuthController extends BaseController
                 Validation::jsonResponse($validator->errors());
             }
             Session::flash('errors', $validator->errors());
-            Session::flash('old', compact('first_name', 'middle_name', 'last_name', 'email', 'company_email', 'role'));
+            Session::flash('old', compact('first_name', 'middle_name', 'last_name', 'email', 'company_email', 'contact_no', 'role'));
             $this->redirectBack();
         }
 
@@ -168,16 +173,41 @@ class AuthController extends BaseController
             'last_name' => $last_name,
             'email'    => $email,
             'company_email' => $company_email,
+            'contact_no' => $contact_no,
             'password' => $hashedPassword,
             'role'     => $role,
             'status'   => 'pending',
         ]);
+
+        if ($role === 'asm_manager') {
+            $exists = $this->managerModel->findBy('email', $email);
+            if (!$exists) {
+                $this->managerModel->createManager([
+                    'user_id' => $userId,
+                    'manager_name' => $name,
+                    'position' => $role,
+                    'contact_no' => $contact_no,
+                    'company_email' => $company_email,
+                    'email' => $email,
+                    'profile_picture' => null,
+                    'status' => 'pending',
+                ]);
+            }
+        }
 
         // Log activity
         (new \App\Models\ActivityLogModel())->log($userId, 'register', 'New user registered');
 
         Session::flash('message', 'Registration submitted. Head Admin will review and activate your account.');
         Session::flash('message_type', 'info');
+
+        if (App::isAjax() || App::isApiRequest()) {
+            $this->json([
+                'success' => true,
+                'redirect' => App::url('login'),
+                'message' => 'Registration submitted. Super Admin will review and activate your account.',
+            ]);
+        }
 
         $this->redirect(App::url('login'));
     }

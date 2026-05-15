@@ -84,6 +84,12 @@ $order = $order ?? 'DESC';
                         <td><?= htmlspecialchars($user['contact_no'] ?? '0956 8618 473') ?></td>
                         <td class="space-x-2 whitespace-nowrap">
                             <a href="<?= App\Config\App::url('users/' . $user['id'] . '/edit') ?>" class="text-cyan-600 hover:text-cyan-700">Edit</a>
+                            <?php if (($user['status'] ?? '') === 'pending'): ?>
+                            <form method="POST" action="<?= App\Config\App::url('users/' . $user['id'] . '/approve') ?>" class="inline" data-confirm="true" data-confirm-text="Approve this account?">
+                                <?= \App\Helpers\Csrf::field() ?>
+                                <button type="submit" class="text-emerald-600 hover:text-emerald-700">Approve</button>
+                            </form>
+                            <?php endif; ?>
                             <form method="POST" action="<?= App\Config\App::url('users/' . $user['id']) ?>" class="inline" data-confirm="true" data-confirm-text="Delete this user?">
                                 <?= \App\Helpers\Csrf::field() ?>
                                 <input type="hidden" name="_method" value="DELETE">

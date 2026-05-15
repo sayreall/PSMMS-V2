@@ -46,6 +46,7 @@
     </main>
 
     <script src="<?= App\Config\App::url('js/auth.js') ?>"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <?= $scripts ?? '' ?>
 </body>
 </html>

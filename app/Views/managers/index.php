@@ -73,6 +73,16 @@ $managers = $managers ?? [];
                         <td><?= htmlspecialchars($manager['contact_no'] ?? '') ?></td>
                         <td>
                             <div class="manager-action-group">
+                                <?php if (($manager['status'] ?? '') === 'pending'): ?>
+                                <form method="POST" action="<?= App\Config\App::url('managers/' . ($manager['source_type'] ?? 'manager') . '/' . ($manager['row_id'] ?? $manager['id'] ?? 0) . '/approve') ?>" class="inline" data-confirm="true" data-confirm-text="Approve this manager?">
+                                    <?= \App\Helpers\Csrf::field() ?>
+                                    <button type="submit" class="manager-action-icon manager-action-approve-icon" aria-label="Approve manager">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20 6L9 17l-5-5"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                <?php endif; ?>
                                 <button
                                     type="button"
                                     class="manager-action-icon manager-action-edit"

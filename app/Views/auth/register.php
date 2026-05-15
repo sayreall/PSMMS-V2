@@ -36,6 +36,12 @@ $old = $old ?? [];
     </div>
 
     <div class="form-col">
+        <label class="form-label">Contact number</label>
+        <input type="text" name="contact_no" value="<?= htmlspecialchars($old['contact_no'] ?? '') ?>" class="form-input" placeholder="09XXXXXXXXX" data-validate="required|min:7">
+        <p class="form-error" data-error-for="contact_no"><?= $errors['contact_no'][0] ?? '' ?></p>
+    </div>
+
+    <div class="form-col">
         <label class="form-label">Password</label>
         <input id="register-password" type="password" name="password" class="form-input" placeholder="At least 8 characters" data-validate="required|min:8">
         <p class="form-error" data-error-for="password"><?= $errors['password'][0] ?? '' ?></p>

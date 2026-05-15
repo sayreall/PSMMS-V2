@@ -7,7 +7,8 @@ use PDO;
 class UserModel extends Model
 {
     protected string $table = 'users';
-    protected array $fillable = ['name', 'first_name', 'middle_name', 'last_name', 'email', 'company_email', 'password', 'role', 'status', 'avatar', 'created_at', 'updated_at'];
+    protected array $fillable = ['name', 'first_name', 'middle_name', 'last_name', 'email', 'company_email', 'contact_no', 'password', 'role', 'status', 'avatar', 'created_at', 'updated_at'];
+    private ?array $tableColumnsCache = null;
 
     public function findByEmail(string $email): ?array
     {
@@ -18,13 +19,13 @@ class UserModel extends Model
     {
         $data['created_at'] = date('Y-m-d H:i:s');
         $data['updated_at'] = date('Y-m-d H:i:s');
-        return $this->create($data);
+        return $this->create($this->filterExistingColumns($data));
     }
 
     public function updateUser(int $id, array $data): bool
     {
         $data['updated_at'] = date('Y-m-d H:i:s');
-        return $this->update($id, $data);
+        return $this->update($id, $this->filterExistingColumns($data));
     }
 
     public function getActiveUsers(): array
@@ -53,5 +54,24 @@ class UserModel extends Model
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function filterExistingColumns(array $data): array
+    {
+        $columns = $this->getTableColumns();
+        return array_intersect_key($data, array_flip($columns));
+    }
+
+    private function getTableColumns(): array
+    {
+        if ($this->tableColumnsCache !== null) {
+            return $this->tableColumnsCache;
+        }
+
+        $stmt = $this->db->query("SHOW COLUMNS FROM `{$this->table}`");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->tableColumnsCache = array_map(static fn(array $row) => (string)$row['Field'], $rows);
+
+        return $this->tableColumnsCache;
     }
 }

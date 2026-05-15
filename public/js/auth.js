@@ -88,10 +88,26 @@ function bindAuthForms() {
                             }
                         });
                     }
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Registration failed',
+                            text: data.error || 'Please check your form details and try again.',
+                            confirmButtonText: 'OK',
+                        });
+                    }
                     return;
                 }
 
                 if (data.redirect) {
+                    if (window.Swal) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Account Created',
+                            text: data.message || 'Registration submitted successfully.',
+                            confirmButtonText: 'Continue',
+                        });
+                    }
                     window.location.href = data.redirect;
                     return;
                 }
