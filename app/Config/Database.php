@@ -16,9 +16,29 @@ class Database
     public static function loadEnv(string $path = null): void
     {
         $rootPath = $path ?? dirname(__DIR__, 2);
-        $dotenv = Dotenv::createImmutable($rootPath);
-        $dotenv->safeLoad();
-        $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_CHARSET']);
+
+        // App::init() already attempts to load .env. Avoid hard-failing here
+        // if .env contains malformed lines; use existing environment values.
+        if (
+            !isset($_ENV['DB_HOST']) ||
+            !isset($_ENV['DB_NAME']) ||
+            !isset($_ENV['DB_USER']) ||
+            !isset($_ENV['DB_CHARSET'])
+        ) {
+            $dotenv = Dotenv::createImmutable($rootPath);
+            try {
+                $dotenv->safeLoad();
+            } catch (\Throwable $e) {
+                error_log('Dotenv load warning (Database): ' . $e->getMessage());
+            }
+        }
+
+        $required = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_CHARSET'];
+        foreach ($required as $key) {
+            if (!isset($_ENV[$key]) || trim((string)$_ENV[$key]) === '') {
+                throw new \RuntimeException("Missing required environment variable: {$key}");
+            }
+        }
 
         self::$config = [
             'host'     => $_ENV['DB_HOST'],

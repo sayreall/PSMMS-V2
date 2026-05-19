@@ -3,25 +3,39 @@
 namespace App\Controllers;
 
 use App\Config\App;
+use App\Config\Database;
 use App\Helpers\Auth;
 use App\Helpers\Csrf;
 use App\Helpers\Session;
 use App\Helpers\Upload;
 use App\Helpers\Validation;
+use App\Models\DashboardRouteResolver;
+use App\Models\AdminModel;
+use App\Models\InhouseSalesModel;
 use App\Models\ManagerModel;
+use App\Models\MsaPartnerModel;
 use App\Models\UserModel;
 
 class AuthController extends BaseController
 {
     private UserModel $userModel;
     private ManagerModel $managerModel;
+    private AdminModel $adminModel;
+    private InhouseSalesModel $inhouseSalesModel;
+    private MsaPartnerModel $msaPartnerModel;
+    private DashboardRouteResolver $dashboardRouteResolver;
     private const LOGIN_MAX_ATTEMPTS = 5;
     private const LOGIN_LOCKOUT_SECONDS = 300;
+    private const INHOUSE_PRODUCT_OPTIONS = ['surf2sawa', 'fiberx', 'bida', 'sme'];
 
     public function __construct()
     {
         $this->userModel = new UserModel();
         $this->managerModel = new ManagerModel();
+        $this->adminModel = new AdminModel();
+        $this->inhouseSalesModel = new InhouseSalesModel();
+        $this->msaPartnerModel = new MsaPartnerModel();
+        $this->dashboardRouteResolver = new DashboardRouteResolver();
         $this->layout = 'layouts.auth';
     }
 
@@ -78,6 +92,15 @@ class AuthController extends BaseController
         if (Auth::attempt(['email' => $email, 'password' => $password])) {
             Session::remove($throttleKey);
             $user = Auth::user();
+            if (!is_array($user) || !isset($user['id'])) {
+                $errors = ['email' => ['Unable to load authenticated user.']];
+                if (App::isAjax() || App::isApiRequest()) {
+                    Validation::jsonResponse($errors, 500);
+                }
+                Session::flash('errors', $errors);
+                Session::flash('old', ['email' => $email]);
+                $this->redirectBack();
+            }
 
             // Regenerate session for security
             Session::regenerate();
@@ -91,7 +114,7 @@ class AuthController extends BaseController
                 $this->json(['token' => $token, 'user' => $user]);
             }
 
-            $redirect = $this->normalizeRedirectUrl(Session::getFlash('redirect'));
+            $redirect = $this->normalizeRedirectUrl(Session::getFlash('redirect'), $user);
 
             if (App::isAjax()) {
                 $this->json(['redirect' => $redirect, 'success' => true]);
@@ -114,11 +137,15 @@ class AuthController extends BaseController
 
     public function showRegister(): string
     {
+        $asmManagers = $this->getInhouseSalesManagerOptions();
+
         return $this->render('auth.register', [
             'title' => 'Register',
             'subtitle' => 'Create your account in minutes.',
             'errors' => Session::getFlash('errors'),
             'old' => Session::getFlash('old'),
+            'asmManagers' => $asmManagers,
+            'inhouseProductOptions' => self::INHOUSE_PRODUCT_OPTIONS,
         ]);
     }
 
@@ -130,13 +157,58 @@ class AuthController extends BaseController
         $first_name = trim($data['first_name'] ?? '');
         $middle_name = trim($data['middle_name'] ?? '');
         $last_name = trim($data['last_name'] ?? '');
-        $name = $this->composeFullName($first_name, $middle_name, $last_name);
         $email = trim($data['email'] ?? '');
         $company_email = trim($data['company_email'] ?? '');
         $contact_no = trim($data['contact_no'] ?? '');
+        $manager_position = trim($data['manager_position'] ?? '');
+        $admin_position = trim($data['admin_position'] ?? '');
+        $admin_area = trim($data['admin_area'] ?? '');
+        $admin_employee_id = trim($data['admin_employee_id'] ?? '');
+        $admin_department = trim($data['admin_department'] ?? '');
+        $inhouse_sales_manager = trim($data['inhouse_sales_manager'] ?? '');
+        $inhouse_sales_category = trim($data['inhouse_sales_category'] ?? '');
+        $inhouse_first_name = trim($data['inhouse_first_name'] ?? '');
+        $inhouse_last_name = trim($data['inhouse_last_name'] ?? '');
+        $inhouse_employee_id = trim($data['inhouse_employee_id'] ?? '');
+        $inhouse_contact = trim($data['inhouse_contact'] ?? '');
+        $inhouse_email = trim($data['inhouse_email'] ?? '');
+        $msa_company_name = trim($data['msa_company_name'] ?? '');
+        $msa_username = trim($data['msa_username'] ?? '');
+        $msa_contact = trim($data['msa_contact'] ?? '');
+        $msa_address = trim($data['msa_address'] ?? '');
+        $msa_installer = trim($data['msa_installer'] ?? '');
+        $msa_type = trim($data['msa_type'] ?? '');
+        $msa_email = trim($data['msa_email'] ?? '');
         $password = $data['password'] ?? '';
         $password_confirmation = $data['password_confirmation'] ?? '';
         $role = trim($data['role'] ?? 'accounting');
+
+        if ($role === 'inhouse_sales') {
+            $first_name = $inhouse_first_name;
+            $middle_name = '';
+            $last_name = $inhouse_last_name;
+            $email = $inhouse_email;
+            $contact_no = $inhouse_contact;
+            $company_email = '';
+        }
+
+        if ($role === 'msa_partners') {
+            $first_name = '';
+            $middle_name = '';
+            $last_name = '';
+            $email = $msa_email;
+            $contact_no = $msa_contact;
+            $company_email = '';
+        }
+
+        $name = $this->composeFullName($first_name, $middle_name, $last_name);
+        if ($role === 'msa_partners' && $msa_company_name !== '') {
+            $name = $msa_company_name;
+        }
+
+        if ($role === 'asm_manager' && $company_email === '') {
+            $company_email = $email;
+        }
 
         $rules = [
             'first_name'            => 'required|min:2|max:100',
@@ -144,14 +216,79 @@ class AuthController extends BaseController
             'last_name'             => 'required|min:2|max:100',
             'email'                 => 'required|email|unique:users.email',
             'company_email'         => 'required|email|unique:users.company_email',
-            'contact_no'            => 'required|min:7|max:30',
+            'contact_no'            => 'required|regex:/^\d{11}$/',
             'password'              => 'required|min:8|confirmed',
             'password_confirmation'  => 'required',
-            'role'                  => 'required|in:accounting,asm_manager,head_manager',
+            'role'                  => 'required|in:accounting,asm_manager,head_manager,super_admin,msa_partners,inhouse_sales,sme_sales',
         ];
 
+        if ($role === 'asm_manager') {
+            $rules['manager_position'] = 'required|in:super_manager,area_sales_manager,head_manager';
+            $rules['company_email'] = 'email|unique:users.company_email';
+        }
+
+        if ($role === 'super_admin') {
+            $rules['admin_position'] = 'required';
+            $rules['admin_employee_id'] = 'required|regex:/^PCC\d{4}$/|unique:admins.employee_id';
+            $rules['admin_department'] = 'required|in:accounting,operation';
+        }
+
+        if ($role === 'inhouse_sales') {
+            $rules['company_email'] = 'email|unique:users.company_email';
+            $rules['inhouse_sales_manager'] = 'required';
+            $rules['inhouse_sales_category'] = 'required|in:surf2sawa,fiberx,bida,sme';
+            $rules['inhouse_first_name'] = 'required|min:2|max:100';
+            $rules['inhouse_last_name'] = 'required|min:2|max:100';
+            $rules['inhouse_employee_id'] = 'required|regex:/^PCC\d{4}$/|unique:inhouse_sales.employee_id';
+            $rules['inhouse_contact'] = 'required|regex:/^\d{11}$/';
+            $rules['inhouse_email'] = 'required|email|unique:inhouse_sales.email';
+        }
+
+        if ($role === 'msa_partners') {
+            $rules['first_name'] = 'max:100';
+            $rules['middle_name'] = 'max:100';
+            $rules['last_name'] = 'max:100';
+            $rules['company_email'] = 'email|unique:users.company_email';
+            $rules['msa_company_name'] = 'required|min:2|max:150';
+            $rules['msa_username'] = 'required|min:2|max:100|unique:msa_partners.username';
+            $rules['msa_contact'] = 'required|regex:/^\d{11}$/';
+            $rules['msa_address'] = 'required|min:5|max:255';
+            $rules['msa_installer'] = 'required|min:2|max:150';
+            $rules['msa_type'] = 'required|in:regional,ncr';
+            $rules['msa_email'] = 'required|email|unique:msa_partners.email';
+        }
+
         $validator = (new Validation)->validate(
-            compact('first_name', 'middle_name', 'last_name', 'email', 'company_email', 'contact_no', 'password', 'password_confirmation', 'role'),
+            compact(
+                'first_name',
+                'middle_name',
+                'last_name',
+                'email',
+                'company_email',
+                'contact_no',
+                'password',
+                'password_confirmation',
+                'role',
+                'manager_position',
+                'admin_position',
+                'admin_area',
+                'admin_employee_id',
+                'admin_department',
+                'inhouse_sales_manager',
+                'inhouse_sales_category',
+                'inhouse_first_name',
+                'inhouse_last_name',
+                'inhouse_employee_id',
+                'inhouse_contact',
+                'inhouse_email',
+                'msa_company_name',
+                'msa_username',
+                'msa_contact',
+                'msa_address',
+                'msa_installer',
+                'msa_type',
+                'msa_email'
+            ),
             $rules
         );
 
@@ -160,43 +297,230 @@ class AuthController extends BaseController
                 Validation::jsonResponse($validator->errors());
             }
             Session::flash('errors', $validator->errors());
-            Session::flash('old', compact('first_name', 'middle_name', 'last_name', 'email', 'company_email', 'contact_no', 'role'));
+            Session::flash('old', compact(
+                'first_name',
+                'middle_name',
+                'last_name',
+                'email',
+                'company_email',
+                'contact_no',
+                'role',
+                'manager_position',
+                'admin_position',
+                'admin_area',
+                'admin_employee_id',
+                'admin_department',
+                'inhouse_sales_manager',
+                'inhouse_sales_category',
+                'inhouse_first_name',
+                'inhouse_last_name',
+                'inhouse_employee_id',
+                'inhouse_contact',
+                'inhouse_email',
+                'msa_company_name',
+                'msa_username',
+                'msa_contact',
+                'msa_address',
+                'msa_installer',
+                'msa_type',
+                'msa_email'
+            ));
+            $this->redirectBack();
+        }
+
+        if ($role === 'inhouse_sales') {
+            $asmManagers = $this->getInhouseSalesManagerOptions();
+            if (!in_array($inhouse_sales_manager, $asmManagers, true)) {
+                $errors = ['inhouse_sales_manager' => ['Please select an available ASM Manager.']];
+                if (App::isAjax() || App::isApiRequest()) {
+                    Validation::jsonResponse($errors);
+                }
+                Session::flash('errors', $errors);
+                Session::flash('old', compact(
+                    'first_name', 'middle_name', 'last_name', 'email', 'company_email', 'contact_no', 'role',
+                    'manager_position', 'admin_position', 'admin_area', 'admin_employee_id', 'admin_department',
+                    'inhouse_sales_manager', 'inhouse_sales_category', 'inhouse_first_name', 'inhouse_last_name',
+                    'inhouse_employee_id', 'inhouse_contact', 'inhouse_email', 'msa_company_name', 'msa_username',
+                    'msa_contact', 'msa_address', 'msa_installer', 'msa_type', 'msa_email'
+                ));
+                $this->redirectBack();
+            }
+        }
+
+        $profileErrors = [];
+        $adminProfilePicture = null;
+        $inhouseProfilePicture = null;
+        $msaProfilePicture = null;
+
+        if ($role === 'super_admin' && isset($_FILES['profile_picture']) && ($_FILES['profile_picture']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $adminProfilePicture = Upload::store($_FILES['profile_picture'], 'admins', 'adm_');
+            if (!$adminProfilePicture) {
+                $profileErrors['profile_picture'][] = 'Profile picture upload failed. Please use a valid image file (max 5MB).';
+            }
+        }
+
+        if ($role === 'inhouse_sales' && isset($_FILES['inhouse_profile_picture']) && ($_FILES['inhouse_profile_picture']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $inhouseProfilePicture = Upload::store($_FILES['inhouse_profile_picture'], 'inhouse_sales', 'inh_');
+            if (!$inhouseProfilePicture) {
+                $profileErrors['inhouse_profile_picture'][] = 'Profile picture upload failed. Please use a valid image file (max 5MB).';
+            }
+        }
+
+        if ($role === 'msa_partners' && isset($_FILES['msa_profile_picture']) && ($_FILES['msa_profile_picture']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $msaProfilePicture = Upload::store($_FILES['msa_profile_picture'], 'msa_partners', 'msa_');
+            if (!$msaProfilePicture) {
+                $profileErrors['msa_profile_picture'][] = 'Profile picture upload failed. Please use a valid image file (max 5MB).';
+            }
+        }
+
+        if (!empty($profileErrors)) {
+            if (App::isAjax() || App::isApiRequest()) {
+                Validation::jsonResponse($profileErrors);
+            }
+            Session::flash('errors', $profileErrors);
+            Session::flash('old', compact(
+                'first_name',
+                'middle_name',
+                'last_name',
+                'email',
+                'company_email',
+                'contact_no',
+                'role',
+                'manager_position',
+                'admin_position',
+                'admin_area',
+                'admin_employee_id',
+                'admin_department',
+                'inhouse_sales_manager',
+                'inhouse_sales_category',
+                'inhouse_first_name',
+                'inhouse_last_name',
+                'inhouse_employee_id',
+                'inhouse_contact',
+                'inhouse_email',
+                'msa_company_name',
+                'msa_username',
+                'msa_contact',
+                'msa_address',
+                'msa_installer',
+                'msa_type',
+                'msa_email'
+            ));
             $this->redirectBack();
         }
 
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
 
-        $userId = $this->userModel->createUser([
-            'name'     => $name,
-            'first_name' => $first_name,
-            'middle_name' => $middle_name ?: null,
-            'last_name' => $last_name,
-            'email'    => $email,
-            'company_email' => $company_email,
-            'contact_no' => $contact_no,
-            'password' => $hashedPassword,
-            'role'     => $role,
-            'status'   => 'pending',
-        ]);
+        $company_email = $company_email !== '' ? $company_email : null;
+        $contact_no = $contact_no !== '' ? $contact_no : null;
 
-        if ($role === 'asm_manager') {
-            $exists = $this->managerModel->findBy('email', $email);
-            if (!$exists) {
-                $this->managerModel->createManager([
+        $userId = 0;
+        try {
+            Database::beginTransaction();
+
+            $userId = $this->userModel->createUser([
+                'name'     => $name,
+                'first_name' => $first_name,
+                'middle_name' => $middle_name ?: null,
+                'last_name' => $last_name,
+                'email'    => $email,
+                'company_email' => $company_email,
+                'contact_no' => $contact_no,
+                'password' => $hashedPassword,
+                'role'     => $role,
+                'status'   => 'pending',
+            ]);
+
+            if ($role === 'asm_manager') {
+                $exists = $this->managerModel->findBy('email', $email);
+                if (!$exists) {
+                    $this->managerModel->createManager([
+                        'user_id' => $userId,
+                        'manager_name' => $name,
+                        'position' => $manager_position ?: $role,
+                        'contact_no' => $contact_no,
+                        'company_email' => $company_email,
+                        'email' => $email,
+                        'profile_picture' => null,
+                        'status' => 'pending',
+                    ]);
+                }
+            }
+
+            if ($role === 'super_admin') {
+                $this->adminModel->createAdmin([
                     'user_id' => $userId,
-                    'manager_name' => $name,
-                    'position' => $role,
+                    'first_name' => $first_name,
+                    'last_name' => $last_name,
+                    'position' => $admin_position,
+                    'area' => $admin_area ?: null,
                     'contact_no' => $contact_no,
+                    'employee_id' => $admin_employee_id,
+                    'department' => $admin_department,
                     'company_email' => $company_email,
                     'email' => $email,
-                    'profile_picture' => null,
+                    'profile_picture' => $adminProfilePicture,
                     'status' => 'pending',
                 ]);
             }
+
+            if ($role === 'inhouse_sales') {
+                $this->inhouseSalesModel->createInhouseSales([
+                    'user_id' => $userId,
+                    'sales_manager' => $inhouse_sales_manager,
+                    'sales_category' => $inhouse_sales_category,
+                    'first_name' => $inhouse_first_name,
+                    'last_name' => $inhouse_last_name,
+                    'employee_id' => $inhouse_employee_id,
+                    'contact_no' => $inhouse_contact,
+                    'email' => $inhouse_email,
+                    'profile_picture' => $inhouseProfilePicture,
+                    'status' => 'pending',
+                ]);
+            }
+
+            if ($role === 'msa_partners') {
+                $this->msaPartnerModel->createMsaPartner([
+                    'user_id' => $userId,
+                    'company_name' => $msa_company_name,
+                    'username' => $msa_username,
+                    'contact_no' => $msa_contact,
+                    'address' => $msa_address,
+                    'installer' => $msa_installer,
+                    'msa_type' => $msa_type,
+                    'email' => $msa_email,
+                    'profile_picture' => $msaProfilePicture,
+                    'status' => 'pending',
+                ]);
+            }
+
+            Database::commit();
+        } catch (\Throwable $e) {
+            $db = Database::getInstance();
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+
+            error_log('Registration failed: ' . $e->getMessage());
+
+            if (App::isAjax() || App::isApiRequest()) {
+                http_response_code(500);
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'error' => App::$debug ? $e->getMessage() : 'Registration failed. Please try again.',
+                    'success' => false,
+                ]);
+                exit;
+            }
+
+            Session::flash('errors', ['form' => ['Registration failed. Please try again.']]);
+            $this->redirectBack();
         }
 
         // Log activity
-        (new \App\Models\ActivityLogModel())->log($userId, 'register', 'New user registered');
+        if ($userId > 0) {
+            (new \App\Models\ActivityLogModel())->log($userId, 'register', 'New user registered');
+        }
 
         Session::flash('message', 'Registration submitted. Head Admin will review and activate your account.');
         Session::flash('message_type', 'info');
@@ -212,7 +536,7 @@ class AuthController extends BaseController
         $this->redirect(App::url('login'));
     }
 
-    public function logout(): never
+    public function logout(): void
     {
         Csrf::verify();
 
@@ -434,10 +758,10 @@ class AuthController extends BaseController
         ]);
     }
 
-    private function normalizeRedirectUrl(?string $redirect): string
+    private function normalizeRedirectUrl(?string $redirect, array $user): string
     {
         if (!$redirect) {
-            return App::url('login.php');
+            return $this->dashboardRouteResolver->resolveUrl($user);
         }
 
         // Keep absolute URLs as-is.
@@ -449,7 +773,7 @@ class AuthController extends BaseController
         $query = parse_url($redirect, PHP_URL_QUERY);
         $appPath = parse_url(App::$url, PHP_URL_PATH) ?? '';
 
-        if ($appPath && str_starts_with($path, $appPath)) {
+        if ($appPath && strpos($path, $appPath) === 0) {
             $path = substr($path, strlen($appPath));
         }
 
@@ -464,5 +788,39 @@ class AuthController extends BaseController
     private function composeFullName(string $first, string $middle, string $last): string
     {
         return trim(preg_replace('/\s+/', ' ', trim("$first $middle $last")) ?? '');
+    }
+
+    private function getInhouseSalesManagerOptions(): array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("
+            SELECT DISTINCT sm.manager_name
+            FROM (
+                SELECT TRIM(COALESCE(m.manager_name, '')) AS manager_name
+                FROM managers m
+                WHERE LOWER(TRIM(COALESCE(m.position, ''))) IN ('asm_manager', 'area_sales_manager')
+
+                UNION ALL
+
+                SELECT TRIM(
+                    COALESCE(
+                        NULLIF(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')), ' '),
+                        u.name,
+                        ''
+                    )
+                ) AS manager_name
+                FROM users u
+                WHERE LOWER(TRIM(COALESCE(u.role, ''))) = 'asm_manager'
+            ) sm
+            WHERE sm.manager_name <> ''
+            ORDER BY sm.manager_name ASC
+        ");
+        $stmt->execute();
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return array_values(array_filter(array_map(
+            static fn(array $row): string => trim((string)($row['manager_name'] ?? '')),
+            $rows
+        )));
     }
 }

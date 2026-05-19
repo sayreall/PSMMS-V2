@@ -9,22 +9,38 @@ use App\Helpers\Session;
 use App\Helpers\Upload;
 use App\Helpers\Validation;
 use App\Models\ActivityLogModel;
+use App\Models\DashboardRouteResolver;
 use App\Models\UserModel;
 
 class DashboardController extends BaseController
 {
     private UserModel $userModel;
     private ActivityLogModel $activityLogModel;
+    private DashboardRouteResolver $dashboardRouteResolver;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
         $this->activityLogModel = new ActivityLogModel();
+        $this->dashboardRouteResolver = new DashboardRouteResolver();
     }
 
     public function index(): string
     {
         $user = Auth::user();
+        $target = $this->dashboardRouteResolver->resolvePath($user ?? []);
+        $this->redirect(App::url($target));
+    }
+
+    public function roleDashboard(string $slug): string
+    {
+        $user = Auth::user();
+        $targetPath = $this->dashboardRouteResolver->resolvePath($user ?? []);
+        $targetSlug = basename($targetPath);
+
+        if ($slug !== $targetSlug) {
+            $this->redirect(App::url($targetPath));
+        }
 
         $stats = [
             'total_users'   => $this->userModel->count(),
@@ -36,12 +52,23 @@ class DashboardController extends BaseController
         $recentActivities = $this->activityLogModel->getRecentActivities(10);
         $monthlyRegistrations = $this->userModel->getMonthlyRegistrations();
 
-        return $this->render('dashboard.index', [
-            'title' => 'Dashboard',
+        if ($slug === 'super-admin') {
+            return $this->render('dashboard.index', [
+                'title' => 'Dashboard',
+                'user' => $user,
+                'stats' => $stats,
+                'recentActivities' => $recentActivities,
+                'monthlyRegistrations' => $monthlyRegistrations,
+            ]);
+        }
+
+        return $this->render('dashboard.role', [
+            'title' => $this->dashboardTitle($slug),
             'user' => $user,
             'stats' => $stats,
             'recentActivities' => $recentActivities,
             'monthlyRegistrations' => $monthlyRegistrations,
+            'dashboardSlug' => $slug,
         ]);
     }
 
@@ -195,5 +222,25 @@ class DashboardController extends BaseController
         }
 
         $this->redirect(App::url('dashboard/profile'));
+    }
+
+    private function dashboardTitle(string $slug): string
+    {
+        $map = [
+            'super-admin' => 'Super Admin Dashboard',
+            'admin' => 'Admin Dashboard',
+            'head-manager' => 'Head Manager Dashboard',
+            'accounting' => 'Accounting Dashboard',
+            'asm-manager' => 'ASM Manager Dashboard',
+            'asm-super-manager' => 'Super Manager Dashboard',
+            'asm-area-sales-manager' => 'Area Sales Manager Dashboard',
+            'asm-head-manager' => 'Head Manager Dashboard',
+            'inhouse-sales' => 'In-house Sales Dashboard',
+            'msa-partners' => 'MSA Partners Dashboard',
+            'sme-sales' => 'SME Sales Dashboard',
+            'general' => 'Dashboard',
+        ];
+
+        return $map[$slug] ?? 'Dashboard';
     }
 }

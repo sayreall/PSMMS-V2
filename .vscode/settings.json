@@ -1,0 +1,26 @@
+{
+  "cSpell.enabled": true,
+  "cSpell.language": "en",
+  "cSpell.words": [
+    "PSMMS",
+    "paragoncorp",
+    "inhouse",
+    "inhouses",
+    "msa",
+    "asm",
+    "Swal",
+    "Bida",
+    "Barangay",
+    "csrf",
+    "jwt",
+    "dotenv",
+    "datatable"
+  ],
+  "cSpell.ignorePaths": [
+    "**/*.ini",
+    "vendor/**",
+    "node_modules/**",
+    "public/uploads/**",
+    "*.sql"
+  ]
+}

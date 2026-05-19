@@ -89,6 +89,8 @@ $managers = $managers ?? [];
                                     aria-label="Edit manager"
                                     onclick='openEditManagerModal(<?= json_encode([
                                         'id' => $manager['id'] ?? 0,
+                                        'row_id' => $manager['row_id'] ?? $manager['id'] ?? 0,
+                                        'source_type' => $manager['source_type'] ?? 'manager',
                                         'manager_name' => $manager['manager_name'] ?? '',
                                         'position' => $manager['position'] ?? '',
                                         'contact_no' => $manager['contact_no'] ?? '',
@@ -108,6 +110,8 @@ $managers = $managers ?? [];
                                     aria-label="Delete manager"
                                     onclick='openDeleteManagerModal(<?= json_encode([
                                         'id' => $manager['id'] ?? 0,
+                                        'row_id' => $manager['row_id'] ?? $manager['id'] ?? 0,
+                                        'source_type' => $manager['source_type'] ?? 'manager',
                                         'manager_name' => $manager['manager_name'] ?? '',
                                     ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'
                                 >
@@ -246,6 +250,8 @@ $managers = $managers ?? [];
             <button type="button" class="manager-modal-close" onclick="closeAddManagerModal()" aria-label="Close">x</button>
         </div>
         <form class="manager-modal-form" onsubmit="event.preventDefault(); closeAddManagerModal();">
+            <?= \App\Helpers\Csrf::field() ?>
+            <input type="hidden" name="_method" value="PUT">
             <div class="manager-modal-grid">
                 <label class="manager-modal-field">
                     <span>Manager Name</span>
@@ -292,7 +298,11 @@ $managers = $managers ?? [];
         </div>
         <p class="manager-delete-text">Are you sure you want to delete <strong data-dm="manager_name"></strong>?</p>
         <div class="manager-modal-actions">
-            <button type="button" class="manager-modal-submit manager-delete-confirm" onclick="closeAddManagerModal()">Delete</button>
+            <form method="POST" data-dm-form="delete" class="inline">
+                <?= \App\Helpers\Csrf::field() ?>
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="manager-modal-submit manager-delete-confirm">Delete</button>
+            </form>
             <button type="button" class="manager-modal-cancel" onclick="closeAddManagerModal()">Cancel</button>
         </div>
     </div>
@@ -334,6 +344,13 @@ $managers = $managers ?? [];
         const content = document.getElementById('modal-content');
         if (content) {
             content.classList.add('manager-modal-shell');
+            const form = content.querySelector('form.manager-modal-form');
+            if (form) {
+                const source = manager.source_type || 'manager';
+                const rowId = manager.row_id || manager.id || 0;
+                form.action = '<?= App\Config\App::url('managers') ?>/' + encodeURIComponent(source) + '/' + encodeURIComponent(rowId);
+                form.method = 'POST';
+            }
             content.querySelectorAll('[data-em]').forEach((node) => {
                 const key = node.getAttribute('data-em');
                 if (node.tagName === 'SELECT') {
@@ -354,6 +371,12 @@ $managers = $managers ?? [];
             content.classList.add('manager-modal-shell');
             const nameNode = content.querySelector('[data-dm="manager_name"]');
             if (nameNode) nameNode.textContent = manager.manager_name || 'this manager';
+            const deleteForm = content.querySelector('[data-dm-form="delete"]');
+            if (deleteForm) {
+                const source = manager.source_type || 'manager';
+                const rowId = manager.row_id || manager.id || 0;
+                deleteForm.action = '<?= App\Config\App::url('managers') ?>/' + encodeURIComponent(source) + '/' + encodeURIComponent(rowId);
+            }
         }
     }
 </script>

@@ -22,6 +22,11 @@ class ManagersController extends BaseController
     {
         $this->managerModel = new ManagerModel();
         $this->userModel = new UserModel();
+
+        if (!Auth::hasRole('super_admin')) {
+            header('Location: ' . App::url('dashboard'));
+            exit;
+        }
     }
 
     public function index(): string

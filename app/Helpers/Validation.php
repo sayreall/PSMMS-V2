@@ -27,7 +27,7 @@ class Validation
     private function applyRule(string $field, $value, string $rule): void
     {
         $param = null;
-        if (str_contains($rule, ':')) {
+        if (strpos($rule, ':') !== false) {
             [$rule, $param] = explode(':', $rule, 2);
         }
 

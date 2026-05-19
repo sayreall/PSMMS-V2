@@ -138,7 +138,7 @@ class Router
         // When hosted in a subdirectory (e.g. /PSMMS-V2/public),
         // strip the front-controller directory so routes still match.
         $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
-        if ($basePath !== '' && $basePath !== '/' && str_starts_with($uri, $basePath)) {
+        if ($basePath !== '' && $basePath !== '/' && strpos($uri, $basePath) === 0) {
             $uri = substr($uri, strlen($basePath));
         }
 
@@ -182,7 +182,7 @@ class Router
             return call_user_func_array($handler, $params);
         }
 
-        if (is_string($handler) && str_contains($handler, '@')) {
+        if (is_string($handler) && strpos($handler, '@') !== false) {
             [$class, $method] = explode('@', $handler);
             $class = "App\\Controllers\\$class";
 

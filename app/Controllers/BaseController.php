@@ -37,7 +37,7 @@ class BaseController
         $content = ob_get_clean();
 
         $layout = $this->layout;
-        if (str_starts_with($layout, 'layouts.')) {
+        if (strpos($layout, 'layouts.') === 0) {
             $layout = substr($layout, strlen('layouts.'));
         }
 

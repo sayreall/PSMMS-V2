@@ -29,6 +29,11 @@ class UsersController extends BaseController
         $this->adminModel = new AdminModel();
         $this->activityLogModel = new ActivityLogModel();
         $this->middleware[] = \App\Middleware\AdminMiddleware::class;
+
+        if (!Auth::hasRole('super_admin')) {
+            header('Location: ' . App::url('dashboard'));
+            exit;
+        }
     }
 
     public function index(): string

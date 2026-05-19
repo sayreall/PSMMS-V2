@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS inhouse_sales (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NULL,
+    sales_manager VARCHAR(150) NOT NULL,
+    sales_category VARCHAR(100) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    employee_id VARCHAR(50) NOT NULL,
+    contact_no VARCHAR(30) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    profile_picture VARCHAR(255) DEFAULT NULL,
+    status ENUM('pending','active','inactive') NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    UNIQUE KEY inhouse_employee_id_unique (employee_id),
+    UNIQUE KEY inhouse_email_unique (email),
+    KEY inhouse_user_id_index (user_id),
+    KEY inhouse_status_index (status),
+    KEY inhouse_created_at_index (created_at),
+    CONSTRAINT fk_inhouse_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

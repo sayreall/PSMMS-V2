@@ -22,7 +22,12 @@ class App
     {
         $rootPath = dirname(__DIR__, 2);
         $dotenv = Dotenv::createImmutable($rootPath);
-        $dotenv->safeLoad();
+        try {
+            $dotenv->safeLoad();
+        } catch (\Throwable $e) {
+            // Keep the app bootable even when .env has malformed lines.
+            error_log('Dotenv load warning: ' . $e->getMessage());
+        }
 
         self::$name           = $_ENV['APP_NAME'] ?? 'PSMMS Dashboard';
         self::$url            = rtrim($_ENV['APP_URL'] ?? 'http://localhost:8000', '/');
@@ -57,15 +62,15 @@ class App
     public static function isApiRequest(): bool
     {
         $uri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
-        if (str_starts_with($uri, '/api')) {
+        if (strpos($uri, '/api') === 0) {
             return true;
         }
 
         $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
         $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
 
-        return str_contains($contentType, 'application/json')
-            || str_contains($accept, 'application/json');
+        return strpos($contentType, 'application/json') !== false
+            || strpos($accept, 'application/json') !== false;
     }
 
     public static function basePath(string $path = ''): string

@@ -30,15 +30,29 @@ $router->group('', function (Router $router): void {
     $router->post('/logout', 'AuthController@logout');
 
     $router->get('/dashboard', 'DashboardController@index');
+    $router->get('/dashboard/{slug}', 'DashboardController@roleDashboard');
     $router->get('/dashboard/profile', 'DashboardController@profile');
     $router->post('/dashboard/profile', 'DashboardController@updateProfile');
     $router->post('/dashboard/password', 'DashboardController@updatePassword');
     $router->get('/dashboard/stats', 'DashboardController@getStats');
     $router->get('/managers', 'ManagersController@index');
     $router->post('/managers', 'ManagersController@store');
+    $router->put('/managers/{source}/{id}', 'ManagersController@update');
+    $router->delete('/managers/{source}/{id}', 'ManagersController@delete');
     $router->post('/managers/{source}/{id}/approve', 'ManagersController@approve');
+    $router->get('/inhouse', 'InhouseController@index');
+    $router->post('/inhouse', 'InhouseController@store');
+    $router->post('/inhouse/{source}/{id}/approve', 'InhouseController@approve');
+    $router->post('/inhouse/{source}/{id}/delete', 'InhouseController@delete');
+    $router->get('/partners', 'PartnersController@index');
+    $router->post('/partners', 'PartnersController@store');
+    $router->post('/partners/{source}/{id}/approve', 'PartnersController@approve');
+    $router->post('/partners/{source}/{id}/delete', 'PartnersController@delete');
     $router->get('/admins', 'AdminsController@index');
     $router->post('/admins', 'AdminsController@store');
+    $router->put('/admins/{id}', 'AdminsController@update');
+    $router->delete('/admins/{id}', 'AdminsController@delete');
+    $router->post('/admins/{id}/approve', 'AdminsController@approve');
 }, [AuthMiddleware::class]);
 
 $router->group('/users', function (Router $router): void {

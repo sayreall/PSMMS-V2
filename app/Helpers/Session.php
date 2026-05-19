@@ -14,7 +14,7 @@ class Session
 
             $isSecure = false;
             $appUrl = App::$url ?? '';
-            if ($appUrl && str_starts_with($appUrl, 'https://')) {
+            if ($appUrl && strpos($appUrl, 'https://') === 0) {
                 $isSecure = true;
             }
             if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {

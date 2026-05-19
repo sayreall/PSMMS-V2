@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS msa_partners (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NULL,
+    company_name VARCHAR(150) NOT NULL,
+    username VARCHAR(100) NOT NULL,
+    contact_no VARCHAR(30) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    installer VARCHAR(150) NOT NULL,
+    msa_type VARCHAR(30) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    profile_picture VARCHAR(255) DEFAULT NULL,
+    status ENUM('pending','active','inactive') NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    UNIQUE KEY msa_username_unique (username),
+    UNIQUE KEY msa_email_unique (email),
+    KEY msa_user_id_index (user_id),
+    KEY msa_type_index (msa_type),
+    KEY msa_status_index (status),
+    KEY msa_created_at_index (created_at),
+    CONSTRAINT fk_msa_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

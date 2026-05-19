@@ -64,6 +64,16 @@ $admins = $admins ?? [];
                         <td><?= strtoupper(str_replace('_', ' ', htmlspecialchars($admin['department'] ?? ''))) ?></td>
                         <td>
                             <div class="manager-action-group">
+                                <?php if (($admin['status'] ?? '') === 'pending'): ?>
+                                <form method="POST" action="<?= App\Config\App::url('admins/' . ($admin['id'] ?? 0) . '/approve') ?>" class="inline" data-confirm="true" data-confirm-text="Approve this admin?">
+                                    <?= \App\Helpers\Csrf::field() ?>
+                                    <button type="submit" class="manager-action-icon manager-action-approve-icon" aria-label="Approve admin">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20 6L9 17l-5-5"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                <?php endif; ?>
                                 <button
                                     type="button"
                                     class="manager-action-icon manager-action-delete"
@@ -252,6 +262,8 @@ $admins = $admins ?? [];
             <button type="button" class="manager-modal-close" onclick="closeAddAdminModal()" aria-label="Close">x</button>
         </div>
         <form class="manager-modal-form" onsubmit="event.preventDefault(); closeAddAdminModal();">
+            <?= \App\Helpers\Csrf::field() ?>
+            <input type="hidden" name="_method" value="PUT">
             <div class="manager-modal-grid">
                 <label class="manager-modal-field"><span>First Name</span><input type="text" data-ea="first_name"></label>
                 <label class="manager-modal-field"><span>Last Name</span><input type="text" data-ea="last_name"></label>
@@ -287,7 +299,11 @@ $admins = $admins ?? [];
         </div>
         <p class="manager-delete-text">Are you sure you want to delete <strong data-da="full_name"></strong>?</p>
         <div class="manager-modal-actions">
-            <button type="button" class="manager-modal-submit manager-delete-confirm" onclick="closeAddAdminModal()">Delete</button>
+            <form method="POST" data-da-form="delete" class="inline">
+                <?= \App\Helpers\Csrf::field() ?>
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="manager-modal-submit manager-delete-confirm">Delete</button>
+            </form>
             <button type="button" class="manager-modal-cancel" onclick="closeAddAdminModal()">Cancel</button>
         </div>
     </div>
@@ -329,6 +345,11 @@ $admins = $admins ?? [];
         const content = document.getElementById('modal-content');
         if (content) {
             content.classList.add('manager-modal-shell');
+            const form = content.querySelector('form.manager-modal-form');
+            if (form) {
+                form.action = '<?= App\Config\App::url('admins') ?>/' + encodeURIComponent(admin.id || 0);
+                form.method = 'POST';
+            }
             content.querySelectorAll('[data-ea]').forEach((node) => {
                 const key = node.getAttribute('data-ea');
                 if (node.tagName === 'SELECT') {
@@ -349,6 +370,10 @@ $admins = $admins ?? [];
             content.classList.add('manager-modal-shell');
             const nameNode = content.querySelector('[data-da="full_name"]');
             if (nameNode) nameNode.textContent = admin.full_name || 'this admin';
+            const deleteForm = content.querySelector('[data-da-form="delete"]');
+            if (deleteForm) {
+                deleteForm.action = '<?= App\Config\App::url('admins') ?>/' + encodeURIComponent(admin.id || 0);
+            }
         }
     }
 </script>

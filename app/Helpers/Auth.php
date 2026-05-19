@@ -11,6 +11,58 @@ use PDO;
 class Auth
 {
     private static ?array $user = null;
+    private const ACTIVE_STATUSES = ['active', 'approved'];
+
+    private static function normalizeLegacyMsaStatus(array $user): array
+    {
+        $role = strtolower(trim((string)($user['role'] ?? '')));
+        $status = strtolower(trim((string)($user['status'] ?? '')));
+        if ($role !== 'msa_partners' || $status !== 'pending') {
+            return $user;
+        }
+
+        $db = Database::getInstance();
+        $userId = (int)($user['id'] ?? 0);
+        $email = trim((string)($user['email'] ?? ''));
+
+        $partner = [];
+        if ($userId > 0) {
+            $byUserId = $db->prepare("
+                SELECT status
+                FROM msa_partners
+                WHERE user_id = :user_id
+                ORDER BY id DESC
+                LIMIT 1
+            ");
+            $byUserId->execute([':user_id' => $userId]);
+            $partner = $byUserId->fetch(PDO::FETCH_ASSOC) ?: [];
+        }
+
+        if (empty($partner) && $email !== '') {
+            $byEmail = $db->prepare("
+                SELECT status
+                FROM msa_partners
+                WHERE email = :email
+                ORDER BY id DESC
+                LIMIT 1
+            ");
+            $byEmail->execute([':email' => $email]);
+            $partner = $byEmail->fetch(PDO::FETCH_ASSOC) ?: [];
+        }
+
+        $partnerStatus = strtolower(trim((string)($partner['status'] ?? '')));
+
+        if (in_array($partnerStatus, self::ACTIVE_STATUSES, true)) {
+            $update = $db->prepare("UPDATE users SET status = 'active', updated_at = :updated_at WHERE id = :id AND role = 'msa_partners'");
+            $update->execute([
+                ':id' => $userId,
+                ':updated_at' => date('Y-m-d H:i:s'),
+            ]);
+            $user['status'] = 'active';
+        }
+
+        return $user;
+    }
 
     public static function init(): void
     {
@@ -23,15 +75,21 @@ class Auth
     public static function attempt(array $credentials): bool
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
-        $stmt->execute([':email' => $credentials['email']]);
+        $stmt = $db->prepare("SELECT * FROM users WHERE email = :email OR company_email = :company_email LIMIT 1");
+        $stmt->execute([
+            ':email' => $credentials['email'],
+            ':company_email' => $credentials['email'],
+        ]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (is_array($user)) {
+            $user = self::normalizeLegacyMsaStatus($user);
+        }
 
         if (!$user || !password_verify($credentials['password'], $user['password'])) {
             return false;
         }
 
-        if ($user['status'] !== 'active') {
+        if (!in_array(strtolower(trim((string)($user['status'] ?? ''))), self::ACTIVE_STATUSES, true)) {
             return false;
         }
 
@@ -46,15 +104,21 @@ class Auth
     public static function attemptWithJWT(array $credentials): ?string
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
-        $stmt->execute([':email' => $credentials['email']]);
+        $stmt = $db->prepare("SELECT * FROM users WHERE email = :email OR company_email = :company_email LIMIT 1");
+        $stmt->execute([
+            ':email' => $credentials['email'],
+            ':company_email' => $credentials['email'],
+        ]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (is_array($user)) {
+            $user = self::normalizeLegacyMsaStatus($user);
+        }
 
         if (!$user || !password_verify($credentials['password'], $user['password'])) {
             return null;
         }
 
-        if ($user['status'] !== 'active') {
+        if (!in_array(strtolower(trim((string)($user['status'] ?? ''))), self::ACTIVE_STATUSES, true)) {
             return null;
         }
 

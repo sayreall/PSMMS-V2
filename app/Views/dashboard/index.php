@@ -21,7 +21,7 @@ $activeRoute = 'dashboard';
             <p id="stat-total-users" class="text-xl font-extrabold text-indigo-600 mt-1"><?= (int)($stats['total_users'] ?? 0) ?></p>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center hover:shadow-md transition-shadow">
-            <p class="text-[10px] uppercase tracking-wide text-slate-400">Bizda</p>
+            <p class="text-[10px] uppercase tracking-wide text-slate-400">Bida</p>
             <p id="stat-admins" class="text-xl font-extrabold text-blue-600 mt-1"><?= (int)($stats['admins'] ?? 0) ?></p>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center hover:shadow-md transition-shadow">

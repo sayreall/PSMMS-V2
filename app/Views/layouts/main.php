@@ -1,4 +1,53 @@
 <?php use App\Helpers\Auth; ?>
+<?php
+$authUser = Auth::user();
+$sidebarResolver = new \App\Models\DashboardRouteResolver();
+$sidebarDashboardPath = $sidebarResolver->resolvePath($authUser ?? []);
+$sidebarDashboardSlug = basename($sidebarDashboardPath);
+$currentUserRole = strtolower(trim((string)($authUser['role'] ?? '')));
+$isSuperAdminSidebar = ($currentUserRole === 'super_admin' && $sidebarDashboardSlug === 'super-admin');
+$isAdminSidebar = in_array($sidebarDashboardSlug, ['admin', 'accounting'], true);
+$isAsmSidebar = in_array($sidebarDashboardSlug, ['asm-manager', 'asm-super-manager', 'asm-area-sales-manager', 'asm-head-manager'], true);
+
+$menuItems = [];
+if ($isSuperAdminSidebar) {
+    $menuItems[] = ['key' => 'dashboard', 'label' => 'Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
+    $menuItems[] = ['key' => 'admins', 'label' => 'Admins', 'url' => App\Config\App::url('admins'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' ];
+    $menuItems[] = ['key' => 'managers', 'label' => 'Managers', 'url' => App\Config\App::url('managers'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>' ];
+    $menuItems[] = ['key' => 'inhouse', 'label' => 'In-House', 'url' => App\Config\App::url('inhouse'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>' ];
+    $menuItems[] = ['key' => 'partners', 'label' => 'MSA Partners', 'url' => App\Config\App::url('partners'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>' ];
+    $menuItems[] = ['key' => 'sme_sales', 'label' => 'SME Sales', 'url' => App\Config\App::url('sme-sales'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>' ];
+    $menuItems[] = ['key' => 'agents', 'label' => 'Sales Agents', 'url' => App\Config\App::url('agents'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>' ];
+    $menuItems[] = ['key' => 'municipalities', 'label' => 'Municipalities', 'url' => App\Config\App::url('municipalities'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>' ];
+    $menuItems[] = [
+        'key' => 'installers',
+        'label' => 'Installers',
+        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.607 2.296.07 2.572-1.065z"/>',
+        'children' => [
+            ['key' => 'tech_data', 'label' => 'Tech Data', 'url' => App\Config\App::url('installers/tech-data')],
+            ['key' => 'tech_team_area', 'label' => 'Tech Team Area', 'url' => App\Config\App::url('installers/tech-team-area')],
+        ],
+    ];
+    $menuItems[] = ['key' => 'plans', 'label' => 'Plans', 'url' => App\Config\App::url('plans'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>' ];
+    $menuItems[] = [
+        'key' => 'dispatch_record',
+        'label' => 'Dispatch Record',
+        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V5a2 2 0 012-2h9a2 2 0 012 2v12a2 2 0 01-2 2h-9a2 2 0 01-2-2zM9 17H5a2 2 0 01-2-2V9a2 2 0 012-2h4m0 10h4"/>' ,
+        'children' => [
+            ['key' => 'dispatch_status', 'label' => 'Dispatch Status', 'url' => App\Config\App::url('dispatch-record/dispatch-status')],
+            ['key' => 'dispatch_remarks', 'label' => 'Dispatch Remarks', 'url' => App\Config\App::url('dispatch-record/dispatch-remarks')],
+        ],
+    ];
+    $menuItems[] = ['key' => 'products', 'label' => 'Products', 'url' => App\Config\App::url('products'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>' ];
+    $menuItems[] = ['key' => 'users', 'label' => 'User Management', 'url' => App\Config\App::url('users'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' ];
+} elseif ($isAdminSidebar) {
+    $menuItems[] = ['key' => 'dashboard', 'label' => 'Operations Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
+} elseif ($isAsmSidebar) {
+    $menuItems[] = ['key' => 'dashboard', 'label' => 'ASM Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
+} else {
+    $menuItems[] = ['key' => 'dashboard', 'label' => 'Overview', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
+}
+?>
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -103,95 +152,39 @@
             <!-- Main Section -->
             <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.14em] px-3 mb-1">Main Menu</p>
 
-            <?php if (Auth::hasRole('super_admin')): ?>
-                <a href="<?= App\Config\App::url('dashboard') ?>"
-                   class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= ($activeRoute ?? '') === 'dashboard' ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/></svg>
-                    Dashboard
-                </a>
-                <a href="<?= App\Config\App::url('managers') ?>" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= ($activeRoute ?? '') === 'managers' ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    Managers
-                </a>
-                <a href="<?= App\Config\App::url('admins') ?>" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= ($activeRoute ?? '') === 'admins' ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/></svg>
-                    Admin
-                </a>
-                <a href="<?= App\Config\App::url('users') ?>" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
-                    In-House
-                </a>
-                <a href="<?= App\Config\App::url('users') ?>" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V4H2v16h5m10 0v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6m10 0H7"/></svg>
-                    Partners
-                </a>
-                <a href="<?= App\Config\App::url('dashboard') ?>" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    Installer
-                </a>
-                <details class="group">
-                    <summary class="list-none nav-link flex items-center justify-between px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 cursor-pointer">
-                        <span class="flex items-center gap-3">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V4H2v16h5m10 0v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6m10 0H7"/></svg>
-                            Area Sales Manager
-                        </span>
-                        <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    </summary>
-                    <div class="ml-7 mt-1 mb-1 space-y-1">
-                        <a href="<?= App\Config\App::url('dashboard') ?>" class="block px-2.5 py-2 rounded-md text-[12px] font-medium text-slate-700 bg-slate-100 border border-slate-200 hover:bg-slate-200 transition-colors">ASM List</a>
-                        <a href="<?= App\Config\App::url('dashboard') ?>" class="block px-2.5 py-2 rounded-md text-[12px] font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-colors">ASM Performance</a>
-                    </div>
-                </details>
-                <a href="<?= App\Config\App::url('dashboard') ?>" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
-                    Plan
-                </a>
-                <a href="<?= App\Config\App::url('dashboard') ?>" class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg>
-                    Sales Record
-                </a>
-                <details class="group">
-                    <summary class="list-none nav-link flex items-center justify-between px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 cursor-pointer">
-                        <span class="flex items-center gap-3">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                            Dispatch Record
-                        </span>
-                        <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    </summary>
-                    <div class="ml-7 mt-1 mb-1 space-y-1">
-                        <a href="<?= App\Config\App::url('dashboard') ?>" class="block px-2.5 py-2 rounded-md text-[12px] font-medium text-slate-700 bg-slate-100 border border-slate-200 hover:bg-slate-200 transition-colors">Dispatch List</a>
-                        <a href="<?= App\Config\App::url('dashboard') ?>" class="block px-2.5 py-2 rounded-md text-[12px] font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-colors">Dispatch Status</a>
-                    </div>
-                </details>
-                <details class="group">
-                    <summary class="list-none nav-link flex items-center justify-between px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 cursor-pointer">
-                        <span class="flex items-center gap-3">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            Address
-                        </span>
-                        <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    </summary>
-                    <div class="ml-7 mt-1 mb-1 space-y-1">
-                        <a href="<?= App\Config\App::url('dashboard') ?>" class="block px-2.5 py-2 rounded-md text-[12px] font-medium text-slate-700 bg-slate-100 border border-slate-200 hover:bg-slate-200 transition-colors">Region</a>
-                        <a href="<?= App\Config\App::url('dashboard') ?>" class="block px-2.5 py-2 rounded-md text-[12px] font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-colors">City / Barangay</a>
-                    </div>
-                </details>
-            <?php else: ?>
-                <a href="<?= App\Config\App::url('dashboard') ?>"
-                   data-route="dashboard"
-                   class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= ($activeRoute ?? '') === 'dashboard' ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/></svg>
-                    Overview
-                </a>
-                <?php if (Auth::hasRole('admin') || Auth::hasRole('super_admin')): ?>
-                <a href="<?= App\Config\App::url('users') ?>"
-                   data-route="users"
-                   class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= ($activeRoute ?? '') === 'users' ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    User Management
-                </a>
+            <?php foreach ($menuItems as $item): ?>
+                <?php if (!empty($item['children']) && is_array($item['children'])): ?>
+                    <?php
+                        $childKeys = array_map(static fn(array $child): string => (string)($child['key'] ?? ''), $item['children']);
+                        $isChildActive = in_array((string)($activeRoute ?? ''), $childKeys, true);
+                    ?>
+                    <details class="group" <?= $isChildActive ? 'open' : '' ?>>
+                        <summary class="list-none cursor-pointer nav-link flex items-center justify-between gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= $isChildActive ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>">
+                            <span class="flex items-center gap-3">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><?= $item['icon'] ?></svg>
+                                <?= htmlspecialchars($item['label']) ?>
+                            </span>
+                            <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </summary>
+                        <div class="mt-1 ml-7 flex flex-col gap-1">
+                            <?php foreach ($item['children'] as $child): ?>
+                                <a href="<?= htmlspecialchars($child['url']) ?>"
+                                   class="nav-link px-3 py-2 text-[12px] font-medium rounded-lg transition-colors duration-200 <?= ($activeRoute ?? '') === ($child['key'] ?? '') ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'text-slate-600 hover:bg-slate-100' ?>">
+                                    <?= htmlspecialchars($child['label'] ?? '') ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </details>
+                <?php else: ?>
+                    <a href="<?= htmlspecialchars($item['url']) ?>"
+                       class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= ($activeRoute ?? '') === $item['key'] ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><?= $item['icon'] ?></svg>
+                        <?= htmlspecialchars($item['label']) ?>
+                    </a>
                 <?php endif; ?>
-            <?php endif; ?>
+            <?php endforeach; ?>
 
             <!-- Divider -->
             <hr class="my-3 border-slate-200">
@@ -249,10 +242,10 @@
                     </button>
 
                     <a href="<?= App\Config\App::url('dashboard/profile') ?>" class="inline-flex items-center justify-center w-9 h-9 rounded-full overflow-hidden border border-slate-200 bg-slate-100 hover:ring-2 hover:ring-slate-200 transition-all" title="Profile">
-                        <?php if (!empty($user['avatar'])): ?>
-                            <img src="<?= App\Config\App::url('uploads/' . $user['avatar']) ?>" alt="Profile" class="w-full h-full object-cover">
+                        <?php if (!empty($authUser['avatar'])): ?>
+                            <img src="<?= App\Config\App::url('uploads/' . $authUser['avatar']) ?>" alt="Profile" class="w-full h-full object-cover">
                         <?php else: ?>
-                            <span class="text-xs font-semibold text-slate-700"><?= strtoupper(substr($user['name'] ?? 'U', 0, 1)) ?></span>
+                            <span class="text-xs font-semibold text-slate-700"><?= strtoupper(substr($authUser['name'] ?? 'U', 0, 1)) ?></span>
                         <?php endif; ?>
                     </a>
 

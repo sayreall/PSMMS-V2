@@ -9,6 +9,10 @@ This document describes the current MySQL schema used by PSMMS Dashboard.
 4. `004_add_name_parts_to_users.sql`
 5. `005_create_managers_table.sql`
 6. `006_create_admins_table.sql`
+7. `007_add_contact_no_to_users.sql`
+8. `008_create_inhouse_sales_table.sql`
+9. `009_create_msa_partners_table.sql`
+10. `010_alter_users_roles_for_partner_roles.sql`
 
 ## Tables
 
@@ -24,7 +28,7 @@ Columns:
 - `email` `VARCHAR(150)` not null, unique
 - `company_email` `VARCHAR(150)` nullable, unique
 - `password` `VARCHAR(255)` not null (hashed)
-- `role` `ENUM('accounting','asm_manager','admin','head_manager','super_admin')` not null default `accounting`
+- `role` `ENUM('accounting','asm_manager','admin','head_manager','super_admin','msa_partners','inhouse_sales','sme_sales')` not null default `accounting`
 - `status` `ENUM('pending','active','inactive')` not null default `active`
 - `avatar` `VARCHAR(255)` nullable
 - `created_at` `DATETIME` not null
@@ -132,6 +136,63 @@ Indexes:
 
 Foreign keys:
 - `fk_admins_user`: `admins.user_id` -> `users.id` (`ON DELETE SET NULL`)
+
+### `inhouse_sales`
+Purpose: stores in-house sales profile records.
+
+Columns:
+- `id` `INT UNSIGNED` PK auto increment
+- `user_id` `INT UNSIGNED` nullable, FK to `users.id`
+- `sales_manager` `VARCHAR(150)` not null
+- `sales_category` `VARCHAR(100)` not null
+- `first_name` `VARCHAR(100)` not null
+- `last_name` `VARCHAR(100)` not null
+- `employee_id` `VARCHAR(50)` not null, unique
+- `contact_no` `VARCHAR(30)` not null
+- `email` `VARCHAR(150)` not null, unique
+- `profile_picture` `VARCHAR(255)` nullable
+- `status` `ENUM('pending','active','inactive')` not null default `pending`
+- `created_at` `DATETIME` not null
+- `updated_at` `DATETIME` not null
+
+Indexes:
+- unique `inhouse_employee_id_unique (employee_id)`
+- unique `inhouse_email_unique (email)`
+- `inhouse_user_id_index (user_id)`
+- `inhouse_status_index (status)`
+- `inhouse_created_at_index (created_at)`
+
+Foreign keys:
+- `fk_inhouse_user`: `inhouse_sales.user_id` -> `users.id` (`ON DELETE SET NULL`)
+
+### `msa_partners`
+Purpose: stores MSA partner profile records.
+
+Columns:
+- `id` `INT UNSIGNED` PK auto increment
+- `user_id` `INT UNSIGNED` nullable, FK to `users.id`
+- `company_name` `VARCHAR(150)` not null
+- `username` `VARCHAR(100)` not null, unique
+- `contact_no` `VARCHAR(30)` not null
+- `address` `VARCHAR(255)` not null
+- `installer` `VARCHAR(150)` not null
+- `msa_type` `VARCHAR(30)` not null
+- `email` `VARCHAR(150)` not null, unique
+- `profile_picture` `VARCHAR(255)` nullable
+- `status` `ENUM('pending','active','inactive')` not null default `pending`
+- `created_at` `DATETIME` not null
+- `updated_at` `DATETIME` not null
+
+Indexes:
+- unique `msa_username_unique (username)`
+- unique `msa_email_unique (email)`
+- `msa_user_id_index (user_id)`
+- `msa_type_index (msa_type)`
+- `msa_status_index (status)`
+- `msa_created_at_index (created_at)`
+
+Foreign keys:
+- `fk_msa_user`: `msa_partners.user_id` -> `users.id` (`ON DELETE SET NULL`)
 
 ## Notes
 - Charset/collation: `utf8mb4` / `utf8mb4_unicode_ci`.
