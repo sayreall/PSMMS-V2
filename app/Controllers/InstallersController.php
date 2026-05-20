@@ -9,14 +9,17 @@ use App\Helpers\Session;
 use App\Helpers\Validation;
 use App\Models\ActivityLogModel;
 use App\Models\InstallerTechDataModel;
+use App\Models\InstallerTechTeamAreaModel;
 
 class InstallersController extends BaseController
 {
     private InstallerTechDataModel $techDataModel;
+    private InstallerTechTeamAreaModel $techTeamAreaModel;
 
     public function __construct()
     {
         $this->techDataModel = new InstallerTechDataModel();
+        $this->techTeamAreaModel = new InstallerTechTeamAreaModel();
 
         if (!Auth::hasRole('super_admin')) {
             header('Location: ' . App::url('dashboard'));
@@ -108,8 +111,56 @@ class InstallersController extends BaseController
 
     public function techTeamArea(): string
     {
+        $rows = $this->techTeamAreaModel->all(['id', 'area', 'team', 'validation_status', 'status', 'created_at'], [], ['id' => 'DESC']);
+
         return $this->render('installers.tech-team-area', [
             'title' => 'Tech Team Area',
+            'rows' => $rows,
         ]);
+    }
+
+    public function storeTechTeamArea(): void
+    {
+        Csrf::verify();
+
+        $data = $this->requestData();
+        $area = trim($data['area'] ?? '');
+        $team = trim($data['team'] ?? '');
+        $validationStatus = trim($data['validation_status'] ?? 'pending');
+        $status = trim($data['status'] ?? 'active');
+
+        $validator = (new Validation())->validate(
+            [
+                'area' => $area,
+                'team' => $team,
+                'validation_status' => $validationStatus,
+                'status' => $status,
+            ],
+            [
+                'area' => 'required|min:2|max:150',
+                'team' => 'required|min:1|max:100',
+                'validation_status' => 'required|in:approved,pending,declined',
+                'status' => 'required|in:active,inactive',
+            ]
+        );
+
+        if (!$validator->passes()) {
+            Session::flash('message', 'Unable to add tech team area. Please check the form values.');
+            Session::flash('message_type', 'error');
+            $this->redirect(App::url('installers/tech-team-area'));
+        }
+
+        $this->techTeamAreaModel->createTeamArea([
+            'area' => $area,
+            'team' => $team,
+            'validation_status' => $validationStatus,
+            'status' => $status,
+        ]);
+
+        (new ActivityLogModel())->log(Auth::id(), 'installer_tech_team_area_create', "Created tech team area: {$area} - {$team}");
+
+        Session::flash('message', 'Tech team area added successfully.');
+        Session::flash('message_type', 'success');
+        $this->redirect(App::url('installers/tech-team-area'));
     }
 }

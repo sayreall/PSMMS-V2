@@ -59,6 +59,7 @@ $router->group('', function (Router $router): void {
     $router->get('/installers/tech-data', 'InstallersController@techData');
     $router->post('/installers/tech-data', 'InstallersController@storeTechData');
     $router->get('/installers/tech-team-area', 'InstallersController@techTeamArea');
+    $router->post('/installers/tech-team-area', 'InstallersController@storeTechTeamArea');
     $router->get('/sales-category', 'SalesCategoryController@index');
     $router->post('/sales-category', 'SalesCategoryController@store');
     $router->get('/sales-agent', 'SalesAgentController@index');

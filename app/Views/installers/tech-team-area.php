@@ -1,5 +1,6 @@
 <?php
 $activeRoute = 'tech_team_area';
+$rows = $rows ?? [];
 ?>
 
 <div class="space-y-5 manager-page">
@@ -34,23 +35,14 @@ $activeRoute = 'tech_team_area';
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    $sampleRows = [
-                        ['area' => 'QUEZON CITY', 'team' => '10', 'validation' => 'approved'],
-                        ['area' => 'QUEZON CITY', 'team' => '10', 'validation' => 'pending'],
-                        ['area' => 'QUEZON CITY', 'team' => '10', 'validation' => 'declined'],
-                        ['area' => 'QUEZON CITY', 'team' => '10', 'validation' => 'declined'],
-                        ['area' => 'QUEZON CITY', 'team' => '10', 'validation' => 'approved'],
-                        ['area' => 'QUEZON CITY', 'team' => '10', 'validation' => 'approved'],
-                        ['area' => 'QUEZON CITY', 'team' => '10', 'validation' => 'pending'],
-                        ['area' => 'QUEZON CITY', 'team' => '10', 'validation' => 'pending'],
-                        ['area' => 'QUEZON CITY', 'team' => '10', 'validation' => 'pending'],
-                        ['area' => 'QUEZON CITY', 'team' => '10', 'validation' => 'declined'],
-                    ];
-                    ?>
-                    <?php foreach ($sampleRows as $row): ?>
+                    <?php if (empty($rows)): ?>
+                        <tr>
+                            <td colspan="4" class="text-center text-slate-500">No tech team area records found.</td>
+                        </tr>
+                    <?php else: ?>
+                    <?php foreach ($rows as $row): ?>
                         <?php
-                        $validation = strtolower($row['validation']);
+                        $validation = strtolower((string)($row['validation_status'] ?? 'pending'));
                         $validationClass = 'manager-badge manager-badge-pending';
                         if ($validation === 'approved') {
                             $validationClass = 'manager-badge manager-badge-approved';
@@ -77,6 +69,7 @@ $activeRoute = 'tech_team_area';
                             <td><span class="<?= $validationClass ?>"><?= ucfirst($validation) ?></span></td>
                         </tr>
                     <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -97,28 +90,27 @@ $activeRoute = 'tech_team_area';
             <button type="button" class="manager-modal-close" onclick="closeAddTechTeamAreaModal()" aria-label="Close">x</button>
         </div>
 
-        <form class="manager-modal-form" onsubmit="event.preventDefault(); closeAddTechTeamAreaModal();">
+        <form class="manager-modal-form" method="POST" action="<?= App\Config\App::url('installers/tech-team-area') ?>">
+            <?= \App\Helpers\Csrf::field(); ?>
             <div class="manager-modal-grid">
                 <label class="manager-modal-field">
-                    <span>Team Name</span>
-                    <input type="text" placeholder="Enter Team Name" required>
+                    <span>Area</span>
+                    <input type="text" name="area" placeholder="Enter Area" required>
                 </label>
                 <label class="manager-modal-field">
-                    <span>Assigned Area</span>
-                    <input type="text" placeholder="Enter Assigned Area" required>
+                    <span>Team</span>
+                    <input type="text" name="team" placeholder="Enter Team" required>
                 </label>
                 <label class="manager-modal-field">
-                    <span>Lead</span>
-                    <input type="text" placeholder="Enter Team Lead" required>
-                </label>
-                <label class="manager-modal-field">
-                    <span>Status</span>
-                    <select required>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                    <span>Validation</span>
+                    <select name="validation_status" required>
+                        <option value="approved">Approved</option>
+                        <option value="pending" selected>Pending</option>
+                        <option value="declined">Declined</option>
                     </select>
                 </label>
             </div>
+            <input type="hidden" name="status" value="active">
             <div class="manager-modal-actions">
                 <button type="submit" class="manager-modal-submit">Save</button>
                 <button type="button" class="manager-modal-cancel" onclick="closeAddTechTeamAreaModal()">Cancel</button>
