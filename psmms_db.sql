@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 20, 2026 at 05:17 AM
+-- Generation Time: May 20, 2026 at 10:47 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -69,7 +69,9 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `description`, `ip_addre
 (28, 1, 'manager_approve', 'Approved manager manager ID: 3', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 06:42:55'),
 (29, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 00:40:25'),
 (30, 1, 'plan_create', 'Created plan: surf2sawa PLAN999', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 01:22:33'),
-(31, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 02:42:30');
+(31, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 02:42:30'),
+(32, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 06:07:06'),
+(33, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 08:07:50');
 
 -- --------------------------------------------------------
 
@@ -122,6 +124,47 @@ CREATE TABLE `agent_codes` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `asm_names`
+--
+
+CREATE TABLE `asm_names` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `validation_status` enum('approved','pending','declined') NOT NULL DEFAULT 'pending',
+  `check_surf2sawa` tinyint(1) NOT NULL DEFAULT 0,
+  `check_fiberx` tinyint(1) NOT NULL DEFAULT 0,
+  `check_bida` tinyint(1) NOT NULL DEFAULT 0,
+  `check_sme` tinyint(1) NOT NULL DEFAULT 0,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `asm_per_areas`
+--
+
+CREATE TABLE `asm_per_areas` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `sales_manager` varchar(150) NOT NULL,
+  `region` varchar(80) NOT NULL,
+  `province` varchar(120) NOT NULL,
+  `municipality` varchar(120) NOT NULL,
+  `validation_status` enum('approved','pending','declined') NOT NULL DEFAULT 'pending',
+  `check_surf2sawa` tinyint(1) NOT NULL DEFAULT 0,
+  `check_fiberx` tinyint(1) NOT NULL DEFAULT 0,
+  `check_bida` tinyint(1) NOT NULL DEFAULT 0,
+  `check_sme` tinyint(1) NOT NULL DEFAULT 0,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `inhouse_sales`
 --
 
@@ -137,6 +180,46 @@ CREATE TABLE `inhouse_sales` (
   `email` varchar(150) NOT NULL,
   `profile_picture` varchar(255) DEFAULT NULL,
   `status` enum('pending','active','inactive') NOT NULL DEFAULT 'pending',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `installer_tech_data`
+--
+
+CREATE TABLE `installer_tech_data` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `installer_name` varchar(150) NOT NULL,
+  `full_name` varchar(150) NOT NULL DEFAULT '',
+  `type` varchar(50) NOT NULL DEFAULT '',
+  `category` varchar(100) NOT NULL DEFAULT '',
+  `contact_no` varchar(30) NOT NULL,
+  `area` varchar(150) NOT NULL,
+  `validation_status` enum('approved','pending','declined') NOT NULL DEFAULT 'pending',
+  `check_surf2sawa` tinyint(1) NOT NULL DEFAULT 0,
+  `check_fiberx` tinyint(1) NOT NULL DEFAULT 0,
+  `check_bida` tinyint(1) NOT NULL DEFAULT 0,
+  `check_sme` tinyint(1) NOT NULL DEFAULT 0,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `installer_tech_team_areas`
+--
+
+CREATE TABLE `installer_tech_team_areas` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `area` varchar(150) NOT NULL,
+  `team` varchar(100) NOT NULL,
+  `validation_status` enum('approved','pending','declined') NOT NULL DEFAULT 'pending',
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -330,6 +413,29 @@ ALTER TABLE `agent_codes`
   ADD KEY `agent_codes_created_at_index` (`created_at`);
 
 --
+-- Indexes for table `asm_names`
+--
+ALTER TABLE `asm_names`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `name_index` (`name`),
+  ADD KEY `validation_status_index` (`validation_status`),
+  ADD KEY `status_index` (`status`),
+  ADD KEY `created_at_index` (`created_at`);
+
+--
+-- Indexes for table `asm_per_areas`
+--
+ALTER TABLE `asm_per_areas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sales_manager_index` (`sales_manager`),
+  ADD KEY `region_index` (`region`),
+  ADD KEY `province_index` (`province`),
+  ADD KEY `municipality_index` (`municipality`),
+  ADD KEY `validation_status_index` (`validation_status`),
+  ADD KEY `status_index` (`status`),
+  ADD KEY `created_at_index` (`created_at`);
+
+--
 -- Indexes for table `inhouse_sales`
 --
 ALTER TABLE `inhouse_sales`
@@ -339,6 +445,27 @@ ALTER TABLE `inhouse_sales`
   ADD KEY `inhouse_user_id_index` (`user_id`),
   ADD KEY `inhouse_status_index` (`status`),
   ADD KEY `inhouse_created_at_index` (`created_at`);
+
+--
+-- Indexes for table `installer_tech_data`
+--
+ALTER TABLE `installer_tech_data`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `installer_name_index` (`installer_name`),
+  ADD KEY `area_index` (`area`),
+  ADD KEY `status_index` (`status`),
+  ADD KEY `created_at_index` (`created_at`);
+
+--
+-- Indexes for table `installer_tech_team_areas`
+--
+ALTER TABLE `installer_tech_team_areas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `area_index` (`area`),
+  ADD KEY `team_index` (`team`),
+  ADD KEY `validation_status_index` (`validation_status`),
+  ADD KEY `status_index` (`status`),
+  ADD KEY `created_at_index` (`created_at`);
 
 --
 -- Indexes for table `managers`
@@ -421,7 +548,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `admins`
@@ -436,9 +563,33 @@ ALTER TABLE `agent_codes`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `asm_names`
+--
+ALTER TABLE `asm_names`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `asm_per_areas`
+--
+ALTER TABLE `asm_per_areas`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `inhouse_sales`
 --
 ALTER TABLE `inhouse_sales`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `installer_tech_data`
+--
+ALTER TABLE `installer_tech_data`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `installer_tech_team_areas`
+--
+ALTER TABLE `installer_tech_team_areas`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
