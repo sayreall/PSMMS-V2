@@ -22,8 +22,8 @@ if ($isSuperAdminSidebar) {
         'label' => 'Area Sales Manager',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
         'children' => [
-            ['key' => 'asm_name', 'label' => 'ASM Name', 'url' => '#'],
-            ['key' => 'asm_per_area', 'label' => 'ASM Per Area', 'url' => '#'],
+            ['key' => 'asm_name', 'label' => 'ASM Name', 'url' => App\Config\App::url('asm/name')],
+            ['key' => 'asm_per_area', 'label' => 'ASM Per Area', 'url' => App\Config\App::url('asm/per-area')],
         ],
     ];
     $menuItems[] = [
@@ -43,7 +43,7 @@ if ($isSuperAdminSidebar) {
         'children' => [
             ['key' => 'address_region', 'label' => 'Region', 'url' => App\Config\App::url('address/region')],
             ['key' => 'address_province', 'label' => 'Province', 'url' => App\Config\App::url('address/province')],
-            ['key' => 'address_municipalities', 'label' => 'Municipalities', 'url' => '#'],
+            ['key' => 'address_municipalities', 'label' => 'Municipalities', 'url' => App\Config\App::url('address/municipalities')],
         ],
     ];
     $menuItems[] = [

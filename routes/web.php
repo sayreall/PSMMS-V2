@@ -60,6 +60,10 @@ $router->group('', function (Router $router): void {
     $router->post('/installers/tech-data', 'InstallersController@storeTechData');
     $router->get('/installers/tech-team-area', 'InstallersController@techTeamArea');
     $router->post('/installers/tech-team-area', 'InstallersController@storeTechTeamArea');
+    $router->get('/asm/name', 'AsmController@name');
+    $router->post('/asm/name', 'AsmController@storeName');
+    $router->get('/asm/per-area', 'AsmController@perArea');
+    $router->post('/asm/per-area', 'AsmController@storePerArea');
     $router->get('/sales-category', 'SalesCategoryController@index');
     $router->post('/sales-category', 'SalesCategoryController@store');
     $router->get('/sales-agent', 'SalesAgentController@index');
@@ -68,6 +72,7 @@ $router->group('', function (Router $router): void {
     $router->post('/agent-code', 'AgentCodeController@store');
     $router->get('/address/region', 'AddressRegionController@index');
     $router->get('/address/province', 'AddressProvinceController@index');
+    $router->get('/address/municipalities', 'AddressMunicipalityController@index');
 }, [AuthMiddleware::class]);
 
 $router->group('/users', function (Router $router): void {
