@@ -13,6 +13,10 @@ This document describes the current MySQL schema used by PSMMS Dashboard.
 8. `008_create_inhouse_sales_table.sql`
 9. `009_create_msa_partners_table.sql`
 10. `010_alter_users_roles_for_partner_roles.sql`
+11. `011_create_plans_table.sql`
+12. `012_create_sales_categories_table.sql`
+13. `013_create_sales_agents_table.sql`
+14. `014_create_agent_codes_table.sql`
 
 ## Tables
 
@@ -193,6 +197,88 @@ Indexes:
 
 Foreign keys:
 - `fk_msa_user`: `msa_partners.user_id` -> `users.id` (`ON DELETE SET NULL`)
+
+### `plans`
+Purpose: stores sales product plans and availability.
+
+Columns:
+- `id` `INT UNSIGNED` PK auto increment
+- `product` `VARCHAR(100)` not null
+- `plan` `VARCHAR(100)` not null
+- `status` `ENUM('available','unavailable')` not null default `available`
+- `created_at` `DATETIME` not null
+- `updated_at` `DATETIME` not null
+
+Indexes:
+- `plans_product_index (product)`
+- `plans_status_index (status)`
+- `plans_created_at_index (created_at)`
+
+### `sales_categories`
+Purpose: stores sales categories for partners and in-house.
+
+Columns:
+- `id` `INT UNSIGNED` PK auto increment
+- `sales_category` `VARCHAR(150)` not null
+- `sales_manager` `VARCHAR(150)` not null
+- `type` `ENUM('partner','inhouse')` not null
+- `tl_status` `ENUM('active','inactive')` not null default `active`
+- `validation` `ENUM('approved','pending','declined')` not null default `pending`
+- `created_at` `DATETIME` not null
+- `updated_at` `DATETIME` not null
+
+Indexes:
+- `sales_categories_name_index (sales_category)`
+- `sales_categories_manager_index (sales_manager)`
+- `sales_categories_type_index (type)`
+- `sales_categories_validation_index (validation)`
+- `sales_categories_created_at_index (created_at)`
+
+### `sales_agents`
+Purpose: stores sales agents under a sales category.
+
+Columns:
+- `id` `INT UNSIGNED` PK auto increment
+- `sales_category_id` `INT UNSIGNED` not null, FK to `sales_categories.id`
+- `agent_name` `VARCHAR(150)` not null
+- `status` `ENUM('active','inactive')` not null default `active`
+- `validation` `ENUM('approved','pending','declined')` not null default `pending`
+- `created_at` `DATETIME` not null
+- `updated_at` `DATETIME` not null
+
+Indexes:
+- `sales_agents_category_index (sales_category_id)`
+- `sales_agents_status_index (status)`
+- `sales_agents_validation_index (validation)`
+- `sales_agents_created_at_index (created_at)`
+
+Foreign keys:
+- `fk_sales_agents_category`: `sales_agents.sales_category_id` -> `sales_categories.id` (`ON DELETE CASCADE`)
+
+### `agent_codes`
+Purpose: stores agent codes for sales agents.
+
+Columns:
+- `id` `INT UNSIGNED` PK auto increment
+- `sales_category_id` `INT UNSIGNED` not null, FK to `sales_categories.id`
+- `sales_agent_id` `INT UNSIGNED` not null, FK to `sales_agents.id`
+- `agent_code` `VARCHAR(50)` not null, unique
+- `status` `ENUM('active','inactive')` not null default `active`
+- `validation` `ENUM('approved','pending','declined')` not null default `pending`
+- `created_at` `DATETIME` not null
+- `updated_at` `DATETIME` not null
+
+Indexes:
+- unique `agent_codes_code_unique (agent_code)`
+- `agent_codes_category_index (sales_category_id)`
+- `agent_codes_agent_index (sales_agent_id)`
+- `agent_codes_status_index (status)`
+- `agent_codes_validation_index (validation)`
+- `agent_codes_created_at_index (created_at)`
+
+Foreign keys:
+- `fk_agent_codes_category`: `agent_codes.sales_category_id` -> `sales_categories.id` (`ON DELETE CASCADE`)
+- `fk_agent_codes_agent`: `agent_codes.sales_agent_id` -> `sales_agents.id` (`ON DELETE CASCADE`)
 
 ## Notes
 - Charset/collation: `utf8mb4` / `utf8mb4_unicode_ci`.

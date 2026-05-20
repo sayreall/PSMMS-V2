@@ -17,8 +17,35 @@ if ($isSuperAdminSidebar) {
     $menuItems[] = ['key' => 'inhouse', 'label' => 'In-House', 'url' => App\Config\App::url('inhouse'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>' ];
     $menuItems[] = ['key' => 'partners', 'label' => 'MSA Partners', 'url' => App\Config\App::url('partners'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>' ];
     $menuItems[] = ['key' => 'sme_sales', 'label' => 'SME Sales', 'url' => App\Config\App::url('sme-sales'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>' ];
-    $menuItems[] = ['key' => 'agents', 'label' => 'Sales Agents', 'url' => App\Config\App::url('agents'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>' ];
-    $menuItems[] = ['key' => 'municipalities', 'label' => 'Municipalities', 'url' => App\Config\App::url('municipalities'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>' ];
+    $menuItems[] = [
+        'key' => 'asm_area_sales_manager',
+        'label' => 'Area Sales Manager',
+        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
+        'children' => [
+            ['key' => 'asm_name', 'label' => 'ASM Name', 'url' => '#'],
+            ['key' => 'asm_per_area', 'label' => 'ASM Per Area', 'url' => '#'],
+        ],
+    ];
+    $menuItems[] = [
+        'key' => 'sales_record',
+        'label' => 'Sales Record',
+        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>',
+        'children' => [
+            ['key' => 'sales_category', 'label' => 'Sales Category', 'url' => App\Config\App::url('sales-category')],
+            ['key' => 'sales_agent', 'label' => 'Sales Agent', 'url' => App\Config\App::url('sales-agent')],
+            ['key' => 'agent_code', 'label' => 'Agent Code', 'url' => App\Config\App::url('agent-code')],
+        ],
+    ];
+    $menuItems[] = [
+        'key' => 'address',
+        'label' => 'Address',
+        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>',
+        'children' => [
+            ['key' => 'address_region', 'label' => 'Region', 'url' => App\Config\App::url('address/region')],
+            ['key' => 'address_province', 'label' => 'Province', 'url' => App\Config\App::url('address/province')],
+            ['key' => 'address_municipalities', 'label' => 'Municipalities', 'url' => '#'],
+        ],
+    ];
     $menuItems[] = [
         'key' => 'installers',
         'label' => 'Installers',
@@ -28,7 +55,7 @@ if ($isSuperAdminSidebar) {
             ['key' => 'tech_team_area', 'label' => 'Tech Team Area', 'url' => App\Config\App::url('installers/tech-team-area')],
         ],
     ];
-    $menuItems[] = ['key' => 'plans', 'label' => 'Plans', 'url' => App\Config\App::url('plans'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>' ];
+    $menuItems[] = ['key' => 'plans', 'label' => 'Plans', 'url' => App\Config\App::url('plan'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>' ];
     $menuItems[] = [
         'key' => 'dispatch_record',
         'label' => 'Dispatch Record',
@@ -64,7 +91,7 @@ if ($isSuperAdminSidebar) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -73,7 +100,7 @@ if ($isSuperAdminSidebar) {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Manrope', 'Sora', 'sans-serif'],
+                        sans: ['Poppins', 'sans-serif'],
                     },
                     colors: {
                         primary: {'50':'#ecfeff','100':'#cffafe','200':'#a5f3fc','300':'#67e8f9','400':'#22d3ee','500':'#06b6d4','600':'#0891b2','700':'#0e7490','800':'#155e75','900':'#164e63'},

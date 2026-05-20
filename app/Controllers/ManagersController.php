@@ -85,6 +85,7 @@ class ManagersController extends BaseController
         ]);
     }
 
+
     public function store(): void
     {
         Csrf::verify();

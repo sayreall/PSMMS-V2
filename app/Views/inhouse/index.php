@@ -7,7 +7,7 @@ $asmManagers = $asmManagers ?? [];
 <div class="space-y-5 manager-page">
     <div>
         <h1 class="text-3xl font-extrabold text-sky-600 tracking-tight uppercase">In-House</h1>
-        <p class="text-lg text-slate-700 italic mt-1">The Inhouse sales team leaders</p>
+        <p class="text-lg text-slate-700 mt-1">The Inhouse sales team leaders</p>
     </div>
 
     <div class="manager-table-card">
@@ -172,6 +172,7 @@ $asmManagers = $asmManagers ?? [];
                         <?php endforeach; ?>
                     </select>
                 </label>
+
 
                 <label class="manager-modal-field">
                     <span>Select Category</span>

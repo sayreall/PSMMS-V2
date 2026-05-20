@@ -86,6 +86,7 @@ class PartnersController extends BaseController
         ]);
     }
 
+
     public function store(): void
     {
         Csrf::verify();

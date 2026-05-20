@@ -53,6 +53,16 @@ $router->group('', function (Router $router): void {
     $router->put('/admins/{id}', 'AdminsController@update');
     $router->delete('/admins/{id}', 'AdminsController@delete');
     $router->post('/admins/{id}/approve', 'AdminsController@approve');
+    $router->get('/plan', 'PlansController@index');
+    $router->post('/plan', 'PlansController@store');
+    $router->get('/sales-category', 'SalesCategoryController@index');
+    $router->post('/sales-category', 'SalesCategoryController@store');
+    $router->get('/sales-agent', 'SalesAgentController@index');
+    $router->post('/sales-agent', 'SalesAgentController@store');
+    $router->get('/agent-code', 'AgentCodeController@index');
+    $router->post('/agent-code', 'AgentCodeController@store');
+    $router->get('/address/region', 'AddressRegionController@index');
+    $router->get('/address/province', 'AddressProvinceController@index');
 }, [AuthMiddleware::class]);
 
 $router->group('/users', function (Router $router): void {

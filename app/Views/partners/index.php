@@ -6,7 +6,7 @@ $partners = $partners ?? [];
 <div class="space-y-5 manager-page">
     <div>
         <h1 class="text-3xl font-extrabold text-sky-600 tracking-tight uppercase">Partners</h1>
-        <p class="text-lg text-slate-700 italic mt-1">Regional and NCR Sales MSA Partners</p>
+        <p class="text-lg text-slate-700 mt-1">Regional and NCR Sales MSA Partners</p>
     </div>
 
     <div class="manager-table-card">

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2026 at 08:44 AM
+-- Generation Time: May 20, 2026 at 05:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -66,7 +66,10 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `description`, `ip_addre
 (25, 1, 'manager_create', 'Created manager: John Cyril D. San Antonio', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 06:38:43'),
 (26, 1, 'manager_approve', 'Approved manager manager ID: 2', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 06:38:54'),
 (27, 1, 'manager_create', 'Created manager: John Cyril D. San Antonio', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 06:42:50'),
-(28, 1, 'manager_approve', 'Approved manager manager ID: 3', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 06:42:55');
+(28, 1, 'manager_approve', 'Approved manager manager ID: 3', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 06:42:55'),
+(29, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 00:40:25'),
+(30, 1, 'plan_create', 'Created plan: surf2sawa PLAN999', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 01:22:33'),
+(31, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 02:42:30');
 
 -- --------------------------------------------------------
 
@@ -102,6 +105,45 @@ INSERT INTO `admins` (`id`, `user_id`, `first_name`, `last_name`, `position`, `a
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `agent_codes`
+--
+
+CREATE TABLE `agent_codes` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `sales_category_id` int(10) UNSIGNED NOT NULL,
+  `sales_agent_id` int(10) UNSIGNED NOT NULL,
+  `agent_code` varchar(50) NOT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `validation` enum('approved','pending','declined') NOT NULL DEFAULT 'pending',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `inhouse_sales`
+--
+
+CREATE TABLE `inhouse_sales` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `sales_manager` varchar(150) NOT NULL,
+  `sales_category` varchar(100) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `employee_id` varchar(50) NOT NULL,
+  `contact_no` varchar(30) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `profile_picture` varchar(255) DEFAULT NULL,
+  `status` enum('pending','active','inactive') NOT NULL DEFAULT 'pending',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `managers`
 --
 
@@ -129,6 +171,28 @@ INSERT INTO `managers` (`id`, `user_id`, `manager_name`, `position`, `contact_no
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `msa_partners`
+--
+
+CREATE TABLE `msa_partners` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `company_name` varchar(150) NOT NULL,
+  `username` varchar(100) NOT NULL,
+  `contact_no` varchar(30) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `installer` varchar(150) NOT NULL,
+  `msa_type` varchar(30) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `profile_picture` varchar(255) DEFAULT NULL,
+  `status` enum('pending','active','inactive') NOT NULL DEFAULT 'pending',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `password_resets`
 --
 
@@ -143,17 +207,75 @@ CREATE TABLE `password_resets` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `plans`
+--
+
+CREATE TABLE `plans` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `product` varchar(100) NOT NULL,
+  `plan` varchar(100) NOT NULL,
+  `status` enum('available','unavailable') NOT NULL DEFAULT 'available',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `plans`
+--
+
+INSERT INTO `plans` (`id`, `product`, `plan`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'surf2sawa', 'PLAN999', 'unavailable', '2026-05-20 01:22:33', '2026-05-20 01:22:33');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sales_agents`
+--
+
+CREATE TABLE `sales_agents` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `sales_category_id` int(10) UNSIGNED NOT NULL,
+  `agent_name` varchar(150) NOT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `validation` enum('approved','pending','declined') NOT NULL DEFAULT 'pending',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sales_categories`
+--
+
+CREATE TABLE `sales_categories` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `sales_category` varchar(150) NOT NULL,
+  `sales_manager` varchar(150) NOT NULL,
+  `type` enum('partner','inhouse') NOT NULL,
+  `tl_status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `validation` enum('approved','pending','declined') NOT NULL DEFAULT 'pending',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(100) NOT NULL,
+  `first_name` varchar(100) DEFAULT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) DEFAULT NULL,
   `email` varchar(150) NOT NULL,
   `company_email` varchar(150) DEFAULT NULL,
   `contact_no` varchar(30) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('viewer','editor','admin','super_admin','head_admin','head_manager','asm_manager','accounting') NOT NULL DEFAULT 'viewer',
+  `role` enum('accounting','asm_manager','admin','head_manager','super_admin','msa_partners','inhouse_sales','sme_sales') NOT NULL DEFAULT 'accounting',
   `status` enum('pending','active','inactive') NOT NULL DEFAULT 'active',
   `avatar` varchar(255) DEFAULT NULL,
   `created_at` datetime NOT NULL,
@@ -164,10 +286,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `company_email`, `contact_no`, `password`, `role`, `status`, `avatar`, `created_at`, `updated_at`) VALUES
-(1, 'System Admin', 'admin@psmms.local', NULL, NULL, '$2y$12$6/bYLVQDFFp2w4c2pTQ8KuRRW12foTIf6iiR7idiwLu0RZKgHNXpO', 'super_admin', 'active', 'avatars/usr_5064524f9a796daf714e060a11c34d91.jpg', '2026-05-15 05:35:32', '2026-05-15 05:35:32'),
-(2, 'John Cyril Dunghayan San Antonio', 'cyrilsanantonio19@gmail.com', NULL, NULL, '$2y$12$PI8OB7MsDK622rZoo43pe.DeIj3qEkjDhuO/AIPIF/1iGSxmLoQGW', 'viewer', 'active', NULL, '2026-05-15 03:44:09', '2026-05-15 03:44:09'),
-(6, 'John Cyril Dunghayan San Antonio', 'cyrilsanantonio34@gmail.com', 'cyrilsanantonio34@paragon.com', '09505960921', '$2y$12$pNckb45wQyE4PPWCBVRBj.N.C6tj4CE3Q6pMth/bDnOfnwwCGSr6C', 'asm_manager', 'active', NULL, '2026-05-15 06:33:16', '2026-05-15 06:33:24');
+INSERT INTO `users` (`id`, `name`, `first_name`, `middle_name`, `last_name`, `email`, `company_email`, `contact_no`, `password`, `role`, `status`, `avatar`, `created_at`, `updated_at`) VALUES
+(1, 'System Admin', 'System Admin', NULL, '', 'admin@psmms.local', NULL, NULL, '$2y$12$6/bYLVQDFFp2w4c2pTQ8KuRRW12foTIf6iiR7idiwLu0RZKgHNXpO', 'super_admin', 'active', 'avatars/usr_5064524f9a796daf714e060a11c34d91.jpg', '2026-05-15 05:35:32', '2026-05-15 05:35:32'),
+(2, 'John Cyril Dunghayan San Antonio', 'John Cyril Dunghayan San Antonio', NULL, '', 'cyrilsanantonio19@gmail.com', NULL, NULL, '$2y$12$PI8OB7MsDK622rZoo43pe.DeIj3qEkjDhuO/AIPIF/1iGSxmLoQGW', '', 'active', NULL, '2026-05-15 03:44:09', '2026-05-15 03:44:09'),
+(6, 'John Cyril Dunghayan San Antonio', 'John Cyril Dunghayan San Antonio', NULL, '', 'cyrilsanantonio34@gmail.com', 'cyrilsanantonio34@paragon.com', '09505960921', '$2y$12$pNckb45wQyE4PPWCBVRBj.N.C6tj4CE3Q6pMth/bDnOfnwwCGSr6C', 'asm_manager', 'active', NULL, '2026-05-15 06:33:16', '2026-05-15 06:33:24');
 
 --
 -- Indexes for dumped tables
@@ -196,6 +318,29 @@ ALTER TABLE `admins`
   ADD KEY `admins_created_at_index` (`created_at`);
 
 --
+-- Indexes for table `agent_codes`
+--
+ALTER TABLE `agent_codes`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `agent_codes_code_unique` (`agent_code`),
+  ADD KEY `agent_codes_category_index` (`sales_category_id`),
+  ADD KEY `agent_codes_agent_index` (`sales_agent_id`),
+  ADD KEY `agent_codes_status_index` (`status`),
+  ADD KEY `agent_codes_validation_index` (`validation`),
+  ADD KEY `agent_codes_created_at_index` (`created_at`);
+
+--
+-- Indexes for table `inhouse_sales`
+--
+ALTER TABLE `inhouse_sales`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `inhouse_employee_id_unique` (`employee_id`),
+  ADD UNIQUE KEY `inhouse_email_unique` (`email`),
+  ADD KEY `inhouse_user_id_index` (`user_id`),
+  ADD KEY `inhouse_status_index` (`status`),
+  ADD KEY `inhouse_created_at_index` (`created_at`);
+
+--
 -- Indexes for table `managers`
 --
 ALTER TABLE `managers`
@@ -208,12 +353,54 @@ ALTER TABLE `managers`
   ADD KEY `managers_created_at_index` (`created_at`);
 
 --
+-- Indexes for table `msa_partners`
+--
+ALTER TABLE `msa_partners`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `msa_username_unique` (`username`),
+  ADD UNIQUE KEY `msa_email_unique` (`email`),
+  ADD KEY `msa_user_id_index` (`user_id`),
+  ADD KEY `msa_type_index` (`msa_type`),
+  ADD KEY `msa_status_index` (`status`),
+  ADD KEY `msa_created_at_index` (`created_at`);
+
+--
 -- Indexes for table `password_resets`
 --
 ALTER TABLE `password_resets`
   ADD PRIMARY KEY (`id`),
   ADD KEY `password_resets_token_index` (`token`),
   ADD KEY `password_resets_user_index` (`user_id`);
+
+--
+-- Indexes for table `plans`
+--
+ALTER TABLE `plans`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `plans_product_index` (`product`),
+  ADD KEY `plans_status_index` (`status`),
+  ADD KEY `plans_created_at_index` (`created_at`);
+
+--
+-- Indexes for table `sales_agents`
+--
+ALTER TABLE `sales_agents`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sales_agents_category_index` (`sales_category_id`),
+  ADD KEY `sales_agents_status_index` (`status`),
+  ADD KEY `sales_agents_validation_index` (`validation`),
+  ADD KEY `sales_agents_created_at_index` (`created_at`);
+
+--
+-- Indexes for table `sales_categories`
+--
+ALTER TABLE `sales_categories`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sales_categories_name_index` (`sales_category`),
+  ADD KEY `sales_categories_manager_index` (`sales_manager`),
+  ADD KEY `sales_categories_type_index` (`type`),
+  ADD KEY `sales_categories_validation_index` (`validation`),
+  ADD KEY `sales_categories_created_at_index` (`created_at`);
 
 --
 -- Indexes for table `users`
@@ -234,7 +421,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `admins`
@@ -243,16 +430,52 @@ ALTER TABLE `admins`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `agent_codes`
+--
+ALTER TABLE `agent_codes`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `inhouse_sales`
+--
+ALTER TABLE `inhouse_sales`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `managers`
 --
 ALTER TABLE `managers`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `msa_partners`
+--
+ALTER TABLE `msa_partners`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `plans`
+--
+ALTER TABLE `plans`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `sales_agents`
+--
+ALTER TABLE `sales_agents`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `sales_categories`
+--
+ALTER TABLE `sales_categories`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -277,16 +500,41 @@ ALTER TABLE `admins`
   ADD CONSTRAINT `fk_admins_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `agent_codes`
+--
+ALTER TABLE `agent_codes`
+  ADD CONSTRAINT `fk_agent_codes_agent` FOREIGN KEY (`sales_agent_id`) REFERENCES `sales_agents` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_agent_codes_category` FOREIGN KEY (`sales_category_id`) REFERENCES `sales_categories` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `inhouse_sales`
+--
+ALTER TABLE `inhouse_sales`
+  ADD CONSTRAINT `fk_inhouse_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `managers`
 --
 ALTER TABLE `managers`
   ADD CONSTRAINT `fk_managers_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `msa_partners`
+--
+ALTER TABLE `msa_partners`
+  ADD CONSTRAINT `fk_msa_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `password_resets`
 --
 ALTER TABLE `password_resets`
   ADD CONSTRAINT `fk_password_reset_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `sales_agents`
+--
+ALTER TABLE `sales_agents`
+  ADD CONSTRAINT `fk_sales_agents_category` FOREIGN KEY (`sales_category_id`) REFERENCES `sales_categories` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
