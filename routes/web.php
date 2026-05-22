@@ -30,11 +30,12 @@ $router->group('', function (Router $router): void {
     $router->post('/logout', 'AuthController@logout');
 
     $router->get('/dashboard', 'DashboardController@index');
-    $router->get('/dashboard/{slug}', 'DashboardController@roleDashboard');
+    $router->get('/dashboard/profile/view', 'DashboardController@viewProfile');
     $router->get('/dashboard/profile', 'DashboardController@profile');
     $router->post('/dashboard/profile', 'DashboardController@updateProfile');
     $router->post('/dashboard/password', 'DashboardController@updatePassword');
     $router->get('/dashboard/stats', 'DashboardController@getStats');
+    $router->get('/dashboard/{slug}', 'DashboardController@roleDashboard');
     $router->get('/managers', 'ManagersController@index');
     $router->post('/managers', 'ManagersController@store');
     $router->put('/managers/{source}/{id}', 'ManagersController@update');
@@ -55,6 +56,10 @@ $router->group('', function (Router $router): void {
     $router->post('/admins/{id}/approve', 'AdminsController@approve');
     $router->get('/plan', 'PlansController@index');
     $router->post('/plan', 'PlansController@store');
+    $router->get('/dispatch-record/dispatch-status', 'DispatchStatusController@index');
+    $router->post('/dispatch-record/dispatch-status', 'DispatchStatusController@store');
+    $router->get('/dispatch-record/dispatch-remarks', 'DispatchRemarksController@index');
+    $router->post('/dispatch-record/dispatch-remarks', 'DispatchRemarksController@store');
     $router->get('/installers/create', 'InstallersController@create');
     $router->get('/installers/tech-data', 'InstallersController@techData');
     $router->post('/installers/tech-data', 'InstallersController@storeTechData');

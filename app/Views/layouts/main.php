@@ -215,16 +215,6 @@ if ($isSuperAdminSidebar) {
                 <?php endif; ?>
             <?php endforeach; ?>
 
-            <!-- Divider -->
-            <hr class="my-3 border-slate-200">
-
-            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.14em] px-3 mb-1">Account</p>
-
-            <a href="<?= App\Config\App::url('dashboard/profile') ?>"
-               class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.607 2.296.07 2.572-1.065z"/></svg>
-                Settings
-            </a>
         </nav>
 
         <div class="border-t border-slate-200 p-3">
@@ -270,13 +260,38 @@ if ($isSuperAdminSidebar) {
                         <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
                     </button>
 
-                    <a href="<?= App\Config\App::url('dashboard/profile') ?>" class="inline-flex items-center justify-center w-9 h-9 rounded-full overflow-hidden border border-slate-200 bg-slate-100 hover:ring-2 hover:ring-slate-200 transition-all" title="Profile">
-                        <?php if (!empty($authUser['avatar'])): ?>
-                            <img src="<?= App\Config\App::url('uploads/' . $authUser['avatar']) ?>" alt="Profile" class="w-full h-full object-cover">
-                        <?php else: ?>
-                            <span class="text-xs font-semibold text-slate-700"><?= strtoupper(substr($authUser['name'] ?? 'U', 0, 1)) ?></span>
-                        <?php endif; ?>
-                    </a>
+                    <?php
+                        $profileName = trim((string)($authUser['name'] ?? 'User'));
+                        $profileInitial = strtoupper(substr($profileName !== '' ? $profileName : 'U', 0, 1));
+                        $profileRole = ucwords(str_replace('_', ' ', (string)($authUser['role'] ?? 'User')));
+                    ?>
+                    <div class="profile-menu" data-profile-menu>
+                        <button type="button" class="profile-trigger" data-profile-trigger aria-haspopup="true" aria-expanded="false">
+                            <span class="profile-avatar">
+                                <?php if (!empty($authUser['avatar'])): ?>
+                                    <img src="<?= App\Config\App::url('uploads/' . $authUser['avatar']) ?>" alt="Profile" class="w-full h-full object-cover">
+                                <?php else: ?>
+                                    <span class="profile-initial"><?= htmlspecialchars($profileInitial) ?></span>
+                                <?php endif; ?>
+                            </span>
+                            <span class="profile-summary">
+                                <span class="profile-name"><?= htmlspecialchars($profileName !== '' ? $profileName : 'User') ?></span>
+                                <span class="profile-role"><?= htmlspecialchars($profileRole) ?></span>
+                            </span>
+                        </button>
+                        <div class="profile-dropdown" role="menu" aria-label="Profile menu">
+                            <div class="profile-dropdown-header">
+                                <span class="profile-dropdown-name"><?= htmlspecialchars($profileName !== '' ? $profileName : 'User') ?></span>
+                                <span class="profile-dropdown-role"><?= htmlspecialchars($profileRole) ?></span>
+                            </div>
+                            <a href="<?= App\Config\App::url('dashboard/profile/view') ?>" class="profile-dropdown-item" role="menuitem">View profile</a>
+                            <a href="<?= App\Config\App::url('dashboard/profile') ?>" class="profile-dropdown-item" role="menuitem">Settings</a>
+                            <form method="POST" action="<?= App\Config\App::url('logout') ?>" class="profile-dropdown-form" role="menuitem">
+                                <?= \App\Helpers\Csrf::field(); ?>
+                                <button type="submit" class="profile-dropdown-item profile-dropdown-logout" onclick="return confirmLogout(event)">Logout</button>
+                            </form>
+                        </div>
+                    </div>
 
                     <!-- Mobile Search -->
                     <button class="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100" onclick="document.getElementById('global-search').focus()">

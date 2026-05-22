@@ -96,6 +96,15 @@ class DashboardController extends BaseController
         ]);
     }
 
+    public function viewProfile(): string
+    {
+        $user = Auth::user();
+        return $this->render('dashboard.view-profile', [
+            'title' => 'View Profile',
+            'user' => $user,
+        ]);
+    }
+
     public function updateProfile(): void
     {
         Csrf::verify();
