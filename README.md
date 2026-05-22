@@ -17,6 +17,26 @@ Modern PHP 8 dashboard with MVC architecture, Tailwind UI, and MySQL storage. In
 - MySQL 5.7+ or MariaDB 10.3+
 - Composer
 
+## PHP ini setup (Windows)
+1. Find the active `php.ini`:
+   ```bash
+   php --ini
+   ```
+2. Open the `Loaded Configuration File` and enable MySQL extensions (remove the leading `;`):
+   ```ini
+   extension=pdo_mysql
+   extension=mysqli
+   ```
+3. Ensure `extension_dir` points to your PHP `ext` folder, for example:
+   ```ini
+   extension_dir="ext"
+   ```
+4. Restart your web server or terminal.
+5. Verify:
+   ```bash
+   php -m | findstr pdo_mysql
+   ```
+
 ## Setup
 1. Install dependencies:
    ```bash
@@ -42,6 +62,11 @@ Modern PHP 8 dashboard with MVC architecture, Tailwind UI, and MySQL storage. In
 - Password: `Admin@123`
 
 Change this immediately after first login.
+
+## Access
+- Open http://localhost:8000/login
+- Use the default admin account above, or register a new account.
+- New registrations are created as `pending` and must be approved by a Super Admin before login.
 
 ## Project structure
 ```
