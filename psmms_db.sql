@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 20, 2026 at 10:47 AM
+-- Generation Time: May 26, 2026 at 11:13 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -42,9 +42,6 @@ CREATE TABLE `activity_logs` (
 --
 
 INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `description`, `ip_address`, `user_agent`, `created_at`) VALUES
-(1, 2, 'register', 'New user registered', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 03:44:09'),
-(2, 2, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 03:45:27'),
-(3, 2, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 04:05:56'),
 (4, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 04:28:07'),
 (5, 1, 'manager_create', 'Created manager: John Cyril D. San Antonio', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 05:23:29'),
 (6, 1, 'profile_update', 'User updated profile', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-15 05:38:30'),
@@ -71,7 +68,24 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `description`, `ip_addre
 (30, 1, 'plan_create', 'Created plan: surf2sawa PLAN999', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 01:22:33'),
 (31, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 02:42:30'),
 (32, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 06:07:06'),
-(33, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 08:07:50');
+(33, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-20 08:07:50'),
+(34, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-21 01:18:42'),
+(35, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-21 01:18:43'),
+(36, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 01:19:29'),
+(37, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 01:22:47'),
+(38, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 01:27:00'),
+(39, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 03:29:09'),
+(40, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 03:40:50'),
+(41, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 03:41:51'),
+(42, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:12:52'),
+(43, 7, 'register', 'New user registered', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:16:24'),
+(44, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:16:37'),
+(45, 1, 'admin_approve', 'Approved admin: John Cyril San Antonio', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:18:23'),
+(46, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:18:29'),
+(47, 7, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:19:12'),
+(48, 7, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:21:38'),
+(49, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:24:57'),
+(50, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 08:11:57');
 
 -- --------------------------------------------------------
 
@@ -102,7 +116,7 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `user_id`, `first_name`, `last_name`, `position`, `area`, `contact_no`, `employee_id`, `department`, `company_email`, `email`, `profile_picture`, `status`, `created_at`, `updated_at`) VALUES
-(1, NULL, 'John Cyril', 'San Antonio', 'sales_admin', 'test', '09505960921', '12334561', 'operation', 'ara@gmail.com', 'ara@gmail.com', 'admins/adm_8fda54d8ec0f85b84913e51e3b4e7c9b.jpg', 'pending', '2026-05-15 05:47:28', '2026-05-15 05:47:28');
+(2, 7, 'John Cyril', 'San Antonio', 'sales_admin', NULL, '09505960921', 'PCC0122', 'operation', 'cyrilsantonio19@paragoncorp.com.ph', 'cyrilsanantonio19@gmail.com', 'admins/adm_29892953a357371cb31498c54c44bd6b.png', 'active', '2026-05-26 05:16:24', '2026-05-26 05:18:23');
 
 -- --------------------------------------------------------
 
@@ -158,6 +172,33 @@ CREATE TABLE `asm_per_areas` (
   `check_bida` tinyint(1) NOT NULL DEFAULT 0,
   `check_sme` tinyint(1) NOT NULL DEFAULT 0,
   `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dispatch_remarks`
+--
+
+CREATE TABLE `dispatch_remarks` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `dispatch_remarks` varchar(150) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dispatch_statuses`
+--
+
+CREATE TABLE `dispatch_statuses` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `dispatch_status` varchar(150) NOT NULL,
+  `color` char(7) NOT NULL DEFAULT '#ffffff',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -244,13 +285,6 @@ CREATE TABLE `managers` (
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `managers`
---
-
-INSERT INTO `managers` (`id`, `user_id`, `manager_name`, `position`, `contact_no`, `company_email`, `email`, `profile_picture`, `status`, `created_at`, `updated_at`) VALUES
-(3, 2, 'John Cyril D. San Antonio', 'sales_manager', '09505960921', 'cyrilsanantonio19@paragon.com', 'cyrilsanantonio19@gmail.com', 'managers/mgr_ffebd87a6c57b5492a044a29289fced6.jpg', 'active', '2026-05-15 06:42:50', '2026-05-15 06:42:55');
-
 -- --------------------------------------------------------
 
 --
@@ -271,6 +305,23 @@ CREATE TABLE `msa_partners` (
   `status` enum('pending','active','inactive') NOT NULL DEFAULT 'pending',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `municipalities`
+--
+
+CREATE TABLE `municipalities` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `province_id` bigint(20) UNSIGNED NOT NULL,
+  `municipality_name` varchar(120) NOT NULL,
+  `municipality_code` varchar(40) DEFAULT NULL,
+  `zip_code` varchar(20) DEFAULT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -308,6 +359,47 @@ CREATE TABLE `plans` (
 
 INSERT INTO `plans` (`id`, `product`, `plan`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'surf2sawa', 'PLAN999', 'unavailable', '2026-05-20 01:22:33', '2026-05-20 01:22:33');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `provinces`
+--
+
+CREATE TABLE `provinces` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `region_id` bigint(20) UNSIGNED NOT NULL,
+  `province_name` varchar(120) NOT NULL,
+  `province_code` varchar(40) DEFAULT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `regions`
+--
+
+CREATE TABLE `regions` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `region_name` varchar(120) NOT NULL,
+  `region_code` varchar(40) DEFAULT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `regions`
+--
+
+INSERT INTO `regions` (`id`, `region_name`, `region_code`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'NCR', NULL, 'active', '2026-05-26 05:32:29', '2026-05-26 05:32:29'),
+(2, 'VIZMIN', NULL, 'active', '2026-05-26 05:32:41', '2026-05-26 05:32:41'),
+(3, 'NCLZ', NULL, 'active', '2026-05-26 05:32:48', '2026-05-26 05:32:48'),
+(4, 'SLB', NULL, 'active', '2026-05-26 05:32:53', '2026-05-26 05:32:53');
 
 -- --------------------------------------------------------
 
@@ -371,8 +463,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `first_name`, `middle_name`, `last_name`, `email`, `company_email`, `contact_no`, `password`, `role`, `status`, `avatar`, `created_at`, `updated_at`) VALUES
 (1, 'System Admin', 'System Admin', NULL, '', 'admin@psmms.local', NULL, NULL, '$2y$12$6/bYLVQDFFp2w4c2pTQ8KuRRW12foTIf6iiR7idiwLu0RZKgHNXpO', 'super_admin', 'active', 'avatars/usr_5064524f9a796daf714e060a11c34d91.jpg', '2026-05-15 05:35:32', '2026-05-15 05:35:32'),
-(2, 'John Cyril Dunghayan San Antonio', 'John Cyril Dunghayan San Antonio', NULL, '', 'cyrilsanantonio19@gmail.com', NULL, NULL, '$2y$12$PI8OB7MsDK622rZoo43pe.DeIj3qEkjDhuO/AIPIF/1iGSxmLoQGW', '', 'active', NULL, '2026-05-15 03:44:09', '2026-05-15 03:44:09'),
-(6, 'John Cyril Dunghayan San Antonio', 'John Cyril Dunghayan San Antonio', NULL, '', 'cyrilsanantonio34@gmail.com', 'cyrilsanantonio34@paragon.com', '09505960921', '$2y$12$pNckb45wQyE4PPWCBVRBj.N.C6tj4CE3Q6pMth/bDnOfnwwCGSr6C', 'asm_manager', 'active', NULL, '2026-05-15 06:33:16', '2026-05-15 06:33:24');
+(6, 'John Cyril Dunghayan San Antonio', 'John Cyril Dunghayan San Antonio', NULL, '', 'cyrilsanantonio34@gmail.com', 'cyrilsanantonio34@paragon.com', '09505960921', '$2y$12$pNckb45wQyE4PPWCBVRBj.N.C6tj4CE3Q6pMth/bDnOfnwwCGSr6C', 'asm_manager', 'active', NULL, '2026-05-15 06:33:16', '2026-05-15 06:33:24'),
+(7, 'John Cyril San Antonio', 'John Cyril', NULL, 'San Antonio', 'cyrilsanantonio19@gmail.com', 'cyrilsantonio19@paragoncorp.com.ph', '09505960921', '$2y$12$KoF430CU3b3Dw.5lqUU5LucqpF7I7.RN3IhzLrsAx9P02vsVD12O.', 'super_admin', 'active', NULL, '2026-05-26 05:16:24', '2026-05-26 05:18:23');
 
 --
 -- Indexes for dumped tables
@@ -436,6 +528,22 @@ ALTER TABLE `asm_per_areas`
   ADD KEY `created_at_index` (`created_at`);
 
 --
+-- Indexes for table `dispatch_remarks`
+--
+ALTER TABLE `dispatch_remarks`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `dispatch_remarks_name_unique` (`dispatch_remarks`),
+  ADD KEY `dispatch_remarks_created_at_index` (`created_at`);
+
+--
+-- Indexes for table `dispatch_statuses`
+--
+ALTER TABLE `dispatch_statuses`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `dispatch_statuses_name_unique` (`dispatch_status`),
+  ADD KEY `dispatch_statuses_created_at_index` (`created_at`);
+
+--
 -- Indexes for table `inhouse_sales`
 --
 ALTER TABLE `inhouse_sales`
@@ -492,6 +600,16 @@ ALTER TABLE `msa_partners`
   ADD KEY `msa_created_at_index` (`created_at`);
 
 --
+-- Indexes for table `municipalities`
+--
+ALTER TABLE `municipalities`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniq_province_municipality` (`province_id`,`municipality_name`),
+  ADD UNIQUE KEY `uniq_municipality_code` (`municipality_code`),
+  ADD KEY `idx_municipality_status` (`status`),
+  ADD KEY `idx_municipality_province` (`province_id`);
+
+--
 -- Indexes for table `password_resets`
 --
 ALTER TABLE `password_resets`
@@ -507,6 +625,25 @@ ALTER TABLE `plans`
   ADD KEY `plans_product_index` (`product`),
   ADD KEY `plans_status_index` (`status`),
   ADD KEY `plans_created_at_index` (`created_at`);
+
+--
+-- Indexes for table `provinces`
+--
+ALTER TABLE `provinces`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniq_region_province` (`region_id`,`province_name`),
+  ADD UNIQUE KEY `uniq_province_code` (`province_code`),
+  ADD KEY `idx_province_status` (`status`),
+  ADD KEY `idx_province_region` (`region_id`);
+
+--
+-- Indexes for table `regions`
+--
+ALTER TABLE `regions`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniq_region_name` (`region_name`),
+  ADD UNIQUE KEY `uniq_region_code` (`region_code`),
+  ADD KEY `idx_region_status` (`status`);
 
 --
 -- Indexes for table `sales_agents`
@@ -548,13 +685,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `admins`
 --
 ALTER TABLE `admins`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `agent_codes`
@@ -572,6 +709,18 @@ ALTER TABLE `asm_names`
 -- AUTO_INCREMENT for table `asm_per_areas`
 --
 ALTER TABLE `asm_per_areas`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `dispatch_remarks`
+--
+ALTER TABLE `dispatch_remarks`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `dispatch_statuses`
+--
+ALTER TABLE `dispatch_statuses`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -605,6 +754,12 @@ ALTER TABLE `msa_partners`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `municipalities`
+--
+ALTER TABLE `municipalities`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
@@ -615,6 +770,18 @@ ALTER TABLE `password_resets`
 --
 ALTER TABLE `plans`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `provinces`
+--
+ALTER TABLE `provinces`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `regions`
+--
+ALTER TABLE `regions`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `sales_agents`
@@ -632,7 +799,7 @@ ALTER TABLE `sales_categories`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -676,10 +843,22 @@ ALTER TABLE `msa_partners`
   ADD CONSTRAINT `fk_msa_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `municipalities`
+--
+ALTER TABLE `municipalities`
+  ADD CONSTRAINT `fk_municipalities_province` FOREIGN KEY (`province_id`) REFERENCES `provinces` (`id`) ON UPDATE CASCADE;
+
+--
 -- Constraints for table `password_resets`
 --
 ALTER TABLE `password_resets`
   ADD CONSTRAINT `fk_password_reset_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `provinces`
+--
+ALTER TABLE `provinces`
+  ADD CONSTRAINT `fk_provinces_region` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `sales_agents`
