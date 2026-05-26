@@ -69,7 +69,8 @@ $rows = $rows ?? [];
             <button type="button" class="manager-modal-close" onclick="closeAddRegionModal()" aria-label="Close">x</button>
         </div>
 
-        <form class="manager-modal-form" method="POST" action="#">
+        <form class="manager-modal-form" method="POST" action="<?= App\Config\App::url('address/region') ?>">
+            <?= \App\Helpers\Csrf::field(); ?>
             <label class="manager-modal-field">
                 <span>Region Name</span>
                 <input type="text" name="region_name" placeholder="Enter Region Name">

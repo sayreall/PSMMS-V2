@@ -6,7 +6,10 @@ $sidebarDashboardPath = $sidebarResolver->resolvePath($authUser ?? []);
 $sidebarDashboardSlug = basename($sidebarDashboardPath);
 $currentUserRole = strtolower(trim((string)($authUser['role'] ?? '')));
 $isSuperAdminSidebar = ($currentUserRole === 'super_admin' && $sidebarDashboardSlug === 'super-admin');
-$isAdminSidebar = in_array($sidebarDashboardSlug, ['admin', 'accounting'], true);
+$isAdminSidebar = (
+    in_array($sidebarDashboardSlug, ['admin', 'accounting'], true)
+    || strpos($sidebarDashboardSlug, 'admin-') === 0
+);
 $isAsmSidebar = in_array($sidebarDashboardSlug, ['asm-manager', 'asm-super-manager', 'asm-area-sales-manager', 'asm-head-manager'], true);
 
 $menuItems = [];
@@ -51,7 +54,6 @@ if ($isSuperAdminSidebar) {
         'label' => 'Installers',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
         'children' => [
-            ['key' => 'add_installer', 'label' => 'Add Installer', 'url' => App\Config\App::url('installers/create'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>' ],
             ['key' => 'tech_data', 'label' => 'Tech Data', 'url' => App\Config\App::url('installers/tech-data'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h6v6m2 4H7a2 2 0 01-2-2V7a2 2 0 012-2h3l2 2h5a2 2 0 012 2v10a2 2 0 01-2 2z"/>' ],
             ['key' => 'tech_team_area', 'label' => 'Tech Team Area', 'url' => App\Config\App::url('installers/tech-team-area'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>' ],
         ],
@@ -126,7 +128,7 @@ if ($isSuperAdminSidebar) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-dt@1.13.8/css/jquery.dataTables.min.css">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="<?= App\Config\App::url('images/favicon.svg') ?>">
+    <link rel="icon" type="image/png" href="<?= App\Config\App::url('images/paragon.png') ?>">
 
     <?= $styles ?? '' ?>
 </head>

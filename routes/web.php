@@ -60,7 +60,6 @@ $router->group('', function (Router $router): void {
     $router->post('/dispatch-record/dispatch-status', 'Users\\SuperAdmin\\DispatchStatusController@store');
     $router->get('/dispatch-record/dispatch-remarks', 'Users\\SuperAdmin\\DispatchRemarksController@index');
     $router->post('/dispatch-record/dispatch-remarks', 'Users\\SuperAdmin\\DispatchRemarksController@store');
-    $router->get('/installers/create', 'Users\\SuperAdmin\\InstallersController@create');
     $router->get('/installers/tech-data', 'Users\\SuperAdmin\\InstallersController@techData');
     $router->post('/installers/tech-data', 'Users\\SuperAdmin\\InstallersController@storeTechData');
     $router->get('/installers/tech-team-area', 'Users\\SuperAdmin\\InstallersController@techTeamArea');
@@ -76,8 +75,10 @@ $router->group('', function (Router $router): void {
     $router->get('/agent-code', 'Users\\SmeSales\\AgentCodeController@index');
     $router->post('/agent-code', 'Users\\SmeSales\\AgentCodeController@store');
     $router->get('/address/region', 'Users\\SuperAdmin\\AddressRegionController@index');
+    $router->post('/address/region', 'Users\\SuperAdmin\\AddressRegionController@store');
     $router->get('/address/province', 'Users\\SuperAdmin\\AddressProvinceController@index');
     $router->get('/address/municipalities', 'Users\\SuperAdmin\\AddressMunicipalityController@index');
+    $router->post('/address/municipalities', 'Users\\SuperAdmin\\AddressMunicipalityController@store');
 }, [AuthMiddleware::class]);
 
 $router->group('/users', function (Router $router): void {

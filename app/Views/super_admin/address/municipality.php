@@ -73,7 +73,8 @@ $rows = $rows ?? [];
             <button type="button" class="manager-modal-close" onclick="closeAddMunicipalityModal()" aria-label="Close">x</button>
         </div>
 
-        <form class="manager-modal-form" method="POST" action="#">
+        <form class="manager-modal-form" method="POST" action="<?= App\Config\App::url('address/municipalities') ?>">
+            <?= \App\Helpers\Csrf::field(); ?>
             <div class="manager-modal-grid">
                 <label class="manager-modal-field">
                     <span>Region</span>

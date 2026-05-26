@@ -46,7 +46,7 @@ class DashboardRouteResolver
                 'supervisor',
                 'product_business_manager',
             ], true)) {
-                return 'dashboard/admin';
+                return 'dashboard/admin-' . str_replace('_', '-', $position);
             }
         }
 
