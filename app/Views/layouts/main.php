@@ -22,8 +22,8 @@ if ($isSuperAdminSidebar) {
         'label' => 'Area Sales Manager',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
         'children' => [
-            ['key' => 'asm_name', 'label' => 'ASM Name', 'url' => App\Config\App::url('asm/name')],
-            ['key' => 'asm_per_area', 'label' => 'ASM Per Area', 'url' => App\Config\App::url('asm/per-area')],
+            ['key' => 'asm_name', 'label' => 'ASM Name', 'url' => App\Config\App::url('asm/name'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>' ],
+            ['key' => 'asm_per_area', 'label' => 'ASM Per Area', 'url' => App\Config\App::url('asm/per-area'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 01.553-.894L9 2l6 3 5.447-2.724A1 1 0 0121 5.382v10.764a1 1 0 01-.553.894L15 20l-6-3z"/>' ],
         ],
     ];
     $menuItems[] = [
@@ -31,9 +31,9 @@ if ($isSuperAdminSidebar) {
         'label' => 'Sales Record',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>',
         'children' => [
-            ['key' => 'sales_category', 'label' => 'Sales Category', 'url' => App\Config\App::url('sales-category')],
-            ['key' => 'sales_agent', 'label' => 'Sales Agent', 'url' => App\Config\App::url('sales-agent')],
-            ['key' => 'agent_code', 'label' => 'Agent Code', 'url' => App\Config\App::url('agent-code')],
+            ['key' => 'sales_category', 'label' => 'Sales Category', 'url' => App\Config\App::url('sales-category'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h12M3 17h8"/>' ],
+            ['key' => 'sales_agent', 'label' => 'Sales Agent', 'url' => App\Config\App::url('sales-agent'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A10.97 10.97 0 0012 20c2.5 0 4.847-.83 6.879-2.196M15 11a3 3 0 10-6 0 3 3 0 006 0z"/>' ],
+            ['key' => 'agent_code', 'label' => 'Agent Code', 'url' => App\Config\App::url('agent-code'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>' ],
         ],
     ];
     $menuItems[] = [
@@ -41,20 +41,19 @@ if ($isSuperAdminSidebar) {
         'label' => 'Address',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>',
         'children' => [
-            ['key' => 'address_region', 'label' => 'Region', 'url' => App\Config\App::url('address/region')],
-            ['key' => 'address_province', 'label' => 'Province', 'url' => App\Config\App::url('address/province')],
-            ['key' => 'address_municipalities', 'label' => 'Municipalities', 'url' => App\Config\App::url('address/municipalities')],
+            ['key' => 'address_region', 'label' => 'Region', 'url' => App\Config\App::url('address/region'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/>' ],
+            ['key' => 'address_province', 'label' => 'Province', 'url' => App\Config\App::url('address/province'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h7"/>' ],
+            ['key' => 'address_municipalities', 'label' => 'Municipalities', 'url' => App\Config\App::url('address/municipalities'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10l9-6 9 6M5 10v9a1 1 0 001 1h4m4 0h4a1 1 0 001-1v-9"/>' ],
         ],
     ];
     $menuItems[] = [
         'key' => 'installers',
         'label' => 'Installers',
-        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.607 2.296.07 2.572-1.065z"/>',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
         'children' => [
-            ['key' => 'add_installer', 'label' => 'Add Installer', 'url' => App\Config\App::url('installers/create')],
-            ['key' => 'tech_data', 'label' => 'Tech Data', 'url' => App\Config\App::url('installers/tech-data')],
-            ['key' => 'tech_team_area', 'label' => 'Tech Team Area', 'url' => App\Config\App::url('installers/tech-team-area')],
+            ['key' => 'add_installer', 'label' => 'Add Installer', 'url' => App\Config\App::url('installers/create'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>' ],
+            ['key' => 'tech_data', 'label' => 'Tech Data', 'url' => App\Config\App::url('installers/tech-data'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h6v6m2 4H7a2 2 0 01-2-2V7a2 2 0 012-2h3l2 2h5a2 2 0 012 2v10a2 2 0 01-2 2z"/>' ],
+            ['key' => 'tech_team_area', 'label' => 'Tech Team Area', 'url' => App\Config\App::url('installers/tech-team-area'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>' ],
         ],
     ];
     $menuItems[] = ['key' => 'plans', 'label' => 'Plans', 'url' => App\Config\App::url('plan'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>' ];
@@ -63,8 +62,8 @@ if ($isSuperAdminSidebar) {
         'label' => 'Dispatch Record',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V5a2 2 0 012-2h9a2 2 0 012 2v12a2 2 0 01-2 2h-9a2 2 0 01-2-2zM9 17H5a2 2 0 01-2-2V9a2 2 0 012-2h4m0 10h4"/>' ,
         'children' => [
-            ['key' => 'dispatch_status', 'label' => 'Dispatch Status', 'url' => App\Config\App::url('dispatch-record/dispatch-status')],
-            ['key' => 'dispatch_remarks', 'label' => 'Dispatch Remarks', 'url' => App\Config\App::url('dispatch-record/dispatch-remarks')],
+            ['key' => 'dispatch_status', 'label' => 'Dispatch Status', 'url' => App\Config\App::url('dispatch-record/dispatch-status'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>' ],
+            ['key' => 'dispatch_remarks', 'label' => 'Dispatch Remarks', 'url' => App\Config\App::url('dispatch-record/dispatch-remarks'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6M5 20l2-4h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12z"/>' ],
         ],
     ];
     $menuItems[] = ['key' => 'products', 'label' => 'Products', 'url' => App\Config\App::url('products'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>' ];
@@ -155,22 +154,18 @@ if ($isSuperAdminSidebar) {
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-72 h-screen transition-transform duration-300 lg:translate-x-0 -translate-x-full bg-slate-50 border-r border-slate-200 flex flex-col">
 
         <!-- Logo -->
-        <div class="h-16 border-b border-slate-200 px-4 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-primary-700 font-bold text-sm">P</div>
-                <div>
-                    <p class="text-[15px] font-extrabold text-primary-700 leading-none tracking-wide">PSMMS</p>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-wider">Dashboard System</p>
-                </div>
-            </div>
-            <button class="p-2 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors" onclick="toggleSidebar()">
+        <div class="sidebar-header h-20 border-b border-slate-200 px-4 flex items-center justify-between">
+            <button type="button" class="sidebar-logo-button" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+                <img src="<?= App\Config\App::url('images/paragon.png') ?>" alt="Paragon Communications Corp." class="sidebar-logo h-16 w-auto max-w-[180px] object-contain" />
+            </button>
+            <button class="sidebar-collapse-button p-2 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors" onclick="toggleSidebar()" aria-label="Collapse sidebar">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </button>
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-2">
-            <div class="px-1 mb-3">
+        <nav class="sidebar-nav flex-1 overflow-y-auto py-4 px-3 space-y-2">
+            <div class="sidebar-search px-1 mb-3">
                 <div class="relative group">
                     <input type="text" placeholder="Search"
                            class="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-shadow">
@@ -179,7 +174,7 @@ if ($isSuperAdminSidebar) {
             </div>
 
             <!-- Main Section -->
-            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.14em] px-3 mb-1">Main Menu</p>
+            <p class="sidebar-section-title text-[10px] font-semibold text-slate-400 uppercase tracking-[0.14em] px-3 mb-1">Main Menu</p>
 
             <?php foreach ($menuItems as $item): ?>
                 <?php if (!empty($item['children']) && is_array($item['children'])): ?>
@@ -188,29 +183,38 @@ if ($isSuperAdminSidebar) {
                         $isChildActive = in_array((string)($activeRoute ?? ''), $childKeys, true);
                     ?>
                     <details class="group" <?= $isChildActive ? 'open' : '' ?>>
-                        <summary class="list-none cursor-pointer nav-link flex items-center justify-between gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= $isChildActive ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>">
+                        <summary class="list-none cursor-pointer nav-link has-children flex items-center justify-between gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= $isChildActive ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>"
+                                 data-label="<?= htmlspecialchars($item['label']) ?>">
                             <span class="flex items-center gap-3">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><?= $item['icon'] ?></svg>
-                                <?= htmlspecialchars($item['label']) ?>
+                                <span class="nav-label"><?= htmlspecialchars($item['label']) ?></span>
                             </span>
-                            <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="submenu-chevron w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </summary>
-                        <div class="mt-1 ml-7 flex flex-col gap-1">
+                        <div class="submenu-panel mt-1 ml-7 flex flex-col gap-1">
                             <?php foreach ($item['children'] as $child): ?>
-                                <a href="<?= htmlspecialchars($child['url']) ?>"
+                                          <a href="<?= htmlspecialchars($child['url']) ?>"
+                                              title="<?= htmlspecialchars($child['label'] ?? '') ?>"
+                                              data-label="<?= htmlspecialchars($child['label'] ?? '') ?>"
                                    class="nav-link px-3 py-2 text-[12px] font-medium rounded-lg transition-colors duration-200 <?= ($activeRoute ?? '') === ($child['key'] ?? '') ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'text-slate-600 hover:bg-slate-100' ?>">
-                                    <?= htmlspecialchars($child['label'] ?? '') ?>
+                                    <span class="submenu-icon" aria-hidden="true">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <?= $child['icon'] ?? '<circle cx="12" cy="12" r="3" stroke-width="2" />' ?>
+                                        </svg>
+                                    </span>
+                                    <span class="nav-label"><?= htmlspecialchars($child['label'] ?? '') ?></span>
                                 </a>
                             <?php endforeach; ?>
                         </div>
                     </details>
                 <?php else: ?>
-                    <a href="<?= htmlspecialchars($item['url']) ?>"
-                       class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= ($activeRoute ?? '') === $item['key'] ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>">
+                          <a href="<?= htmlspecialchars($item['url']) ?>"
+                              data-label="<?= htmlspecialchars($item['label']) ?>"
+                              class="nav-link flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200 <?= ($activeRoute ?? '') === $item['key'] ? 'bg-blue-50 text-blue-600 border border-blue-100' : '' ?>">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><?= $item['icon'] ?></svg>
-                        <?= htmlspecialchars($item['label']) ?>
+                        <span class="nav-label"><?= htmlspecialchars($item['label']) ?></span>
                     </a>
                 <?php endif; ?>
             <?php endforeach; ?>
@@ -220,18 +224,20 @@ if ($isSuperAdminSidebar) {
         <div class="border-t border-slate-200 p-3">
             <form method="POST" action="<?= App\Config\App::url('logout') ?>" id="logout-form" class="contents">
                 <?= \App\Helpers\Csrf::field(); ?>
-                <button type="submit"
+                     <button type="submit"
                    onclick="return confirmLogout(event)"
-                   class="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200">
+                         data-label="Logout"
+                         class="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-200">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                Logout
+                <span class="nav-label">Logout</span>
                 </button>
             </form>
         </div>
     </aside>
+    <div id="sidebar-tooltip" class="sidebar-tooltip" role="tooltip" aria-hidden="true"></div>
 
     <!-- Main Content -->
-    <div class="lg:pl-72 min-h-screen flex flex-col">
+    <div class="main-content lg:pl-72 min-h-screen flex flex-col">
 
         <!-- Top Navbar -->
         <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80">

@@ -2,11 +2,31 @@ function appState() {
     return { sidebarOpen: false };
 }
 
+function applyDesktopSidebarState() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+    if (!isDesktop) return;
+
+    const isCollapsed = localStorage.getItem('sidebar-collapsed') === '1';
+    sidebar.classList.toggle('is-collapsed', isCollapsed);
+    document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+}
+
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    if (!sidebar || !overlay) return;
+    if (!sidebar) return;
 
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+    if (isDesktop) {
+        const isCollapsed = sidebar.classList.toggle('is-collapsed');
+        document.body.classList.toggle('sidebar-collapsed', isCollapsed);
+        localStorage.setItem('sidebar-collapsed', isCollapsed ? '1' : '0');
+        return;
+    }
+
+    if (!overlay) return;
     const isHidden = sidebar.classList.contains('-translate-x-full');
     sidebar.classList.toggle('-translate-x-full', !isHidden);
     overlay.classList.toggle('hidden', !isHidden);
@@ -262,6 +282,153 @@ function bindConfirmations() {
     });
 }
 
+function initSidebarTooltips() {
+    const tooltip = document.getElementById('sidebar-tooltip');
+    const sidebar = document.getElementById('sidebar');
+    if (!tooltip || !sidebar) return;
+
+    const showTooltip = (target) => {
+        if (!document.body.classList.contains('sidebar-collapsed')) return;
+        if (target.closest('details')) return;
+
+        const label = target.dataset.label || '';
+        if (!label) return;
+
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const top = targetRect.top + targetRect.height / 2;
+        const left = sidebarRect.right + 12;
+
+        tooltip.textContent = label;
+        tooltip.style.top = `${top}px`;
+        tooltip.style.left = `${left}px`;
+        tooltip.classList.add('is-visible');
+        tooltip.setAttribute('aria-hidden', 'false');
+    };
+
+    const hideTooltip = () => {
+        tooltip.classList.remove('is-visible');
+        tooltip.setAttribute('aria-hidden', 'true');
+    };
+
+    sidebar.querySelectorAll('[data-label]').forEach((item) => {
+        if (item.closest('details')) return;
+        item.addEventListener('mouseenter', () => showTooltip(item));
+        item.addEventListener('mouseleave', hideTooltip);
+        item.addEventListener('focus', () => showTooltip(item));
+        item.addEventListener('blur', hideTooltip);
+    });
+
+    sidebar.addEventListener('scroll', hideTooltip);
+    window.addEventListener('scroll', hideTooltip);
+    window.addEventListener('resize', hideTooltip);
+}
+
+function initCollapsedDropdowns() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    let closeTimer = null;
+    const setPanelState = (details, isOpen) => {
+        const panel = details.querySelector('.submenu-panel');
+        if (!panel) return;
+        details.classList.toggle('is-open', isOpen);
+        if (isOpen) {
+            details.setAttribute('open', 'open');
+            panel.style.display = 'flex';
+            panel.style.pointerEvents = 'auto';
+            return;
+        }
+        details.removeAttribute('open');
+        panel.style.display = '';
+        panel.style.pointerEvents = '';
+    };
+
+    const closeAll = () => {
+        sidebar.querySelectorAll('details').forEach((details) => {
+            setPanelState(details, false);
+        });
+    };
+
+    const positionPanel = (summary, panel) => {
+        const rect = summary.getBoundingClientRect();
+        panel.style.top = `${rect.top}px`;
+        panel.style.left = `${rect.right + 4}px`;
+    };
+
+    sidebar.querySelectorAll('details').forEach((details) => {
+        const summary = details.querySelector('summary.has-children');
+        const panel = details.querySelector('.submenu-panel');
+        if (!summary || !panel) return;
+
+        // 1. PERFECTED CLICK TOGGLE
+        summary.addEventListener('click', (event) => {
+            if (!document.body.classList.contains('sidebar-collapsed')) return;
+            event.preventDefault(); // Stop native HTML accordion
+
+            const isOpen = details.classList.contains('is-open');
+            if (isOpen) {
+                setPanelState(details, false);
+            } else {
+                closeAll();
+                setPanelState(details, true);
+                positionPanel(summary, panel);
+            }
+        });
+
+        const openPanel = () => {
+            if (!document.body.classList.contains('sidebar-collapsed')) return;
+            closeAll(); // Close others before opening this one
+            setPanelState(details, true);
+            positionPanel(summary, panel);
+        };
+
+        const scheduleClose = () => {
+            if (!document.body.classList.contains('sidebar-collapsed')) return;
+            if (closeTimer) clearTimeout(closeTimer);
+            
+            // 2. INCREASED TIMEOUT: Gives you time to cross the 10px gap
+            closeTimer = setTimeout(() => {
+                setPanelState(details, false);
+            }, 500);
+        };
+
+        const cancelClose = () => {
+            if (closeTimer) {
+                clearTimeout(closeTimer);
+                closeTimer = null;
+            }
+        };
+
+        // Hover events
+        summary.addEventListener('mouseenter', () => {
+            cancelClose();
+            openPanel();
+        });
+
+        summary.addEventListener('mouseleave', scheduleClose);
+        
+        // Catch the mouse when it lands on the panel!
+        panel.addEventListener('mouseenter', cancelClose);
+        panel.addEventListener('mouseleave', scheduleClose);
+        panel.addEventListener('click', (event) => event.stopPropagation());
+    });
+
+    // 3. IMPROVED OUTSIDE CLICK DETECTION
+    document.addEventListener('click', (event) => {
+        if (!document.body.classList.contains('sidebar-collapsed')) return;
+        
+        // If we are clicking inside an ALREADY OPEN details panel/summary, do nothing.
+        if (event.target.closest('details.is-open')) return;
+        
+        closeAll();
+    });
+
+    // Close on scroll/resize to prevent floating orphan menus
+    window.addEventListener('scroll', closeAll);
+    window.addEventListener('resize', closeAll);
+}
+
 function initDataTables() {
     if (!window.jQuery || !jQuery.fn.DataTable) return;
 
@@ -458,10 +625,14 @@ async function refreshStats() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    applyDesktopSidebarState();
     initTheme();
     bindAjaxForms();
     bindConfirmations();
     bindProfileMenu();
+    initSidebarTooltips();
+    initCollapsedDropdowns();
     initDataTables();
     initCharts();
+    window.addEventListener('resize', applyDesktopSidebarState);
 });

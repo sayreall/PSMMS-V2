@@ -10,10 +10,10 @@ use App\Helpers\Session;
 use App\Helpers\Upload;
 use App\Helpers\Validation;
 use App\Models\DashboardRouteResolver;
-use App\Models\AdminModel;
-use App\Models\InhouseSalesModel;
-use App\Models\ManagerModel;
-use App\Models\MsaPartnerModel;
+use App\Models\Users\SuperAdmin\AdminModel;
+use App\Models\Users\InhouseSales\InhouseSalesModel;
+use App\Models\Users\AsmManager\ManagerModel;
+use App\Models\Users\MsaPartners\MsaPartnerModel;
 use App\Models\UserModel;
 
 class AuthController extends BaseController
