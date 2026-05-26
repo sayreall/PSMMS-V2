@@ -13,28 +13,28 @@ $activeRoute = 'dashboard';
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center hover:shadow-md transition-shadow">
-            <div class="w-full h-24 bg-white rounded-lg border border-slate-100 p-2 mb-2 flex items-center justify-center overflow-hidden">
-                <img src="<?= App\Config\App::url('images/s2s.jpg') ?>" alt="S2S" class="max-w-full max-h-full object-contain">
+            <div class="w-full h-24 bg-white rounded-lg border border-slate-100 p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame dashboard-product-logo-frame--light">
+                <img src="<?= App\Config\App::url('images/s2s.jpg') ?>" alt="S2S" class="max-w-full max-h-full object-contain dashboard-product-logo">
             </div>
             <p class="text-[10px] uppercase tracking-wide text-slate-400">FiberX Activation</p>
             <p id="stat-active-users" class="text-xl font-extrabold text-primary-700 mt-1"><?= (int)($stats['active_users'] ?? 0) ?></p>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center hover:shadow-md transition-shadow">
-            <div class="w-full h-24 bg-white rounded-lg border border-slate-100 p-2 mb-2 flex items-center justify-center overflow-hidden">
+            <div class="w-full h-24 bg-white rounded-lg border border-slate-100 p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame">
                 <img src="<?= App\Config\App::url('images/fiberx.png') ?>" alt="FiberX" class="max-w-full max-h-full object-contain">
             </div>
             <p class="text-[10px] uppercase tracking-wide text-slate-400">FiberX New</p>
             <p id="stat-total-users" class="text-xl font-extrabold text-indigo-600 mt-1"><?= (int)($stats['total_users'] ?? 0) ?></p>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center hover:shadow-md transition-shadow">
-            <div class="w-full h-24 bg-white rounded-lg border border-slate-100 p-2 mb-2 flex items-center justify-center overflow-hidden">
-                <img src="<?= App\Config\App::url('images/bida.jpg') ?>" alt="Bida" class="max-w-full max-h-full object-contain">
+            <div class="w-full h-24 bg-white rounded-lg border border-slate-100 p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame dashboard-product-logo-frame--light">
+                <img src="<?= App\Config\App::url('images/bida.jpg') ?>" alt="Bida" class="max-w-full max-h-full object-contain dashboard-product-logo">
             </div>
             <p class="text-[10px] uppercase tracking-wide text-slate-400">Bida</p>
             <p id="stat-admins" class="text-xl font-extrabold text-blue-600 mt-1"><?= (int)($stats['admins'] ?? 0) ?></p>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center hover:shadow-md transition-shadow">
-            <div class="w-full h-24 bg-white rounded-lg border border-slate-100 p-2 mb-2 flex items-center justify-center overflow-hidden">
+            <div class="w-full h-24 bg-white rounded-lg border border-slate-100 p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame">
                 <img src="<?= App\Config\App::url('images/sme.png') ?>" alt="SME" class="max-w-full max-h-full object-contain">
             </div>
             <p class="text-[10px] uppercase tracking-wide text-slate-400">Converge</p>

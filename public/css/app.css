@@ -887,3 +887,248 @@ table.dataTable tbody td {
         padding: 4px;
     }
 }
+
+html.dark body {
+    background: radial-gradient(1200px 600px at 70% 85%, rgba(30, 64, 175, 0.18), transparent 60%), #030b1e !important;
+    color: #dbe7ff !important;
+}
+
+html.dark #page-loader {
+    background: #030b1e !important;
+}
+
+html.dark .fixed.inset-0.-z-10 .bg-primary-200\/40,
+html.dark .fixed.inset-0.-z-10 .bg-cyan-200\/30,
+html.dark .fixed.inset-0.-z-10 .bg-slate-200\/40 {
+    opacity: 0.25 !important;
+}
+
+html.dark #sidebar,
+html.dark .manager-table-card,
+html.dark .profile-trigger,
+html.dark .profile-dropdown,
+html.dark .manager-modal,
+html.dark .manager-modal-close,
+html.dark #modal-content,
+html.dark #confirm-dialog .bg-white,
+html.dark .bg-white,
+html.dark .bg-slate-50 {
+    background: linear-gradient(180deg, #0d1830 0%, #0a1429 100%) !important;
+    border-color: #223a63 !important;
+    color: #dbe7ff !important;
+}
+
+html.dark header.sticky {
+    background: rgba(7, 18, 41, 0.88) !important;
+    border-bottom-color: #20365c !important;
+    backdrop-filter: blur(10px);
+}
+
+html.dark .manager-table-head,
+html.dark .manager-table-footer,
+html.dark .dispatch-preview,
+html.dark .manager-view-grid p,
+html.dark .manager-modal-field input,
+html.dark .manager-modal-field select,
+html.dark .profile-avatar,
+html.dark .sidebar-collapsed .submenu-panel,
+html.dark .sidebar-collapsed .submenu-panel .nav-link,
+html.dark .bg-slate-100,
+html.dark .bg-slate-200 {
+    background: #0b1a36 !important;
+    border-color: #25426f !important;
+    color: #c8d8f7 !important;
+}
+
+html.dark .manager-table-grid thead th,
+html.dark table.dataTable thead th {
+    background: #122546 !important;
+    color: #bcd0f2 !important;
+    border-color: #28456f !important;
+}
+
+html.dark .manager-table-grid tbody td,
+html.dark .manager-table-grid thead th,
+html.dark .border-slate-200,
+html.dark .border-slate-200\/80 {
+    border-color: #27456f !important;
+}
+
+html.dark .manager-table-grid tbody tr:hover,
+html.dark .profile-dropdown-item:hover,
+html.dark .manager-action-icon:hover,
+html.dark .hover\:bg-slate-100:hover {
+    background: #142a4f !important;
+}
+
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-slate-700,
+html.dark .text-slate-600,
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700,
+html.dark .text-gray-600,
+html.dark .text-zinc-900,
+html.dark .text-zinc-800,
+html.dark .text-zinc-700,
+html.dark .text-zinc-600,
+html.dark .text-neutral-900,
+html.dark .text-neutral-800,
+html.dark .text-neutral-700,
+html.dark .text-neutral-600,
+html.dark .nav-link,
+html.dark .profile-name,
+html.dark .profile-dropdown-name,
+html.dark .manager-name-cell,
+html.dark .manager-table-title,
+html.dark .manager-modal-header h3,
+html.dark label,
+html.dark .form-label,
+html.dark .manager-control-input,
+html.dark .manager-control-select,
+html.dark .manager-control-icon,
+html.dark #confirm-title {
+    color: #dbe7ff !important;
+}
+
+html.dark .text-slate-500,
+html.dark .text-slate-400,
+html.dark .text-gray-500,
+html.dark .text-gray-400,
+html.dark .text-zinc-500,
+html.dark .text-zinc-400,
+html.dark .text-neutral-500,
+html.dark .text-neutral-400,
+html.dark .profile-role,
+html.dark .profile-dropdown-role,
+html.dark .manager-table-grid tbody td,
+html.dark .manager-modal-field span,
+html.dark .manager-view-grid span,
+html.dark .dispatch-preview-label,
+html.dark .manager-delete-text,
+html.dark #confirm-message,
+html.dark .dataTables_wrapper .dataTables_info,
+html.dark .dataTables_wrapper .dataTables_length,
+html.dark .dataTables_wrapper .dataTables_filter,
+html.dark .dataTables_wrapper .dataTables_paginate {
+    color: #90a7d0 !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea,
+html.dark #global-search,
+html.dark .sidebar-search input {
+    background: #09152c !important;
+    border-color: #2a4a79 !important;
+    color: #dbe7ff !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+    color: #6986b6 !important;
+}
+
+html.dark .manager-add-btn,
+html.dark .bg-primary-600,
+html.dark .hover\:bg-primary-700:hover {
+    background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%) !important;
+    border-color: #0ea5e9 !important;
+    color: #f0f9ff !important;
+}
+
+html.dark .manager-badge-approved {
+    background: #0f3d2e !important;
+    color: #9ef0c6 !important;
+}
+
+html.dark .manager-badge-pending {
+    background: #45320f !important;
+    color: #f6dda2 !important;
+}
+
+html.dark .manager-badge-declined {
+    background: #4a1e27 !important;
+    color: #ffc4cc !important;
+}
+
+html.dark .text-sky-600,
+html.dark .text-cyan-600,
+html.dark .text-primary-700 {
+    color: #38d5ff !important;
+}
+
+html.dark .text-blue-600,
+html.dark .text-blue-700,
+html.dark .text-indigo-600,
+html.dark .text-violet-600 {
+    color: #8db7ff !important;
+}
+
+html.dark .text-emerald-600,
+html.dark .text-teal-600 {
+    color: #58e6bd !important;
+}
+
+html.dark .text-orange-600,
+html.dark .text-amber-600,
+html.dark .text-rose-600,
+html.dark .text-red-500,
+html.dark .text-red-600 {
+    filter: brightness(1.25);
+}
+
+html.dark .manager-modal-field label,
+html.dark .manager-modal-field span,
+html.dark .inline-flex span,
+html.dark .manager-view-grid p,
+html.dark .dispatch-color-value {
+    color: #dbe7ff !important;
+}
+
+html.dark .manager-control-input,
+html.dark .manager-control-select,
+html.dark .manager-control-icon,
+html.dark .manager-page-btn,
+html.dark .profile-dropdown-item,
+html.dark .manager-action-icon {
+    background: #09152c !important;
+    border-color: #2a4a79 !important;
+}
+
+html.dark #sidebar .nav-link,
+html.dark #sidebar .nav-link svg,
+html.dark #sidebar .sidebar-search svg,
+html.dark #sidebar .sidebar-collapse-button,
+html.dark #sidebar .sidebar-section-title {
+    color: #cfe0ff !important;
+}
+
+html.dark #sidebar .nav-link:hover,
+html.dark #sidebar .nav-link:hover svg {
+    color: #ffffff !important;
+}
+
+html.dark #sidebar .bg-blue-50,
+html.dark #sidebar .text-blue-600,
+html.dark #sidebar .border-blue-100 {
+    background: #1a3d6f !important;
+    color: #eaf2ff !important;
+    border-color: #2f5f9f !important;
+}
+
+html.dark .dashboard-product-logo-frame {
+    background: #0a1731 !important;
+    border-color: #2a4a79 !important;
+}
+
+html.dark .dashboard-product-logo-frame--light {
+    background: #f8fafc !important;
+    border-color: #dbeafe !important;
+}
+
+html.dark .dashboard-product-logo {
+    mix-blend-mode: normal;
+    filter: none;
+}

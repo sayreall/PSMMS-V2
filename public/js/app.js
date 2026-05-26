@@ -42,12 +42,33 @@ function toggleTheme() {
     const root = document.documentElement;
     const isDark = root.classList.toggle('dark');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    syncThemeUi();
 }
 
 function initTheme() {
     const stored = localStorage.getItem('theme');
-    if (stored === 'dark') {
-        document.documentElement.classList.add('dark');
+    if (stored === 'dark' || stored === 'light') {
+        document.documentElement.classList.toggle('dark', stored === 'dark');
+    } else {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', prefersDark);
+    }
+    syncThemeUi();
+}
+
+function syncThemeUi() {
+    const icon = document.getElementById('theme-icon');
+    const button = document.querySelector('button[onclick="toggleTheme()"]');
+    if (!icon) return;
+
+    const isDark = document.documentElement.classList.contains('dark');
+    icon.innerHTML = isDark
+        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8-9h1M3 12H2m15.364 6.364l.707.707M5.636 5.636l-.707-.707m12.728 0l.707-.707M5.636 18.364l-.707.707M12 7a5 5 0 100 10 5 5 0 000-10z"/>'
+        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+
+    if (button) {
+        button.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+        button.setAttribute('aria-label', button.title);
     }
 }
 

@@ -54,6 +54,25 @@ $heroDetails = [
         border-radius: 14px;
         background: #ffffff;
     }
+    html.dark .profile-info-card {
+        background: linear-gradient(180deg, #0d1830 0%, #0a1429 100%);
+        border-color: #223a63;
+    }
+    html.dark .profile-info-card h2,
+    html.dark .profile-info-card p {
+        color: #dbe7ff !important;
+    }
+    html.dark .profile-info-card .text-slate-500 {
+        color: #90a7d0 !important;
+    }
+    html.dark .profile-info-card .border-slate-200 {
+        border-color: #27456f !important;
+    }
+    html.dark .profile-info-card .bg-slate-50 {
+        background: #09152c !important;
+        border-color: #2a4a79 !important;
+        color: #dbe7ff !important;
+    }
 </style>
 
 <div class="w-full max-w-none space-y-6">
