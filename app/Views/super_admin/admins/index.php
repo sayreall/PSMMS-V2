@@ -172,9 +172,21 @@ $admins = $admins ?? [];
                 <label class="manager-modal-field">
                     <span>Position</span>
                     <select name="position">
-                        <option value="">Type of Manager Position</option>
+                        <option value="">Select Type of Position</option>
+                        <option value="dispatcher">Dispatcher</option>
+                        <option value="tech_leaders">Tech Leaders</option>
+                        <option value="sales_team_leader">Sales Team Leader</option>
+                        <option value="validator">Validator</option>
+                        <option value="accounting">Accounting</option>
                         <option value="sales_admin">Sales Admin</option>
-                        <option value="operations_admin">Operations Admin</option>
+                        <option value="backend">Backend</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="area_sales_manager">Area Sales Manager</option>
+                        <option value="general_manager">General Manager</option>
+                        <option value="product_business_manager">Product &amp; Business Manager</option>
                     </select>
                 </label>
 

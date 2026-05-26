@@ -27,11 +27,18 @@ class DispatchStatusController extends BaseController
 
     public function index(): string
     {
-        $rows = $this->dispatchStatusModel->all(
-            ['id', 'dispatch_status', 'color', 'created_at'],
-            [],
-            ['id' => 'ASC']
-        );
+        try {
+            $rows = $this->dispatchStatusModel->all(
+                ['id', 'dispatch_status', 'color', 'created_at'],
+                [],
+                ['id' => 'ASC']
+            );
+        } catch (\Throwable $e) {
+            error_log('Dispatch status list failed: ' . $e->getMessage());
+            Session::flash('message', 'Dispatch status table is not ready yet. Please run database migrations.');
+            Session::flash('message_type', 'error');
+            $rows = [];
+        }
 
         return $this->render('super_admin.dispatch.status', [
             'title' => 'Dispatch Status',

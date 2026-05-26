@@ -293,7 +293,6 @@ if ($isSuperAdminSidebar) {
                                 <span class="profile-dropdown-role"><?= htmlspecialchars($profileRole) ?></span>
                             </div>
                             <a href="<?= App\Config\App::url('dashboard/profile/view') ?>" class="profile-dropdown-item" role="menuitem">View profile</a>
-                            <a href="<?= App\Config\App::url('dashboard/profile') ?>" class="profile-dropdown-item" role="menuitem">Settings</a>
                             <form method="POST" action="<?= App\Config\App::url('logout') ?>" class="profile-dropdown-form" role="menuitem">
                                 <?= \App\Helpers\Csrf::field(); ?>
                                 <button type="submit" class="profile-dropdown-item profile-dropdown-logout" onclick="return confirmLogout(event)">Logout</button>

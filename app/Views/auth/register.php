@@ -103,7 +103,7 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
 
     <div class="form-col" data-role-only="inhouse_sales" data-role-field hidden>
         <label class="form-label">Employee ID</label>
-        <input type="text" name="inhouse_employee_id" value="<?= htmlspecialchars($old['inhouse_employee_id'] ?? '') ?>" class="form-input" placeholder="PCC1234" data-validate-base="required" data-role-only="inhouse_sales" maxlength="7" pattern="PCC[0-9]{4}">
+        <input type="text" name="inhouse_employee_id" value="<?= htmlspecialchars($old['inhouse_employee_id'] ?? '') ?>" class="form-input" placeholder="Enter Employee ID" data-validate-base="required" data-role-only="inhouse_sales" maxlength="7" pattern="PCC[0-9]{4}">
         <p class="form-error" data-error-for="inhouse_employee_id"><?= $errors['inhouse_employee_id'][0] ?? '' ?></p>
     </div>
 
@@ -122,11 +122,6 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
         <p class="form-error" data-error-for="inhouse_email"><?= $errors['inhouse_email'][0] ?? '' ?></p>
     </div>
 
-    <div class="form-col form-col-full" data-role-only="inhouse_sales" data-role-field hidden>
-        <label class="form-label">Profile Picture</label>
-        <input type="file" name="inhouse_profile_picture" class="form-input" accept="image/*" data-role-only="inhouse_sales">
-        <p class="form-error" data-error-for="inhouse_profile_picture"><?= $errors['inhouse_profile_picture'][0] ?? '' ?></p>
-    </div>
 
     <div class="form-col" data-role-only="msa_partners" data-role-field hidden>
         <label class="form-label">Company name</label>
@@ -178,11 +173,6 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
         <p class="form-error" data-error-for="msa_email"><?= $errors['msa_email'][0] ?? '' ?></p>
     </div>
 
-    <div class="form-col" data-role-only="msa_partners" data-role-field hidden>
-        <label class="form-label">Profile Picture</label>
-        <input type="file" name="msa_profile_picture" class="form-input" accept="image/*" data-role-only="msa_partners">
-        <p class="form-error" data-error-for="msa_profile_picture"><?= $errors['msa_profile_picture'][0] ?? '' ?></p>
-    </div>
 
     <div class="form-col" data-role-only="super_admin" data-role-field hidden>
         <label class="form-label">Position</label>
@@ -215,7 +205,7 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
 
     <div class="form-col" data-role-only="super_admin" data-role-field hidden>
         <label class="form-label">Employee ID</label>
-        <input type="text" name="admin_employee_id" value="<?= htmlspecialchars($old['admin_employee_id'] ?? '') ?>" class="form-input" placeholder="PCC1234" data-validate-base="required" data-role-only="super_admin" maxlength="7" pattern="PCC[0-9]{4}">
+        <input type="text" name="admin_employee_id" value="<?= htmlspecialchars($old['admin_employee_id'] ?? '') ?>" class="form-input" placeholder="Enter Employee ID" data-validate-base="required" data-role-only="super_admin" maxlength="7" pattern="PCC[0-9]{4}">
         <p class="form-error" data-error-for="admin_employee_id"><?= $errors['admin_employee_id'][0] ?? '' ?></p>
     </div>
 
@@ -249,11 +239,6 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
         <p class="form-error" data-error-for="email"><?= $errors['email'][0] ?? '' ?></p>
     </div>
 
-    <div class="form-col form-col-full" data-role-only="super_admin" data-role-field hidden>
-        <label class="form-label">Profile Picture</label>
-        <input type="file" name="profile_picture" class="form-input" accept="image/*">
-        <p class="form-error" data-error-for="profile_picture"><?= $errors['profile_picture'][0] ?? '' ?></p>
-    </div>
 
     <div class="form-col">
         <label class="form-label">Password</label>

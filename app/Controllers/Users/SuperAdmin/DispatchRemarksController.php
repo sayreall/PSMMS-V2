@@ -27,11 +27,18 @@ class DispatchRemarksController extends BaseController
 
     public function index(): string
     {
-        $rows = $this->dispatchRemarksModel->all(
-            ['id', 'dispatch_remarks', 'created_at'],
-            [],
-            ['id' => 'ASC']
-        );
+        try {
+            $rows = $this->dispatchRemarksModel->all(
+                ['id', 'dispatch_remarks', 'created_at'],
+                [],
+                ['id' => 'ASC']
+            );
+        } catch (\Throwable $e) {
+            error_log('Dispatch remarks list failed: ' . $e->getMessage());
+            Session::flash('message', 'Dispatch remarks table is not ready yet. Please run database migrations.');
+            Session::flash('message_type', 'error');
+            $rows = [];
+        }
 
         return $this->render('super_admin.dispatch.remarks', [
             'title' => 'Dispatch Remarks',

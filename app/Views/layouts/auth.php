@@ -16,7 +16,7 @@
     />
     <link rel="stylesheet" href="<?= App\Config\App::url('css/auth.css') ?>">
 </head>
-<body class="auth-shell">
+<body class="auth-shell auth-login">
     <main class="auth-wrap">
         <section class="auth-visual" aria-hidden="true">
             <div class="visual-grid"></div>

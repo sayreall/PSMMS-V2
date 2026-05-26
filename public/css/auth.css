@@ -39,12 +39,22 @@ body.auth-shell {
         linear-gradient(160deg, #0f172a 0%, #312e81 50%, #111827 100%);
 }
 
+body.auth-login .auth-visual {
+    background:
+        linear-gradient(120deg, rgba(8, 47, 73, 0.72) 0%, rgba(15, 23, 42, 0.62) 45%, rgba(30, 58, 138, 0.68) 100%),
+        url('../images/loginbg.png') center center / cover no-repeat;
+}
+
 .visual-grid {
     position: absolute;
     inset: 0;
     background-image: linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
     background-size: 34px 34px;
     opacity: 0.2;
+}
+
+body.auth-login .visual-grid {
+    opacity: 0.1;
 }
 
 .visual-glow {
@@ -55,6 +65,14 @@ body.auth-shell {
     background: radial-gradient(circle, rgba(167,139,250,0.42), rgba(79,70,229,0));
     bottom: -160px;
     left: -120px;
+}
+
+body.auth-login .visual-glow {
+    width: 560px;
+    height: 560px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.26), rgba(30, 64, 175, 0));
+    bottom: -180px;
+    left: -140px;
 }
 
 .visual-content {
@@ -224,6 +242,36 @@ body.auth-shell {
     background: #fff;
 }
 
+.input-icon-wrap,
+.password-input-wrap {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-icon-left {
+    left: 12px;
+}
+
+.input-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.input-icon-wrap .form-input,
+.password-input-wrap.has-left-icon .form-input {
+    padding-left: 38px;
+}
+
 .input-suffix-wrap {
     display: flex;
     align-items: stretch;
@@ -292,10 +340,6 @@ body.auth-shell {
     outline: none;
     border-color: #818cf8;
     box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18);
-}
-
-.password-input-wrap {
-    position: relative;
 }
 
 .password-input-wrap .form-input {
