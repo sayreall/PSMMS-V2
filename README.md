@@ -11,11 +11,14 @@ Modern PHP 8 dashboard with MVC architecture, Tailwind UI, and MySQL storage. In
 - Chart.js analytics and DataTables table styling
 - Secure prepared statements and session hardening
 - API endpoints with JWT authentication
+- Super Admin Address management for Regions, Provinces, and Municipalities
+- Local Tailwind CSS build pipeline for compiled application styles
 
 ## Requirements
 - PHP 8.0+ with PDO MySQL, JSON, mbstring, openssl
 - MySQL 5.7+ or MariaDB 10.3+
 - Composer
+- Node.js and npm for rebuilding Tailwind CSS
 
 ## PHP ini setup (Windows)
 1. Find the active `php.ini`:
@@ -41,6 +44,7 @@ Modern PHP 8 dashboard with MVC architecture, Tailwind UI, and MySQL storage. In
 1. Install dependencies:
    ```bash
    composer install
+   npm install
    ```
 2. Copy environment file:
    ```bash
@@ -55,7 +59,22 @@ Modern PHP 8 dashboard with MVC architecture, Tailwind UI, and MySQL storage. In
    ```bash
    php -S localhost:8000 -t public
    ```
-6. Open http://localhost:8000
+6. Rebuild CSS after changing `public/css/input.css` or Tailwind classes:
+   ```bash
+   npm run build:css
+   ```
+7. Open http://localhost:8000
+
+## Frontend CSS build
+Tailwind CSS is compiled locally from `public/css/input.css` into `public/css/app.css`.
+
+Available npm scripts:
+```bash
+npm run build:css
+npm run watch:css
+```
+
+The main layout loads the compiled `public/css/app.css` file directly, so the Tailwind CDN script is no longer required for dashboard pages.
 
 ## Default admin account
 - Email: `admin@psmms.local`
@@ -118,6 +137,11 @@ Send `Authorization: Bearer <jwt>` for protected endpoints.
 - `GET /users/{id}/edit` users edit form (admin)
 - `PUT /users/{id}` users update (admin)
 - `DELETE /users/{id}` users delete (admin)
+- `GET /address/region` region management page (super admin)
+- `POST /address/region` create region (super admin)
+- `GET /address/province` province management page (super admin)
+- `GET /address/municipalities` municipality management page (super admin)
+- `POST /address/municipalities` create municipality with region/province lookup (super admin)
 
 ### API routes
 - `POST /api/auth/login` JWT login
@@ -132,10 +156,11 @@ Send `Authorization: Bearer <jwt>` for protected endpoints.
 - Auth: `app/Views/auth/*` (login/register/forgot password + errors)
 - Dashboard: `app/Views/dashboard/*`
 - Users: `app/Views/users/*`
+- Super Admin Address: `app/Views/super_admin/address/*`
 - Layouts and partials: `app/Views/layouts/*`, `app/Views/partials/*`
 
 ### Assets
-- CSS: `public/css/app.css`, `public/css/auth.css`, `public/css/toast.css`
+- CSS: `public/css/input.css` (Tailwind source), `public/css/app.css` (compiled output), `public/css/auth.css`, `public/css/toast.css`
 - JS: `public/js/app.js`, `public/js/auth.js`, `public/js/modal.js`, `public/js/search.js`, `public/js/toast.js`
 - Image: `public/images/favicon.svg`
 
