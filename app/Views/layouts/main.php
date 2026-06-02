@@ -121,25 +121,7 @@ if ($isSuperAdminSidebar) {
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: {'50':'#ecfeff','100':'#cffafe','200':'#a5f3fc','300':'#67e8f9','400':'#22d3ee','500':'#06b6d4','600':'#0891b2','700':'#0e7490','800':'#155e75','900':'#164e63'},
-                        secondary: {'500':'#0f172a','600':'#0b1324','700':'#0a1220','800':'#111827','900':'#0b1120'},
-                    }
-                }
-            }
-        };
-    </script>
-
-    <!-- Custom CSS -->
+    <!-- App CSS -->
     <link rel="stylesheet" href="<?= App\Config\App::url('css/app.css') ?>">
 
     <!-- Alpine.js for reactive UI -->
