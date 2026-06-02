@@ -14,6 +14,9 @@ if ($dashboardSlug === 'asm-head-manager') {
         'productivity-per-area' => 'productivity_per_area',
         'pending-job-order' => 'pending_job_order',
         'sales-turn-ins' => 'sales_turn_ins',
+        'daily-flow-thru' => 'daily_flow_thru',
+        'partners-report' => 'partners_report',
+        'tat-activation' => 'tat_activation',
         'faq' => 'faq',
     ];
     $headManagerSection = strtolower(trim((string)($_GET['section'] ?? '')));
@@ -491,6 +494,1950 @@ if ($dashboardSlug === 'asm-head-manager') {
                 });
                 document.addEventListener('keydown', (event) => {
                     if (event.key === 'Escape') hideModal();
+                });
+            });
+        </script>
+        <?php
+        return;
+    }
+
+    if ($activeRoute === 'daily_tech_productivity') {
+        $dailyTechDate = (string)($_GET['dispatch_date'] ?? '2026-01-29');
+        $dailyTechAreas = [
+            'all' => 'ALL AREA',
+            'camanava' => 'CAMANAVA',
+            'manila' => 'MANILA',
+            'paranaque' => 'PARANAQUE',
+            'quezon-city' => 'QUEZON CITY',
+        ];
+        $dailyTechRows = [
+            ['area' => 'camanava', 'installer' => 'BUCO/MACLANGBAYAN/TRADIO', 'activated' => 4, 'reschedule' => 1, 'rjo' => 1, 'for_activation' => 0, 'for_installation' => 1, 'cancelled' => 0, 'on_hold' => 1],
+            ['area' => 'manila', 'installer' => 'DOMINGO/REYES/ROQUE', 'activated' => 4, 'reschedule' => 0, 'rjo' => 0, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 0, 'on_hold' => 0],
+            ['area' => 'quezon-city', 'installer' => 'HAGANAS/SAGUN/DEASUMILE', 'activated' => 4, 'reschedule' => 1, 'rjo' => 0, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 0, 'on_hold' => 0],
+            ['area' => 'paranaque', 'installer' => 'MIRAS/MORAL/RICO', 'activated' => 4, 'reschedule' => 2, 'rjo' => 1, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 0, 'on_hold' => 0],
+            ['area' => 'camanava', 'installer' => 'ESTILERO/PANINGBATAN/VINAS', 'activated' => 4, 'reschedule' => 1, 'rjo' => 0, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 0, 'on_hold' => 3],
+            ['area' => 'manila', 'installer' => 'LUCIATAN/UNIDA', 'activated' => 3, 'reschedule' => 0, 'rjo' => 1, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 1, 'on_hold' => 0],
+            ['area' => 'camanava', 'installer' => 'CERDON/MALONZO/MILLARES', 'activated' => 2, 'reschedule' => 5, 'rjo' => 1, 'for_activation' => 0, 'for_installation' => 1, 'cancelled' => 3, 'on_hold' => 0],
+            ['area' => 'paranaque', 'installer' => 'DE LUNA/SALUDAN', 'activated' => 1, 'reschedule' => 1, 'rjo' => 1, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 0, 'on_hold' => 0],
+            ['area' => 'quezon-city', 'installer' => 'PINANGAY/VENERANDA', 'activated' => 1, 'reschedule' => 1, 'rjo' => 2, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 0, 'on_hold' => 3],
+            ['area' => 'manila', 'installer' => 'BENDAL/PONCE', 'activated' => 1, 'reschedule' => 0, 'rjo' => 2, 'for_activation' => 1, 'for_installation' => 1, 'cancelled' => 0, 'on_hold' => 0],
+            ['area' => 'paranaque', 'installer' => 'DAVID/MANALAYSAY', 'activated' => 1, 'reschedule' => 1, 'rjo' => 3, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 1, 'on_hold' => 0],
+            ['area' => 'quezon-city', 'installer' => 'BASTE/GONZALES', 'activated' => 1, 'reschedule' => 2, 'rjo' => 1, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 0, 'on_hold' => 2],
+            ['area' => 'camanava', 'installer' => 'BIGTASIN/BORMILLA/PEKITPEKIT', 'activated' => 1, 'reschedule' => 2, 'rjo' => 2, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 0, 'on_hold' => 1],
+        ];
+        $selectedDailyTechProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $dailyTechProductKeys = array_column($products, 'key');
+        if (!in_array($selectedDailyTechProductKey, $dailyTechProductKeys, true)) {
+            $selectedDailyTechProductKey = 's2s';
+        }
+        $dailyTechProductOffsets = [
+            's2s' => ['activated' => 0, 'reschedule' => 0, 'rjo' => 0, 'for_activation' => 0, 'for_installation' => 0, 'cancelled' => 0, 'on_hold' => 0],
+            'fiberx' => ['activated' => -1, 'reschedule' => 1, 'rjo' => 0, 'for_activation' => 1, 'for_installation' => 0, 'cancelled' => 0, 'on_hold' => 1],
+            'bida' => ['activated' => 1, 'reschedule' => 0, 'rjo' => 1, 'for_activation' => 0, 'for_installation' => 1, 'cancelled' => 0, 'on_hold' => 0],
+            'sme' => ['activated' => -1, 'reschedule' => 0, 'rjo' => 0, 'for_activation' => 0, 'for_installation' => 1, 'cancelled' => 1, 'on_hold' => 0],
+        ];
+        $dailyTechOffsets = $dailyTechProductOffsets[$selectedDailyTechProductKey] ?? $dailyTechProductOffsets['s2s'];
+        foreach ($dailyTechRows as &$dailyTechRow) {
+            foreach ($dailyTechOffsets as $statusKey => $offset) {
+                $dailyTechRow[$statusKey] = max(0, (int)$dailyTechRow[$statusKey] + (int)$offset);
+            }
+        }
+        unset($dailyTechRow);
+        ?>
+
+        <div class="space-y-5">
+            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
+                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">Daily Tech Productivity</h1>
+                <p class="text-xs text-slate-600">Installer productivity by dispatch date, area, and job order status.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <?php foreach ($products as $product): ?>
+                    <?php
+                        $isDailyTechProductActive = $selectedDailyTechProductKey === $product['key'];
+                        $dailyTechProductUrl = '?section=daily-tech-productivity&product=' . rawurlencode((string)$product['key'])
+                            . '&dispatch_date=' . rawurlencode($dailyTechDate);
+                    ?>
+                    <a href="<?= htmlspecialchars($dailyTechProductUrl) ?>"
+                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isDailyTechProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="w-full h-20 rounded-lg border <?= $isDailyTechProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-left">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold <?= $isDailyTechProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> Productivity</p>
+                            </div>
+                            <?php if ($isDailyTechProductActive): ?>
+                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
+                <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-3">
+                    <div class="flex flex-wrap gap-2" role="tablist" aria-label="Daily tech productivity areas">
+                        <?php foreach ($dailyTechAreas as $areaKey => $areaLabel): ?>
+                            <button type="button"
+                                    class="daily-tech-area-tab inline-flex h-9 items-center justify-center rounded-lg border px-4 text-xs font-extrabold transition-colors <?= $areaKey === 'all' ? 'border-primary-500 bg-primary-600 text-white shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700' ?>"
+                                    data-area="<?= htmlspecialchars($areaKey) ?>">
+                                <?= htmlspecialchars($areaLabel) ?>
+                            </button>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <form method="GET" class="flex flex-wrap items-end gap-2 xl:justify-end">
+                        <input type="hidden" name="section" value="daily-tech-productivity">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($selectedDailyTechProductKey) ?>">
+                        <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                            <span class="whitespace-nowrap">Dispatch Date:</span>
+                            <input type="date" name="dispatch_date" value="<?= htmlspecialchars($dailyTechDate) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                        </label>
+                        <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-bold text-white hover:bg-primary-700 transition-colors">Filter</button>
+                        <button type="button" id="daily-tech-export" class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700 transition-colors">Export</button>
+                    </form>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                    <table id="daily-tech-table" class="min-w-[1120px] w-full border-collapse text-[11px]">
+                        <thead class="text-white">
+                            <tr class="bg-primary-700">
+                                <th class="border border-primary-600 px-3 py-3 text-center">INSTALLER</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">ACTIVATED</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">RE-SCHEDULE</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">RJO UNISTALLABLE</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">FOR ACTIVATION</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">FOR INSTALLATION</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">CANCELLED</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">ON-HOLD<br>INSTALLATION</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($dailyTechRows as $row): ?>
+                                <?php $rowTotal = $row['activated'] + $row['reschedule'] + $row['rjo'] + $row['for_activation'] + $row['for_installation'] + $row['cancelled'] + $row['on_hold']; ?>
+                                <tr class="daily-tech-row bg-white text-slate-700 hover:bg-cyan-50/50 transition-colors" data-area="<?= htmlspecialchars($row['area']) ?>">
+                                    <td class="border border-slate-200 px-3 py-2.5 text-center text-[10px] font-bold uppercase leading-tight text-slate-800"><?= htmlspecialchars($row['installer']) ?></td>
+                                    <td class="daily-tech-count border border-slate-200 bg-emerald-50 px-3 py-2.5 text-center font-extrabold text-emerald-700" data-key="activated"><?= (int)$row['activated'] ?></td>
+                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="reschedule"><?= (int)$row['reschedule'] ?></td>
+                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="rjo"><?= (int)$row['rjo'] ?></td>
+                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="for_activation"><?= (int)$row['for_activation'] ?></td>
+                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="for_installation"><?= (int)$row['for_installation'] ?></td>
+                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="cancelled"><?= (int)$row['cancelled'] ?></td>
+                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="on_hold"><?= (int)$row['on_hold'] ?></td>
+                                    <td class="daily-tech-total border border-slate-200 bg-primary-50 px-3 py-2.5 text-center font-extrabold text-primary-700"><?= (int)$rowTotal ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-primary-700 text-white font-extrabold">
+                                <td class="border border-primary-600 px-3 py-3 text-center">Grand Total</td>
+                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="activated">0</td>
+                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="reschedule">0</td>
+                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="rjo">0</td>
+                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="for_activation">0</td>
+                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="for_installation">0</td>
+                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="cancelled">0</td>
+                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="on_hold">0</td>
+                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="row_total">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const table = document.getElementById('daily-tech-table');
+                const rows = Array.from(document.querySelectorAll('.daily-tech-row'));
+                const tabs = Array.from(document.querySelectorAll('.daily-tech-area-tab'));
+                const exportButton = document.getElementById('daily-tech-export');
+                const dispatchDate = <?= json_encode($dailyTechDate) ?>;
+                const keys = ['activated', 'reschedule', 'rjo', 'for_activation', 'for_installation', 'cancelled', 'on_hold'];
+
+                const updateTotals = () => {
+                    const visibleRows = rows.filter((row) => !row.classList.contains('hidden'));
+                    const totals = Object.fromEntries(keys.map((key) => [key, 0]));
+                    let grandTotal = 0;
+
+                    visibleRows.forEach((row) => {
+                        keys.forEach((key) => {
+                            const value = Number(row.querySelector(`[data-key="${key}"]`)?.textContent || 0);
+                            totals[key] += value;
+                            grandTotal += value;
+                        });
+                    });
+
+                    keys.forEach((key) => {
+                        const totalCell = table?.querySelector(`[data-total-key="${key}"]`);
+                        if (totalCell) totalCell.textContent = totals[key].toLocaleString();
+                    });
+                    const grandTotalCell = table?.querySelector('[data-total-key="row_total"]');
+                    if (grandTotalCell) grandTotalCell.textContent = grandTotal.toLocaleString();
+                };
+
+                const setArea = (area) => {
+                    rows.forEach((row) => row.classList.toggle('hidden', area !== 'all' && row.dataset.area !== area));
+                    tabs.forEach((tab) => {
+                        const isActive = tab.dataset.area === area;
+                        tab.className = `daily-tech-area-tab inline-flex h-9 items-center justify-center rounded-lg border px-4 text-xs font-extrabold transition-colors ${isActive ? 'border-primary-500 bg-primary-600 text-white shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700'}`;
+                    });
+                    updateTotals();
+                };
+
+                tabs.forEach((tab) => tab.addEventListener('click', () => setArea(tab.dataset.area || 'all')));
+
+                exportButton?.addEventListener('click', () => {
+                    const visibleRows = rows.filter((row) => !row.classList.contains('hidden'));
+                    const csvRows = [
+                        ['Dispatch Date', dispatchDate],
+                        [],
+                        ['Installer', 'Activated', 'Re-schedule', 'RJO Unistallable', 'For Activation', 'For Installation', 'Cancelled', 'On-hold Installation', 'Total'],
+                    ];
+
+                    visibleRows.forEach((row) => {
+                        csvRows.push(Array.from(row.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim()));
+                    });
+
+                    const totalRow = table?.querySelector('tfoot tr');
+                    if (totalRow) csvRows.push(Array.from(totalRow.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim()));
+
+                    const csv = csvRows.map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `daily-tech-productivity-${dispatchDate}.csv`;
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                });
+
+                setArea('all');
+            });
+        </script>
+        <?php
+        return;
+    }
+
+    if ($activeRoute === 'technician_incentive') {
+        $selectedTechIncentiveProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $techIncentiveProductKeys = array_column($products, 'key');
+        if (!in_array($selectedTechIncentiveProductKey, $techIncentiveProductKeys, true)) {
+            $selectedTechIncentiveProductKey = 's2s';
+        }
+
+        $techIncentiveType = strtolower(trim((string)($_GET['type'] ?? 'individual')));
+        if (!in_array($techIncentiveType, ['individual', 'team'], true)) {
+            $techIncentiveType = 'individual';
+        }
+
+        $techIncentiveMonth = (string)($_GET['month'] ?? '2026-01');
+        $techIncentiveSearch = trim((string)($_GET['installer'] ?? ''));
+        $techIncentiveMonthLabel = date('F Y', strtotime($techIncentiveMonth . '-01')) ?: 'January 2026';
+        $techIncentiveDays = range(1, 29);
+        $techIncentiveProductAdjustments = [
+            's2s' => ['rate' => 18, 'shift' => 0],
+            'fiberx' => ['rate' => 21, 'shift' => 1],
+            'bida' => ['rate' => 16, 'shift' => 2],
+            'sme' => ['rate' => 24, 'shift' => 3],
+        ];
+        $techIncentiveAdjustment = $techIncentiveProductAdjustments[$selectedTechIncentiveProductKey] ?? $techIncentiveProductAdjustments['s2s'];
+        $techIncentiveNames = $techIncentiveType === 'team'
+            ? ['TEAM DOMINGO', 'TEAM APRIL JAY', 'TEAM EMERSON', 'TEAM REN REN', 'TEAM ESTILLERO', 'TEAM SALUPAN', 'TEAM ROGELIO', 'TEAM TANIGAD']
+            : ['MICHAEL DOMINGO', 'ROQUE APRIL JAY', 'JOHN EMERSON PABILARI', 'REN REN ULTRA', 'JOSHUA ESTILLERO', 'NORMAN SALUPAN', 'REYES PATRICK MANEZ', 'PRINCE ELDIE RICO', 'JOEY ENRIQUEZ', 'ROLDAN TUGAD', 'BRYAN BANGCO', 'JASON DE LIVIO', 'CORTES ROMAN', 'LEGASPI GIO', 'JEFFERSON LAURELES', 'KENNETH DOLINDO'];
+        $techIncentiveRows = [];
+        foreach ($techIncentiveNames as $nameIndex => $name) {
+            if ($techIncentiveSearch !== '' && stripos($name, $techIncentiveSearch) === false) {
+                continue;
+            }
+
+            $dayValues = [];
+            foreach ($techIncentiveDays as $day) {
+                $seed = ($day + $nameIndex + (int)$techIncentiveAdjustment['shift']) % 9;
+                $value = $nameIndex > 11 ? ($seed === 0 ? 1 : 0) : (($seed % 5) + ($day % 3 === 0 ? 1 : 0));
+                $dayValues[] = $techIncentiveType === 'team' ? min(12, $value + 3) : min(7, $value);
+            }
+
+            $totalUnits = array_sum($dayValues);
+            $techIncentiveRows[] = [
+                'name' => $name,
+                'days' => $dayValues,
+                'incentive' => $totalUnits * (int)$techIncentiveAdjustment['rate'],
+            ];
+        }
+        ?>
+
+        <div class="space-y-5">
+            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
+                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">Individual Per Installer Monthly Sales Incentives Report</h1>
+                <p class="text-xs text-slate-600">Monthly incentive monitoring by product, installer, and incentive type.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <?php foreach ($products as $product): ?>
+                    <?php
+                        $isTechIncentiveProductActive = $selectedTechIncentiveProductKey === $product['key'];
+                        $techIncentiveProductUrl = '?section=technician-incentive&product=' . rawurlencode((string)$product['key'])
+                            . '&type=' . rawurlencode($techIncentiveType)
+                            . '&month=' . rawurlencode($techIncentiveMonth)
+                            . '&installer=' . rawurlencode($techIncentiveSearch);
+                    ?>
+                    <a href="<?= htmlspecialchars($techIncentiveProductUrl) ?>"
+                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isTechIncentiveProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="w-full h-20 rounded-lg border <?= $isTechIncentiveProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-left">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold <?= $isTechIncentiveProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> Incentive</p>
+                            </div>
+                            <?php if ($isTechIncentiveProductActive): ?>
+                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
+                <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-3">
+                    <div class="flex flex-wrap gap-2" role="tablist" aria-label="Technician incentive type">
+                        <?php foreach (['individual' => 'Individual Incentive', 'team' => 'Team Incentive'] as $typeKey => $typeLabel): ?>
+                            <?php
+                                $typeUrl = '?section=technician-incentive&product=' . rawurlencode($selectedTechIncentiveProductKey)
+                                    . '&type=' . rawurlencode($typeKey)
+                                    . '&month=' . rawurlencode($techIncentiveMonth)
+                                    . '&installer=' . rawurlencode($techIncentiveSearch);
+                                $isTypeActive = $techIncentiveType === $typeKey;
+                            ?>
+                            <a href="<?= htmlspecialchars($typeUrl) ?>"
+                               class="inline-flex h-9 items-center justify-center rounded-lg border px-4 text-xs font-extrabold transition-colors <?= $isTypeActive ? 'border-primary-500 bg-primary-600 text-white shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700' ?>">
+                                <?= htmlspecialchars($typeLabel) ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <form method="GET" class="flex flex-wrap items-end gap-2 xl:justify-end">
+                        <input type="hidden" name="section" value="technician-incentive">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($selectedTechIncentiveProductKey) ?>">
+                        <input type="hidden" name="type" value="<?= htmlspecialchars($techIncentiveType) ?>">
+                        <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                            <span class="whitespace-nowrap">Filter Installer:</span>
+                            <input type="search" name="installer" value="<?= htmlspecialchars($techIncentiveSearch) ?>" placeholder="Search Installer..." class="h-9 w-48 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                        </label>
+                        <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                            <span class="whitespace-nowrap">Filter Month:</span>
+                            <input type="month" name="month" value="<?= htmlspecialchars($techIncentiveMonth) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                        </label>
+                        <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-bold text-white hover:bg-primary-700 transition-colors">Filter</button>
+                        <button type="button" id="tech-incentive-export" class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700 transition-colors">Export</button>
+                    </form>
+                </div>
+
+                <div>
+                    <h2 class="text-sm font-extrabold uppercase text-primary-700">
+                        <?= $techIncentiveType === 'team' ? 'Team' : 'Daily Count' ?> Incentive - <?= htmlspecialchars(strtoupper($techIncentiveMonthLabel)) ?>
+                    </h2>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                    <table id="tech-incentive-table" class="min-w-[1380px] w-full border-collapse text-[10px]">
+                        <thead class="text-white">
+                            <tr class="bg-primary-700">
+                                <th class="border border-primary-600 px-3 py-3 text-center">INSTALLER</th>
+                                <?php foreach ($techIncentiveDays as $day): ?>
+                                    <th class="border border-primary-600 px-2 py-3 text-center"><?= (int)$day ?></th>
+                                <?php endforeach; ?>
+                                <th class="border border-primary-600 px-3 py-3 text-center">TOTAL INCENTIVE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($techIncentiveRows as $row): ?>
+                                <tr class="bg-white text-slate-700 hover:bg-cyan-50/50 transition-colors">
+                                    <td class="border border-slate-200 px-3 py-2.5 text-center text-[10px] font-bold uppercase leading-tight text-slate-800"><?= htmlspecialchars($row['name']) ?></td>
+                                    <?php foreach ($row['days'] as $value): ?>
+                                        <td class="border border-slate-200 px-2 py-2.5 text-center font-semibold"><?= (int)$value ?></td>
+                                    <?php endforeach; ?>
+                                    <td class="border border-slate-200 bg-primary-50 px-3 py-2.5 text-center font-extrabold text-primary-700">PHP<?= number_format((int)$row['incentive']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-primary-700 text-white font-extrabold">
+                                <td class="border border-primary-600 px-3 py-3 text-center">GRAND TOTAL</td>
+                                <?php foreach ($techIncentiveDays as $dayIndex => $day): ?>
+                                    <?php $dayTotal = array_sum(array_map(static fn(array $row): int => (int)$row['days'][$dayIndex], $techIncentiveRows)); ?>
+                                    <td class="border border-primary-600 px-2 py-3 text-center"><?= (int)$dayTotal ?></td>
+                                <?php endforeach; ?>
+                                <td class="border border-primary-600 px-3 py-3 text-center">PHP<?= number_format(array_sum(array_map(static fn(array $row): int => (int)$row['incentive'], $techIncentiveRows))) ?></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const exportButton = document.getElementById('tech-incentive-export');
+                const table = document.getElementById('tech-incentive-table');
+                const monthLabel = <?= json_encode($techIncentiveMonthLabel) ?>;
+                const product = <?= json_encode(strtoupper($selectedTechIncentiveProductKey)) ?>;
+
+                exportButton?.addEventListener('click', () => {
+                    if (!table) return;
+                    const csvRows = [
+                        ['Technician Incentive', product, monthLabel],
+                        [],
+                        ...Array.from(table.querySelectorAll('tr')).map((row) => (
+                            Array.from(row.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim())
+                        )),
+                    ];
+                    const csv = csvRows.map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `technician-incentive-${product.toLowerCase()}-${monthLabel.toLowerCase().replace(/\s+/g, '-')}.csv`;
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                });
+            });
+        </script>
+        <?php
+        return;
+    }
+
+    if ($activeRoute === 'tech_team_activation') {
+        $selectedTeamActivationProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $teamActivationProductKeys = array_column($products, 'key');
+        if (!in_array($selectedTeamActivationProductKey, $teamActivationProductKeys, true)) {
+            $selectedTeamActivationProductKey = 's2s';
+        }
+
+        $teamActivationMonth = (string)($_GET['month'] ?? '2026-01');
+        $teamActivationMonthLabel = date('F Y', strtotime($teamActivationMonth . '-01')) ?: 'January 2026';
+        $teamActivationDays = range(1, 31);
+        $teamActivationProductShift = [
+            's2s' => 0,
+            'fiberx' => 1,
+            'bida' => 2,
+            'sme' => 3,
+        ][$selectedTeamActivationProductKey] ?? 0;
+
+        $buildTeamActivationReport = static function (int $teamSeed, int $activationSeed, int $teamMax, int $activationMax) use ($teamActivationDays, $teamActivationProductShift): array {
+            $teamValues = [];
+            $activationValues = [];
+            foreach ($teamActivationDays as $day) {
+                $teamBase = ($day + $teamSeed + $teamActivationProductShift) % 9;
+                $activationBase = ($day + $activationSeed + ($teamActivationProductShift * 2)) % 11;
+                $teamValues[] = $day > 29 ? 0 : max(0, min($teamMax, $teamBase + ($day % 5 === 0 ? 2 : 0)));
+                $activationValues[] = $day > 29 ? 0 : max(0, min($activationMax, ($activationBase * 4) + ($day % 4 === 0 ? 9 : 0)));
+            }
+
+            return [
+                'team' => $teamValues,
+                'activation' => $activationValues,
+            ];
+        };
+
+        $teamActivationReports = [
+            [
+                'title' => 'Installer Monthly Team Activation',
+                'subtitle' => 'Green Pasture',
+                'rows' => $buildTeamActivationReport(4, 7, 19, 35),
+            ],
+            [
+                'title' => 'Installer Monthly Team Activation',
+                'subtitle' => 'Organic Paragon',
+                'rows' => $buildTeamActivationReport(8, 3, 28, 68),
+            ],
+        ];
+
+        $grandTeamValues = [];
+        $grandActivationValues = [];
+        foreach ($teamActivationDays as $dayIndex => $day) {
+            $grandTeamValues[] = array_sum(array_map(static fn(array $report): int => (int)$report['rows']['team'][$dayIndex], $teamActivationReports));
+            $grandActivationValues[] = array_sum(array_map(static fn(array $report): int => (int)$report['rows']['activation'][$dayIndex], $teamActivationReports));
+        }
+        $teamActivationReports[] = [
+            'title' => 'Installer Monthly Grand Total (GP + OP)',
+            'subtitle' => 'Total (GP + OP)',
+            'rows' => [
+                'team' => $grandTeamValues,
+                'activation' => $grandActivationValues,
+                'grand_total' => array_map(static fn(int $team, int $activation): int => $team + $activation, $grandTeamValues, $grandActivationValues),
+            ],
+            'is_grand' => true,
+        ];
+        ?>
+
+        <div class="space-y-5">
+            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
+                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">Installer Per Team Activation Report</h1>
+                <p class="text-xs text-slate-600">Monthly activation monitoring by product, team group, and day.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <?php foreach ($products as $product): ?>
+                    <?php
+                        $isTeamActivationProductActive = $selectedTeamActivationProductKey === $product['key'];
+                        $teamActivationProductUrl = '?section=tech-team-activation&product=' . rawurlencode((string)$product['key'])
+                            . '&month=' . rawurlencode($teamActivationMonth);
+                    ?>
+                    <a href="<?= htmlspecialchars($teamActivationProductUrl) ?>"
+                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isTeamActivationProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="w-full h-20 rounded-lg border <?= $isTeamActivationProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-left">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold <?= $isTeamActivationProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> Team Activation</p>
+                            </div>
+                            <?php if ($isTeamActivationProductActive): ?>
+                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-5">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+                    <form method="GET" class="flex flex-wrap items-center gap-2">
+                        <input type="hidden" name="section" value="tech-team-activation">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($selectedTeamActivationProductKey) ?>">
+                        <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                            <span class="whitespace-nowrap">Filter Month:</span>
+                            <input type="month" name="month" value="<?= htmlspecialchars($teamActivationMonth) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                        </label>
+                        <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-bold text-white hover:bg-primary-700 transition-colors">Filter</button>
+                    </form>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-400"><?= htmlspecialchars($teamActivationMonthLabel) ?></p>
+                </div>
+
+                <?php foreach ($teamActivationReports as $reportIndex => $report): ?>
+                    <?php
+                        $isGrandReport = !empty($report['is_grand']);
+                        $reportTableId = 'team-activation-table-' . $reportIndex;
+                        $teamTotal = array_sum($report['rows']['team']);
+                        $activationTotal = array_sum($report['rows']['activation']);
+                        $teamAverage = count($teamActivationDays) > 0 ? number_format($teamTotal / count($teamActivationDays), 2) : '0.00';
+                        $activationAverage = count($teamActivationDays) > 0 ? number_format($activationTotal / count($teamActivationDays), 2) : '0.00';
+                    ?>
+                    <section class="space-y-2">
+                        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-2">
+                            <div>
+                                <h2 class="text-sm font-extrabold uppercase text-primary-700"><?= htmlspecialchars($report['title']) ?></h2>
+                                <p class="text-xs font-bold uppercase text-primary-800"><?= htmlspecialchars($report['subtitle']) ?></p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" class="team-activation-copy inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-[11px] font-bold text-primary-700 hover:border-primary-300 hover:bg-cyan-50" data-table-id="<?= htmlspecialchars($reportTableId) ?>">Copy Table (TSV)</button>
+                                <button type="button" class="team-activation-export inline-flex h-8 items-center justify-center rounded-lg bg-primary-600 px-3 text-[11px] font-bold text-white hover:bg-primary-700" data-table-id="<?= htmlspecialchars($reportTableId) ?>" data-title="<?= htmlspecialchars($report['subtitle']) ?>">Export CSV</button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                            <table id="<?= htmlspecialchars($reportTableId) ?>" class="min-w-[1480px] w-full border-collapse text-[10px]">
+                                <thead class="text-white">
+                                    <tr class="bg-primary-700">
+                                        <th class="border border-primary-600 px-3 py-3 text-center">CATEGORY</th>
+                                        <?php foreach ($teamActivationDays as $day): ?>
+                                            <th class="border border-primary-600 px-2 py-3 text-center"><?= (int)$day ?></th>
+                                        <?php endforeach; ?>
+                                        <th class="border border-primary-600 px-3 py-3 text-center">TOTAL</th>
+                                        <th class="border border-primary-600 px-3 py-3 text-center">AVERAGE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="bg-white text-slate-700 hover:bg-cyan-50/50 transition-colors">
+                                        <td class="border border-slate-200 px-3 py-2.5 text-center font-extrabold uppercase text-slate-800">Team</td>
+                                        <?php foreach ($report['rows']['team'] as $value): ?>
+                                            <td class="border border-slate-200 px-2 py-2.5 text-center font-semibold"><?= (int)$value ?></td>
+                                        <?php endforeach; ?>
+                                        <td class="border border-slate-200 bg-primary-50 px-3 py-2.5 text-center font-extrabold text-primary-700"><?= (int)$teamTotal ?></td>
+                                        <td class="border border-slate-200 bg-primary-50 px-3 py-2.5 text-center font-extrabold text-primary-700"><?= htmlspecialchars($teamAverage) ?></td>
+                                    </tr>
+                                    <tr class="bg-cyan-50/50 text-slate-700 hover:bg-cyan-50 transition-colors">
+                                        <td class="border border-slate-200 px-3 py-2.5 text-center font-extrabold uppercase text-slate-800">Activation</td>
+                                        <?php foreach ($report['rows']['activation'] as $value): ?>
+                                            <td class="border border-slate-200 px-2 py-2.5 text-center font-semibold"><?= (int)$value ?></td>
+                                        <?php endforeach; ?>
+                                        <td class="border border-slate-200 bg-primary-50 px-3 py-2.5 text-center font-extrabold text-primary-700"><?= (int)$activationTotal ?></td>
+                                        <td class="border border-slate-200 bg-primary-50 px-3 py-2.5 text-center font-extrabold text-primary-700"><?= htmlspecialchars($activationAverage) ?></td>
+                                    </tr>
+                                    <?php if ($isGrandReport): ?>
+                                        <?php
+                                            $grandTotal = array_sum($report['rows']['grand_total']);
+                                            $grandAverage = count($teamActivationDays) > 0 ? number_format($grandTotal / count($teamActivationDays), 2) : '0.00';
+                                        ?>
+                                        <tr class="bg-primary-700 text-white font-extrabold">
+                                            <td class="border border-primary-600 px-3 py-3 text-center">Grand Total</td>
+                                            <?php foreach ($report['rows']['grand_total'] as $value): ?>
+                                                <td class="border border-primary-600 px-2 py-3 text-center"><?= (int)$value ?></td>
+                                            <?php endforeach; ?>
+                                            <td class="border border-primary-600 px-3 py-3 text-center"><?= (int)$grandTotal ?></td>
+                                            <td class="border border-primary-600 px-3 py-3 text-center"><?= htmlspecialchars($grandAverage) ?></td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const tableToRows = (table) => Array.from(table.querySelectorAll('tr')).map((row) => (
+                    Array.from(row.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim())
+                ));
+
+                document.querySelectorAll('.team-activation-copy').forEach((button) => {
+                    button.addEventListener('click', async () => {
+                        const table = document.getElementById(button.dataset.tableId || '');
+                        if (!table) return;
+                        const tsv = tableToRows(table).map((row) => row.join('\t')).join('\n');
+                        await navigator.clipboard?.writeText(tsv);
+                    });
+                });
+
+                document.querySelectorAll('.team-activation-export').forEach((button) => {
+                    button.addEventListener('click', () => {
+                        const table = document.getElementById(button.dataset.tableId || '');
+                        if (!table) return;
+                        const csvRows = tableToRows(table);
+                        const csv = csvRows.map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = `tech-team-activation-${(button.dataset.title || 'report').toLowerCase().replace(/\s+/g, '-')}.csv`;
+                        link.click();
+                        URL.revokeObjectURL(link.href);
+                    });
+                });
+            });
+        </script>
+        <?php
+        return;
+    }
+
+    if ($activeRoute === 'technician_per_soc') {
+        $selectedSocProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $socProductKeys = array_column($products, 'key');
+        if (!in_array($selectedSocProductKey, $socProductKeys, true)) {
+            $selectedSocProductKey = 's2s';
+        }
+
+        $socMonth = (string)($_GET['month'] ?? 'January');
+        $socYear = (string)($_GET['year'] ?? '2026');
+        $socMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        if (!in_array($socMonth, $socMonths, true)) {
+            $socMonth = 'January';
+        }
+        $socYears = ['2026', '2025', '2024'];
+        if (!in_array($socYear, $socYears, true)) {
+            $socYear = '2026';
+        }
+
+        $socProductShift = [
+            's2s' => 0,
+            'fiberx' => 2,
+            'bida' => 4,
+            'sme' => 6,
+        ][$selectedSocProductKey] ?? 0;
+
+        $socAreas = [
+            ['area' => 'CAMANAVA', 'team' => 13, 'base' => 774],
+            ['area' => 'MANILA', 'team' => 6, 'base' => 361],
+            ['area' => 'PARANAQUE', 'team' => 6, 'base' => 441],
+            ['area' => 'QUEZON CITY', 'team' => 10, 'base' => 434],
+        ];
+        $socDays = 31;
+        foreach ($socAreas as $areaIndex => &$socArea) {
+            $socArea['team'] = max(1, (int)$socArea['team'] + ($socProductShift % 3) - ($areaIndex % 2));
+            $socArea['total_activation'] = max(0, (int)$socArea['base'] + ($socProductShift * 23) - ($areaIndex * 11));
+            $socArea['daily_avg'] = $socArea['team'] > 0 ? $socArea['total_activation'] / $socDays / $socArea['team'] : 0;
+            $socArea['eom_forecast'] = $socArea['daily_avg'] * $socDays;
+        }
+        unset($socArea);
+
+        $socGrandTeam = array_sum(array_column($socAreas, 'team'));
+        $socGrandActivation = array_sum(array_column($socAreas, 'total_activation'));
+        $socGrandDailyAvg = array_sum(array_column($socAreas, 'daily_avg'));
+        $socGrandForecast = array_sum(array_column($socAreas, 'eom_forecast'));
+        ?>
+
+        <div class="space-y-5">
+            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
+                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">Individual Per Installer Monthly Sales Incentives Report</h1>
+                <p class="text-xs text-slate-600">SOC monthly coverage by product, team count, activation total, and EOM forecast.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <?php foreach ($products as $product): ?>
+                    <?php
+                        $isSocProductActive = $selectedSocProductKey === $product['key'];
+                        $socProductUrl = '?section=technician-per-soc&product=' . rawurlencode((string)$product['key'])
+                            . '&month=' . rawurlencode($socMonth)
+                            . '&year=' . rawurlencode($socYear);
+                    ?>
+                    <a href="<?= htmlspecialchars($socProductUrl) ?>"
+                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isSocProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="w-full h-20 rounded-lg border <?= $isSocProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-left">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold <?= $isSocProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> SOC</p>
+                            </div>
+                            <?php if ($isSocProductActive): ?>
+                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-5">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+                    <form method="GET" class="flex flex-wrap items-center gap-3">
+                        <input type="hidden" name="section" value="technician-per-soc">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($selectedSocProductKey) ?>">
+                        <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                            <span class="whitespace-nowrap">Select Month:</span>
+                            <select name="month" class="h-9 w-44 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                                <?php foreach ($socMonths as $month): ?>
+                                    <option value="<?= htmlspecialchars($month) ?>" <?= $socMonth === $month ? 'selected' : '' ?>><?= htmlspecialchars($month) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                            <span class="whitespace-nowrap">Select Year:</span>
+                            <select name="year" class="h-9 w-36 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                                <?php foreach ($socYears as $year): ?>
+                                    <option value="<?= htmlspecialchars($year) ?>" <?= $socYear === $year ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-8 text-xs font-bold text-white hover:bg-primary-700 transition-colors">Filter</button>
+                    </form>
+
+                    <div class="flex flex-wrap gap-2 xl:justify-end" role="tablist" aria-label="Technician per SOC view">
+                        <a href="<?= htmlspecialchars('?section=technician-per-soc&product=' . rawurlencode($selectedSocProductKey) . '&month=' . rawurlencode($socMonth) . '&year=' . rawurlencode($socYear) . '&view=individual') ?>"
+                           class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-xs font-extrabold text-slate-600 transition-colors hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700">
+                            Individual Productivity
+                        </a>
+                        <a href="<?= htmlspecialchars('?section=technician-per-soc&product=' . rawurlencode($selectedSocProductKey) . '&month=' . rawurlencode($socMonth) . '&year=' . rawurlencode($socYear) . '&view=monthly') ?>"
+                           class="inline-flex h-9 items-center justify-center rounded-lg border border-primary-500 bg-primary-600 px-4 text-xs font-extrabold text-white shadow-sm transition-colors">
+                            Monthly Team SOC
+                        </a>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                    <table class="min-w-[980px] w-full border-collapse text-[11px]">
+                        <thead class="text-white">
+                            <tr class="bg-primary-700">
+                                <th colspan="5" class="border border-primary-600 px-3 py-3 text-center uppercase tracking-wide">
+                                    Team SOC Monthly Report Coverage: <?= htmlspecialchars(strtoupper($socMonth . ' ' . $socYear)) ?>
+                                </th>
+                            </tr>
+                            <tr class="bg-primary-600">
+                                <th class="border border-primary-500 px-3 py-3 text-center">SOC (AREA)</th>
+                                <th class="border border-primary-500 px-3 py-3 text-center">TEAM</th>
+                                <th class="border border-primary-500 px-3 py-3 text-center">TOTAL ACTIVATION</th>
+                                <th class="border border-primary-500 px-3 py-3 text-center">DAILY AVG (TOTAL / DAYS / TEAM)</th>
+                                <th class="border border-primary-500 px-3 py-3 text-center">EOM FORECAST (AVG * DAYS)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($socAreas as $socArea): ?>
+                                <tr class="bg-white text-slate-700 hover:bg-cyan-50/50 transition-colors">
+                                    <td class="border border-slate-200 bg-primary-50 px-3 py-3 text-center font-extrabold uppercase text-primary-700"><?= htmlspecialchars($socArea['area']) ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center font-semibold"><?= (int)$socArea['team'] ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center font-semibold"><?= (int)$socArea['total_activation'] ?></td>
+                                    <td class="border border-slate-200 bg-cyan-50/60 px-3 py-3 text-center font-extrabold text-primary-700"><?= number_format((float)$socArea['daily_avg'], 2) ?></td>
+                                    <td class="border border-slate-200 bg-cyan-50/60 px-3 py-3 text-center font-extrabold text-primary-700"><?= number_format((float)$socArea['eom_forecast'], 2) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-primary-700 text-white font-extrabold">
+                                <td class="border border-primary-600 px-3 py-3 text-center">Grand Total</td>
+                                <td class="border border-primary-600 px-3 py-3 text-center"><?= (int)$socGrandTeam ?></td>
+                                <td class="border border-primary-600 px-3 py-3 text-center"><?= (int)$socGrandActivation ?></td>
+                                <td class="border border-primary-600 px-3 py-3 text-center"><?= number_format((float)$socGrandDailyAvg, 2) ?></td>
+                                <td class="border border-primary-600 px-3 py-3 text-center"><?= number_format((float)$socGrandForecast, 2) ?></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php
+        return;
+    }
+
+    if ($activeRoute === 'productivity_per_area') {
+        $selectedAreaProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $areaProductKeys = array_column($products, 'key');
+        if (!in_array($selectedAreaProductKey, $areaProductKeys, true)) {
+            $selectedAreaProductKey = 's2s';
+        }
+
+        $areaMonth = (string)($_GET['month'] ?? 'January');
+        $areaYear = (string)($_GET['year'] ?? '2026');
+        $areaMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        if (!in_array($areaMonth, $areaMonths, true)) {
+            $areaMonth = 'January';
+        }
+        $areaYears = ['2026', '2025', '2024'];
+        if (!in_array($areaYear, $areaYears, true)) {
+            $areaYear = '2026';
+        }
+
+        $areaDays = range(1, 31);
+        $areaProductShift = [
+            's2s' => 0,
+            'fiberx' => 2,
+            'bida' => 4,
+            'sme' => 6,
+        ][$selectedAreaProductKey] ?? 0;
+        $areaProductThemes = [
+            's2s' => [
+                'header' => 'bg-red-600',
+                'subheader' => 'bg-red-500',
+                'header_border' => 'border-red-400',
+                'sticky' => 'bg-red-600',
+                'accent' => 'bg-red-50',
+                'accent_text' => 'text-red-700',
+                'soft' => 'bg-red-50/70',
+                'footer' => 'bg-red-600',
+                'footer_border' => 'border-red-400',
+            ],
+            'fiberx' => [
+                'header' => 'bg-indigo-700',
+                'subheader' => 'bg-indigo-600',
+                'header_border' => 'border-indigo-500',
+                'sticky' => 'bg-indigo-700',
+                'accent' => 'bg-indigo-50',
+                'accent_text' => 'text-indigo-700',
+                'soft' => 'bg-blue-50/70',
+                'footer' => 'bg-indigo-700',
+                'footer_border' => 'border-indigo-500',
+            ],
+            'bida' => [
+                'header' => 'bg-rose-600',
+                'subheader' => 'bg-rose-500',
+                'header_border' => 'border-rose-400',
+                'sticky' => 'bg-rose-600',
+                'accent' => 'bg-rose-50',
+                'accent_text' => 'text-rose-700',
+                'soft' => 'bg-rose-50/70',
+                'footer' => 'bg-rose-600',
+                'footer_border' => 'border-rose-400',
+            ],
+            'sme' => [
+                'header' => 'bg-emerald-700',
+                'subheader' => 'bg-emerald-600',
+                'header_border' => 'border-emerald-500',
+                'sticky' => 'bg-emerald-700',
+                'accent' => 'bg-emerald-50',
+                'accent_text' => 'text-emerald-700',
+                'soft' => 'bg-emerald-50/70',
+                'footer' => 'bg-emerald-700',
+                'footer_border' => 'border-emerald-500',
+            ],
+        ];
+        $areaTheme = $areaProductThemes[$selectedAreaProductKey] ?? $areaProductThemes['s2s'];
+        $areaRows = [
+            ['municipality' => 'TAGUIG', 'base' => 528, 'seed' => 14],
+            ['municipality' => 'MANILA', 'base' => 419, 'seed' => 9],
+            ['municipality' => 'QUEZON CITY', 'base' => 312, 'seed' => 5],
+            ['municipality' => 'SOUTH CALOOCAN', 'base' => 218, 'seed' => 5],
+            ['municipality' => 'PARANAQUE', 'base' => 139, 'seed' => 6],
+            ['municipality' => 'MALABON', 'base' => 137, 'seed' => 4],
+            ['municipality' => 'MUNTINLUPA', 'base' => 120, 'seed' => 3],
+            ['municipality' => 'VALENZUELA', 'base' => 111, 'seed' => 3],
+            ['municipality' => 'NAVOTAS', 'base' => 109, 'seed' => 2],
+            ['municipality' => 'PASAY', 'base' => 86, 'seed' => 2],
+            ['municipality' => 'NORTH CALOOCAN', 'base' => 76, 'seed' => 1],
+            ['municipality' => 'PASIG', 'base' => 72, 'seed' => 1],
+        ];
+
+        foreach ($areaRows as $rowIndex => &$areaRow) {
+            $dailyValues = [];
+            foreach ($areaDays as $day) {
+                $value = (($day + $rowIndex + $areaProductShift) % 8) + (int)floor((int)$areaRow['seed'] / 4);
+                if ($day > 29) {
+                    $value = 0;
+                }
+                if ($rowIndex < 3 && $day % 7 === 0) {
+                    $value += 8;
+                }
+                $dailyValues[] = max(0, $value);
+            }
+            $areaRow['daily'] = $dailyValues;
+            $areaRow['total_activation'] = max(0, (int)$areaRow['base'] + ($areaProductShift * 18) - ($rowIndex * 4));
+            $areaRow['average'] = $areaRow['total_activation'] / 22;
+            $areaRow['eom_forecast'] = $areaRow['average'] * 31;
+        }
+        unset($areaRow);
+        ?>
+
+        <div class="space-y-5">
+            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
+                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">Activation Per Area Report</h1>
+                <p class="text-xs text-slate-600">Productivity area monitoring by product, municipality, month, and daily activation.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <?php foreach ($products as $product): ?>
+                    <?php
+                        $isAreaProductActive = $selectedAreaProductKey === $product['key'];
+                        $areaProductUrl = '?section=productivity-per-area&product=' . rawurlencode((string)$product['key'])
+                            . '&month=' . rawurlencode($areaMonth)
+                            . '&year=' . rawurlencode($areaYear);
+                    ?>
+                    <a href="<?= htmlspecialchars($areaProductUrl) ?>"
+                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isAreaProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="w-full h-20 rounded-lg border <?= $isAreaProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-left">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold <?= $isAreaProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> Area Report</p>
+                            </div>
+                            <?php if ($isAreaProductActive): ?>
+                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+                    <form method="GET" class="flex flex-wrap items-center gap-2">
+                        <input type="hidden" name="section" value="productivity-per-area">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($selectedAreaProductKey) ?>">
+                        <select name="month" class="h-9 w-40 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select month">
+                            <?php foreach ($areaMonths as $month): ?>
+                                <option value="<?= htmlspecialchars($month) ?>" <?= $areaMonth === $month ? 'selected' : '' ?>><?= htmlspecialchars($month) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <select name="year" class="h-9 w-28 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select year">
+                            <?php foreach ($areaYears as $year): ?>
+                                <option value="<?= htmlspecialchars($year) ?>" <?= $areaYear === $year ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-bold text-white hover:bg-primary-700 transition-colors">Go</button>
+                    </form>
+                    <button type="button" id="productivity-area-export" class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700 transition-colors">Export</button>
+                </div>
+
+                <div class="overflow-auto max-h-[620px] rounded-xl border border-slate-200 shadow-sm">
+                    <table id="productivity-area-table" class="min-w-[1680px] w-full border-collapse text-[10px]">
+                        <thead class="text-white">
+                            <tr class="<?= htmlspecialchars($areaTheme['header']) ?>">
+                                <th class="sticky left-0 z-20 border <?= htmlspecialchars($areaTheme['header_border']) ?> <?= htmlspecialchars($areaTheme['sticky']) ?> px-3 py-3 text-center">MUNICIPALITY</th>
+                                <th class="border <?= htmlspecialchars($areaTheme['header_border']) ?> px-3 py-3 text-center">TOTAL ACTIVATION</th>
+                                <th class="border <?= htmlspecialchars($areaTheme['header_border']) ?> px-3 py-3 text-center">AVERAGE</th>
+                                <th class="border <?= htmlspecialchars($areaTheme['header_border']) ?> px-3 py-3 text-center">EOM FORECAST</th>
+                                <?php foreach ($areaDays as $day): ?>
+                                    <th class="border <?= htmlspecialchars($areaTheme['header_border']) ?> px-2 py-3 text-center"><?= (int)$day ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($areaRows as $areaRow): ?>
+                                <tr class="bg-white text-slate-700 hover:bg-cyan-50/50 transition-colors">
+                                    <td class="sticky left-0 z-10 border border-slate-200 bg-white px-3 py-2.5 text-center font-extrabold uppercase text-slate-800"><?= htmlspecialchars($areaRow['municipality']) ?></td>
+                                    <td class="border border-slate-200 <?= htmlspecialchars($areaTheme['accent']) ?> px-3 py-2.5 text-center font-extrabold <?= htmlspecialchars($areaTheme['accent_text']) ?>"><?= (int)$areaRow['total_activation'] ?></td>
+                                    <td class="border border-slate-200 <?= htmlspecialchars($areaTheme['soft']) ?> px-3 py-2.5 text-center font-extrabold <?= htmlspecialchars($areaTheme['accent_text']) ?>"><?= number_format((float)$areaRow['average'], 2) ?></td>
+                                    <td class="border border-slate-200 <?= htmlspecialchars($areaTheme['soft']) ?> px-3 py-2.5 text-center font-extrabold <?= htmlspecialchars($areaTheme['accent_text']) ?>"><?= number_format((float)$areaRow['eom_forecast'], 2) ?></td>
+                                    <?php foreach ($areaRow['daily'] as $value): ?>
+                                        <td class="border border-slate-200 px-2 py-2.5 text-center font-semibold"><?= (int)$value ?></td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr class="<?= htmlspecialchars($areaTheme['footer']) ?> text-white font-extrabold">
+                                <td class="sticky left-0 z-20 border <?= htmlspecialchars($areaTheme['footer_border']) ?> <?= htmlspecialchars($areaTheme['footer']) ?> px-3 py-3 text-center">Grand Total</td>
+                                <td class="border <?= htmlspecialchars($areaTheme['footer_border']) ?> px-3 py-3 text-center"><?= array_sum(array_column($areaRows, 'total_activation')) ?></td>
+                                <td class="border <?= htmlspecialchars($areaTheme['footer_border']) ?> px-3 py-3 text-center"><?= number_format(array_sum(array_column($areaRows, 'average')), 2) ?></td>
+                                <td class="border <?= htmlspecialchars($areaTheme['footer_border']) ?> px-3 py-3 text-center"><?= number_format(array_sum(array_column($areaRows, 'eom_forecast')), 2) ?></td>
+                                <?php foreach ($areaDays as $dayIndex => $day): ?>
+                                    <?php $dayTotal = array_sum(array_map(static fn(array $row): int => (int)$row['daily'][$dayIndex], $areaRows)); ?>
+                                    <td class="border <?= htmlspecialchars($areaTheme['footer_border']) ?> px-2 py-3 text-center"><?= (int)$dayTotal ?></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const exportButton = document.getElementById('productivity-area-export');
+                const table = document.getElementById('productivity-area-table');
+                exportButton?.addEventListener('click', () => {
+                    if (!table) return;
+                    const csvRows = Array.from(table.querySelectorAll('tr')).map((row) => (
+                        Array.from(row.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim())
+                    ));
+                    const csv = csvRows.map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'productivity-per-area-<?= htmlspecialchars(strtolower($selectedAreaProductKey . '-' . $areaMonth . '-' . $areaYear)) ?>.csv';
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                });
+            });
+        </script>
+        <?php
+        return;
+    }
+
+    if ($activeRoute === 'pending_job_order') {
+        $selectedPendingProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $pendingProductKeys = array_column($products, 'key');
+        if (!in_array($selectedPendingProductKey, $pendingProductKeys, true)) {
+            $selectedPendingProductKey = 's2s';
+        }
+
+        $pendingRegion = (string)($_GET['region'] ?? 'all');
+        $pendingMonth = (string)($_GET['month'] ?? 'January');
+        $pendingMonths = ['January', 'February', 'March', 'April', 'May', 'June'];
+        if (!in_array($pendingMonth, $pendingMonths, true)) {
+            $pendingMonth = 'January';
+        }
+        $pendingRegions = [
+            'all' => '-- All Regions --',
+            'ncr' => 'NCR',
+            'region-iv-a' => 'Region IV-A',
+            'nclz' => 'NCLZ',
+        ];
+        if (!isset($pendingRegions[$pendingRegion])) {
+            $pendingRegion = 'all';
+        }
+
+        $pendingShift = [
+            's2s' => 0,
+            'fiberx' => 1,
+            'bida' => 2,
+            'sme' => 3,
+        ][$selectedPendingProductKey] ?? 0;
+        $pendingRows = [
+            ['region' => 'nclz', 'municipality' => 'ANGAT', 'schedule' => 6, 'validation' => 0, 'installation' => 0, 'msa' => 0, 'reschedule' => 0, 'resched_msa' => 0],
+            ['region' => 'region-iv-a', 'municipality' => 'ANGONO', 'schedule' => 5, 'validation' => 0, 'installation' => 0, 'msa' => 0, 'reschedule' => 0, 'resched_msa' => 0],
+            ['region' => 'region-iv-a', 'municipality' => 'ANTIPOLO', 'schedule' => 15, 'validation' => 1, 'installation' => 0, 'msa' => 7, 'reschedule' => 2, 'resched_msa' => 1],
+            ['region' => 'region-iv-a', 'municipality' => 'ATIMONAN', 'schedule' => 1, 'validation' => 0, 'installation' => 0, 'msa' => 0, 'reschedule' => 0, 'resched_msa' => 0],
+            ['region' => 'region-iv-a', 'municipality' => 'BACOOR', 'schedule' => 4, 'validation' => 0, 'installation' => 0, 'msa' => 0, 'reschedule' => 0, 'resched_msa' => 0],
+            ['region' => 'nclz', 'municipality' => 'TIGAON', 'schedule' => 2, 'validation' => 0, 'installation' => 0, 'msa' => 0, 'reschedule' => 0, 'resched_msa' => 0],
+            ['region' => 'region-iv-a', 'municipality' => 'TRECE MARTIRES', 'schedule' => 2, 'validation' => 0, 'installation' => 0, 'msa' => 0, 'reschedule' => 0, 'resched_msa' => 0],
+            ['region' => 'ncr', 'municipality' => 'VALENZUELA', 'schedule' => 0, 'validation' => 0, 'installation' => 5, 'msa' => 41, 'reschedule' => 6, 'resched_msa' => 0],
+        ];
+        foreach ($pendingRows as &$pendingRow) {
+            foreach (['schedule', 'validation', 'installation', 'msa', 'reschedule', 'resched_msa'] as $pendingKey) {
+                $pendingRow[$pendingKey] = max(0, (int)$pendingRow[$pendingKey] + ($pendingShift > 0 && $pendingKey !== 'validation' ? $pendingShift : 0));
+            }
+        }
+        unset($pendingRow);
+        if ($pendingRegion !== 'all') {
+            $pendingRows = array_values(array_filter($pendingRows, static fn(array $row): bool => $row['region'] === $pendingRegion));
+        }
+        ?>
+
+        <div class="space-y-5">
+            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
+                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">Pending Job Order Report</h1>
+                <p class="text-xs text-slate-600">Pending job order monitoring by product, region, month, and installation status.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <?php foreach ($products as $product): ?>
+                    <?php
+                        $isPendingProductActive = $selectedPendingProductKey === $product['key'];
+                        $pendingProductUrl = '?section=pending-job-order&product=' . rawurlencode((string)$product['key'])
+                            . '&region=' . rawurlencode($pendingRegion)
+                            . '&month=' . rawurlencode($pendingMonth);
+                    ?>
+                    <a href="<?= htmlspecialchars($pendingProductUrl) ?>"
+                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isPendingProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="w-full h-20 rounded-lg border <?= $isPendingProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-left">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold <?= $isPendingProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> Pending JO</p>
+                            </div>
+                            <?php if ($isPendingProductActive): ?>
+                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
+                <div class="rounded-xl border border-blue-200 bg-white p-4 space-y-5">
+                    <div class="text-left">
+                        <h2 class="text-base font-extrabold text-primary-700">Friday, January 30, 2026</h2>
+                    </div>
+
+                    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+                        <form method="GET" class="flex flex-wrap items-center gap-2">
+                            <input type="hidden" name="section" value="pending-job-order">
+                            <input type="hidden" name="product" value="<?= htmlspecialchars($selectedPendingProductKey) ?>">
+                            <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                                <span class="whitespace-nowrap">Filter by Region:</span>
+                                <select name="region" class="h-9 w-44 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                                    <?php foreach ($pendingRegions as $regionKey => $regionLabel): ?>
+                                        <option value="<?= htmlspecialchars($regionKey) ?>" <?= $pendingRegion === $regionKey ? 'selected' : '' ?>><?= htmlspecialchars($regionLabel) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                            <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                                <span class="whitespace-nowrap">Filter by Month:</span>
+                                <select name="month" class="h-9 w-36 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                                    <?php foreach ($pendingMonths as $month): ?>
+                                        <option value="<?= htmlspecialchars($month) ?>" <?= $pendingMonth === $month ? 'selected' : '' ?>><?= htmlspecialchars($month) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                            <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-bold text-white hover:bg-primary-700 transition-colors">Apply</button>
+                            <a href="?section=pending-job-order&product=<?= htmlspecialchars(rawurlencode($selectedPendingProductKey)) ?>" class="inline-flex h-9 items-center justify-center rounded-lg bg-red-500 px-4 text-xs font-bold text-white hover:bg-red-600 transition-colors">Reset</a>
+                        </form>
+                        <button type="button" id="pending-job-export" class="inline-flex h-9 items-center justify-center rounded-lg bg-green-600 px-4 text-xs font-bold text-white hover:bg-green-700 transition-colors">Export</button>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                        <table id="pending-job-table" class="min-w-[980px] w-full border-collapse text-[11px]">
+                            <thead class="text-white">
+                                <tr class="bg-orange-600">
+                                    <th class="border border-orange-400 px-3 py-3 text-center">MUNICIPALITY</th>
+                                    <th class="border border-orange-400 px-3 py-3 text-center">FOR SCHEDULE OF INSTALLATION</th>
+                                    <th class="border border-orange-400 px-3 py-3 text-center">FOR VALIDATION</th>
+                                    <th class="border border-orange-400 px-3 py-3 text-center">FOR INSTALLATION</th>
+                                    <th class="border border-orange-400 px-3 py-3 text-center">FOR MSA INSTALLATION</th>
+                                    <th class="border border-orange-400 px-3 py-3 text-center">RE-SCHEDULE</th>
+                                    <th class="border border-orange-400 px-3 py-3 text-center">RESCHED BY MSA</th>
+                                    <th class="border border-orange-400 px-3 py-3 text-center">GRAND TOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($pendingRows as $row): ?>
+                                    <?php $pendingTotal = $row['schedule'] + $row['validation'] + $row['installation'] + $row['msa'] + $row['reschedule'] + $row['resched_msa']; ?>
+                                    <tr class="bg-orange-100 text-slate-700 hover:bg-orange-50 transition-colors">
+                                        <td class="border border-orange-200 px-3 py-3 text-center font-bold uppercase text-slate-800"><?= htmlspecialchars($row['municipality']) ?></td>
+                                        <td class="border border-orange-200 px-3 py-3 text-center font-semibold"><?= (int)$row['schedule'] ?></td>
+                                        <td class="border border-orange-200 px-3 py-3 text-center font-semibold"><?= (int)$row['validation'] ?></td>
+                                        <td class="border border-orange-200 px-3 py-3 text-center font-semibold"><?= (int)$row['installation'] ?></td>
+                                        <td class="border border-orange-200 px-3 py-3 text-center font-semibold"><?= (int)$row['msa'] ?></td>
+                                        <td class="border border-orange-200 px-3 py-3 text-center font-semibold"><?= (int)$row['reschedule'] ?></td>
+                                        <td class="border border-orange-200 px-3 py-3 text-center font-semibold"><?= (int)$row['resched_msa'] ?></td>
+                                        <td class="border border-orange-200 bg-orange-50 px-3 py-3 text-center font-extrabold text-orange-700"><?= (int)$pendingTotal ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-orange-600 text-white font-extrabold">
+                                    <td class="border border-orange-400 px-3 py-3 text-center">Total</td>
+                                    <?php foreach (['schedule', 'validation', 'installation', 'msa', 'reschedule', 'resched_msa'] as $pendingKey): ?>
+                                        <td class="border border-orange-400 px-3 py-3 text-center"><?= array_sum(array_column($pendingRows, $pendingKey)) ?></td>
+                                    <?php endforeach; ?>
+                                    <td class="border border-orange-400 px-3 py-3 text-center"><?= array_sum(array_map(static fn(array $row): int => (int)$row['schedule'] + (int)$row['validation'] + (int)$row['installation'] + (int)$row['msa'] + (int)$row['reschedule'] + (int)$row['resched_msa'], $pendingRows)) ?></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const exportButton = document.getElementById('pending-job-export');
+                const table = document.getElementById('pending-job-table');
+                exportButton?.addEventListener('click', () => {
+                    if (!table) return;
+                    const csvRows = Array.from(table.querySelectorAll('tr')).map((row) => (
+                        Array.from(row.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim())
+                    ));
+                    const csv = csvRows.map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'pending-job-order-<?= htmlspecialchars(strtolower($selectedPendingProductKey . '-' . $pendingMonth)) ?>.csv';
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                });
+            });
+        </script>
+        <?php
+        return;
+    }
+
+    if ($activeRoute === 'daily_flow_thru') {
+        $selectedFlowProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $flowProductKeys = array_column($products, 'key');
+        if (!in_array($selectedFlowProductKey, $flowProductKeys, true)) {
+            $selectedFlowProductKey = 's2s';
+        }
+
+        $flowRegion = (string)($_GET['region'] ?? 'all');
+        $flowYear = (string)($_GET['year'] ?? '2026');
+        $flowMonth = (string)($_GET['month'] ?? 'January');
+        $flowRegions = ['all' => 'ALL REGIONS', 'ncr' => 'NCR', 'region-iv-a' => 'REGION IV-A', 'nclz' => 'NCLZ'];
+        $flowYears = ['2026', '2025', '2024'];
+        $flowMonths = ['January', 'February', 'March', 'April', 'May', 'June'];
+        if (!isset($flowRegions[$flowRegion])) {
+            $flowRegion = 'all';
+        }
+        if (!in_array($flowYear, $flowYears, true)) {
+            $flowYear = '2026';
+        }
+        if (!in_array($flowMonth, $flowMonths, true)) {
+            $flowMonth = 'January';
+        }
+
+        $flowShift = [
+            's2s' => 0,
+            'fiberx' => 2,
+            'bida' => 4,
+            'sme' => 6,
+        ][$selectedFlowProductKey] ?? 0;
+        $flowProductThemes = [
+            's2s' => [
+                'header' => 'bg-red-50',
+                'header_text' => 'text-red-700',
+                'border' => 'border-red-200',
+                'primary_label' => 'bg-red-50 text-red-700',
+                'secondary_label' => 'bg-red-100/70 text-red-800',
+                'value_hover' => 'hover:bg-red-50/60',
+            ],
+            'fiberx' => [
+                'header' => 'bg-indigo-50',
+                'header_text' => 'text-indigo-700',
+                'border' => 'border-indigo-200',
+                'primary_label' => 'bg-indigo-50 text-indigo-700',
+                'secondary_label' => 'bg-blue-100/70 text-blue-800',
+                'value_hover' => 'hover:bg-indigo-50/60',
+            ],
+            'bida' => [
+                'header' => 'bg-rose-50',
+                'header_text' => 'text-rose-700',
+                'border' => 'border-rose-200',
+                'primary_label' => 'bg-rose-50 text-rose-700',
+                'secondary_label' => 'bg-rose-100/70 text-rose-800',
+                'value_hover' => 'hover:bg-rose-50/60',
+            ],
+            'sme' => [
+                'header' => 'bg-emerald-50',
+                'header_text' => 'text-emerald-700',
+                'border' => 'border-emerald-200',
+                'primary_label' => 'bg-emerald-50 text-emerald-700',
+                'secondary_label' => 'bg-emerald-100/70 text-emerald-800',
+                'value_hover' => 'hover:bg-emerald-50/60',
+            ],
+        ];
+        $flowTheme = $flowProductThemes[$selectedFlowProductKey] ?? $flowProductThemes['s2s'];
+        $flowDays = range(1, 31);
+        $flowStatuses = [
+            ['name' => 'BEGINNING JO', 'tone' => $flowTheme['primary_label'] . ' font-extrabold', 'seed' => 15, 'max' => 62],
+            ['name' => 'NEW JO', 'tone' => $flowTheme['primary_label'] . ' font-extrabold', 'seed' => 62, 'max' => 260],
+            ['name' => 'DISPATCH JO', 'tone' => $flowTheme['primary_label'] . ' font-extrabold', 'seed' => 2, 'max' => 240],
+            ['name' => 'ACTIVATED', 'tone' => 'bg-slate-50 text-slate-800 font-semibold', 'seed' => 2, 'max' => 150],
+            ['name' => 'CANCELLED', 'tone' => 'bg-slate-50 text-slate-800 font-semibold', 'seed' => 0, 'max' => 3],
+            ['name' => 'DOUBLE ENTRY', 'tone' => 'bg-slate-50 text-slate-800 font-semibold', 'seed' => 0, 'max' => 4],
+            ['name' => 'FOR ACTIVATION', 'tone' => 'bg-slate-50 text-slate-800 font-semibold', 'seed' => 0, 'max' => 2],
+            ['name' => 'RJO UNISTALLABLE', 'tone' => 'bg-slate-50 text-slate-800 font-semibold', 'seed' => 11, 'max' => 34],
+            ['name' => 'ON-HOLD INSTALLATION', 'tone' => 'bg-slate-50 text-slate-800 font-semibold', 'seed' => 0, 'max' => 48],
+            ['name' => 'REMAINING PENDING', 'tone' => $flowTheme['secondary_label'] . ' font-extrabold', 'seed' => 15, 'max' => 62],
+            ['name' => 'RE-SCHEDULE', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 0, 'max' => 17],
+            ['name' => 'FOR INSTALLATION', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 1, 'max' => 16],
+            ['name' => 'FOR SCHEDULE OF INSTALLATION', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 0, 'max' => 13],
+            ['name' => 'FOR MSA INSTALLATION', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 0, 'max' => 12],
+            ['name' => 'ON-HOLD INSTALLATION', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 14, 'max' => 40],
+            ['name' => 'RESCHED BY MSA', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 0, 'max' => 1],
+            ['name' => 'FOR VALIDATION', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 0, 'max' => 11],
+            ['name' => 'FOR REVALIDATION', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 0, 'max' => 1],
+            ['name' => 'FOR COMPLIANCE', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 0, 'max' => 5],
+            ['name' => 'OMD VALIDATED', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 0, 'max' => 0],
+        ];
+        foreach ($flowStatuses as $statusIndex => &$flowStatus) {
+            $values = [];
+            foreach ($flowDays as $day) {
+                if ($day > 29) {
+                    $value = 0;
+                } elseif ($flowStatus['seed'] === 0) {
+                    $value = (($day + $statusIndex + $flowShift) % 11 === 0) ? min((int)$flowStatus['max'], 1 + $flowShift) : 0;
+                } else {
+                    $value = (int)$flowStatus['seed'] + (($day * ($statusIndex + 3 + $flowShift)) % max(1, (int)$flowStatus['max']));
+                    $value = min((int)$flowStatus['max'], $value);
+                }
+                $values[] = $value;
+            }
+            $flowStatus['values'] = $values;
+        }
+        unset($flowStatus);
+        ?>
+
+        <div class="space-y-5">
+            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
+                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">Daily Flow Thru of Every Job Order Update</h1>
+                <p class="text-xs text-slate-600">Daily job order flow monitoring by product, region, year, month, and status.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <?php foreach ($products as $product): ?>
+                    <?php
+                        $isFlowProductActive = $selectedFlowProductKey === $product['key'];
+                        $flowProductUrl = '?section=daily-flow-thru&product=' . rawurlencode((string)$product['key'])
+                            . '&region=' . rawurlencode($flowRegion)
+                            . '&year=' . rawurlencode($flowYear)
+                            . '&month=' . rawurlencode($flowMonth);
+                    ?>
+                    <a href="<?= htmlspecialchars($flowProductUrl) ?>"
+                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isFlowProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="w-full h-20 rounded-lg border <?= $isFlowProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-left">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold <?= $isFlowProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> Flow Thru</p>
+                            </div>
+                            <?php if ($isFlowProductActive): ?>
+                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
+                <form method="GET" class="flex flex-wrap items-end gap-3">
+                    <input type="hidden" name="section" value="daily-flow-thru">
+                    <input type="hidden" name="product" value="<?= htmlspecialchars($selectedFlowProductKey) ?>">
+                    <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                        <span class="whitespace-nowrap">Region:</span>
+                        <select name="region" class="h-9 w-44 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select region">
+                            <?php foreach ($flowRegions as $regionKey => $regionLabel): ?>
+                                <option value="<?= htmlspecialchars($regionKey) ?>" <?= $flowRegion === $regionKey ? 'selected' : '' ?>><?= htmlspecialchars($regionLabel) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                        <span class="whitespace-nowrap">Year:</span>
+                        <select name="year" class="h-9 w-28 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select year">
+                            <?php foreach ($flowYears as $year): ?>
+                                <option value="<?= htmlspecialchars($year) ?>" <?= $flowYear === $year ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                        <span class="whitespace-nowrap">Month:</span>
+                        <select name="month" class="h-9 w-36 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select month">
+                            <?php foreach ($flowMonths as $month): ?>
+                                <option value="<?= htmlspecialchars($month) ?>" <?= $flowMonth === $month ? 'selected' : '' ?>><?= htmlspecialchars($month) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-bold text-white hover:bg-primary-700 transition-colors">Filter</button>
+                </form>
+
+                <div class="overflow-auto max-h-[620px] rounded-xl border <?= htmlspecialchars($flowTheme['border']) ?> bg-white/80 shadow-sm backdrop-blur-sm">
+                    <table id="daily-flow-table" class="min-w-[1480px] w-full border-collapse text-[10px]">
+                        <thead>
+                            <tr class="<?= htmlspecialchars($flowTheme['header']) ?> <?= htmlspecialchars($flowTheme['header_text']) ?>">
+                                <th class="sticky left-0 z-20 border <?= htmlspecialchars($flowTheme['border']) ?> <?= htmlspecialchars($flowTheme['header']) ?> px-3 py-3 text-left font-extrabold <?= htmlspecialchars($flowTheme['header_text']) ?>">Month of: <?= htmlspecialchars($flowMonth . ' ' . $flowYear) ?></th>
+                                <?php foreach ($flowDays as $day): ?>
+                                    <th class="border <?= htmlspecialchars($flowTheme['border']) ?> px-2 py-3 text-center font-bold <?= htmlspecialchars($flowTheme['header_text']) ?>"><?= (int)$day ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($flowStatuses as $status): ?>
+                                <tr>
+                                    <td class="sticky left-0 z-10 border <?= htmlspecialchars($flowTheme['border']) ?> px-3 py-2.5 text-left uppercase shadow-[1px_0_0_#e5e7eb] <?= htmlspecialchars($status['tone']) ?>"><?= htmlspecialchars($status['name']) ?></td>
+                                    <?php foreach ($status['values'] as $value): ?>
+                                        <td class="border <?= htmlspecialchars($flowTheme['border']) ?> bg-white/85 px-2 py-2.5 text-center font-semibold text-slate-700 <?= htmlspecialchars($flowTheme['value_hover']) ?>"><?= (int)$value ?></td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php
+        return;
+    }
+
+    if ($activeRoute === 'sales_turn_ins') {
+        $selectedTurninsProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $turninsProductKeys = array_column($products, 'key');
+        if (!in_array($selectedTurninsProductKey, $turninsProductKeys, true)) {
+            $selectedTurninsProductKey = 's2s';
+        }
+
+        $turninsFrom = (string)($_GET['from'] ?? '2026-01-30');
+        $turninsTo = (string)($_GET['to'] ?? '2026-01-30');
+        $turninsView = strtolower(trim((string)($_GET['view'] ?? 'turn-ins')));
+        if (!in_array($turninsView, ['turn-ins', 'partners-count'], true)) {
+            $turninsView = 'turn-ins';
+        }
+        $turninsManager = strtolower(trim((string)($_GET['manager'] ?? 'all')));
+        $turninsManagers = [
+            'all' => 'Show All',
+            'ace-villardo' => 'ACE VILLARDO',
+            'inhouse-page' => 'INHOUSE PAGE',
+            'margaret-cunanan' => 'MARGARET CUNANAN',
+            'paul-daniel-cabundoc' => 'PAUL DANIEL CABUNDOC',
+            'vincent-john-villena' => 'VINCENT JOHN VILLENA',
+        ];
+        if (!isset($turninsManagers[$turninsManager])) {
+            $turninsManager = 'all';
+        }
+
+        $turninsShift = [
+            's2s' => 0,
+            'fiberx' => 1,
+            'bida' => 2,
+            'sme' => 3,
+        ][$selectedTurninsProductKey] ?? 0;
+        $turninsRows = [
+            ['manager' => 'vincent-john-villena', 'category' => 'VINCENT JOHN VILLENA', 'total' => 9, 'activated' => 3, 'schedule' => 0, 'installation' => 2, 'msa' => 0, 'double_entry' => 0, 'reschedule' => 0, 'on_hold' => 2, 'validation' => 0, 'revalidation' => 0],
+            ['manager' => 'ace-villardo', 'category' => 'ACE VILLARDO', 'total' => 2, 'activated' => 1, 'schedule' => 0, 'installation' => 0, 'msa' => 0, 'double_entry' => 0, 'reschedule' => 0, 'on_hold' => 0, 'validation' => 0, 'revalidation' => 0],
+            ['manager' => 'inhouse-page', 'category' => 'INHOUSE PAGE', 'total' => 3, 'activated' => 0, 'schedule' => 0, 'installation' => 2, 'msa' => 0, 'double_entry' => 0, 'reschedule' => 1, 'on_hold' => 0, 'validation' => 0, 'revalidation' => 0],
+            ['manager' => 'paul-daniel-cabundoc', 'category' => 'PAUL DANIEL CABUNDOC', 'total' => 26, 'activated' => 0, 'schedule' => 1, 'installation' => 5, 'msa' => 6, 'double_entry' => 7, 'reschedule' => 1, 'on_hold' => 0, 'validation' => 4, 'revalidation' => 2],
+            ['manager' => 'margaret-cunanan', 'category' => 'MARGARET CUNANAN', 'total' => 18, 'activated' => 2, 'schedule' => 1, 'installation' => 6, 'msa' => 3, 'double_entry' => 2, 'reschedule' => 1, 'on_hold' => 1, 'validation' => 2, 'revalidation' => 0],
+            ['manager' => 'vincent-john-villena', 'category' => 'VILLENA PARTNERS', 'total' => 15, 'activated' => 1, 'schedule' => 1, 'installation' => 3, 'msa' => 1, 'double_entry' => 6, 'reschedule' => 1, 'on_hold' => 0, 'validation' => 1, 'revalidation' => 1],
+        ];
+        foreach ($turninsRows as &$turninsRow) {
+            foreach (['total', 'activated', 'schedule', 'installation', 'msa', 'double_entry', 'reschedule', 'on_hold', 'validation', 'revalidation'] as $turninsKey) {
+                $increment = $turninsKey === 'total' ? $turninsShift * 3 : ($turninsShift > 0 && $turninsKey !== 'on_hold' ? 1 : 0);
+                $turninsRow[$turninsKey] = max(0, (int)$turninsRow[$turninsKey] + $increment);
+            }
+        }
+        unset($turninsRow);
+        if ($turninsManager !== 'all') {
+            $turninsRows = array_values(array_filter($turninsRows, static fn(array $row): bool => $row['manager'] === $turninsManager));
+        }
+        if ($turninsView === 'partners-count') {
+            foreach ($turninsRows as &$turninsRow) {
+                $turninsRow['total'] = max(0, (int)ceil($turninsRow['total'] / 2));
+                foreach (['activated', 'schedule', 'installation', 'msa', 'double_entry', 'reschedule', 'on_hold', 'validation', 'revalidation'] as $turninsKey) {
+                    $turninsRow[$turninsKey] = max(0, (int)floor($turninsRow[$turninsKey] / 2));
+                }
+            }
+            unset($turninsRow);
+        }
+        ?>
+
+        <div class="space-y-5">
+            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
+                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">Sales Turn-ins Report</h1>
+                <p class="text-xs text-slate-600">Sales turn-ins monitoring by product, date range, manager, and job order status.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <?php foreach ($products as $product): ?>
+                    <?php
+                        $isTurninsProductActive = $selectedTurninsProductKey === $product['key'];
+                        $turninsProductUrl = '?section=sales-turn-ins&product=' . rawurlencode((string)$product['key'])
+                            . '&from=' . rawurlencode($turninsFrom)
+                            . '&to=' . rawurlencode($turninsTo)
+                            . '&view=' . rawurlencode($turninsView)
+                            . '&manager=' . rawurlencode($turninsManager);
+                    ?>
+                    <a href="<?= htmlspecialchars($turninsProductUrl) ?>"
+                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isTurninsProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="w-full h-20 rounded-lg border <?= $isTurninsProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-left">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold <?= $isTurninsProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> Turn-ins</p>
+                            </div>
+                            <?php if ($isTurninsProductActive): ?>
+                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+                    <form method="GET" class="flex flex-wrap items-center gap-3">
+                        <input type="hidden" name="section" value="sales-turn-ins">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($selectedTurninsProductKey) ?>">
+                        <input type="hidden" name="view" value="<?= htmlspecialchars($turninsView) ?>">
+                        <input type="hidden" name="manager" value="<?= htmlspecialchars($turninsManager) ?>">
+                        <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                            <span class="whitespace-nowrap">Starting From:</span>
+                            <input type="date" name="from" value="<?= htmlspecialchars($turninsFrom) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                        </label>
+                        <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                            <span class="whitespace-nowrap">End To:</span>
+                            <input type="date" name="to" value="<?= htmlspecialchars($turninsTo) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                        </label>
+                        <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-5 text-xs font-bold text-white hover:bg-primary-700 transition-colors">Filter</button>
+                    </form>
+
+                    <div class="flex flex-wrap gap-2 xl:justify-end" role="tablist" aria-label="Sales turn-ins view">
+                        <?php foreach (['turn-ins' => 'Turn-ins', 'partners-count' => 'Partners Count'] as $viewKey => $viewLabel): ?>
+                            <?php
+                                $viewUrl = '?section=sales-turn-ins&product=' . rawurlencode($selectedTurninsProductKey)
+                                    . '&from=' . rawurlencode($turninsFrom)
+                                    . '&to=' . rawurlencode($turninsTo)
+                                    . '&view=' . rawurlencode($viewKey)
+                                    . '&manager=' . rawurlencode($turninsManager);
+                                $isViewActive = $turninsView === $viewKey;
+                            ?>
+                            <a href="<?= htmlspecialchars($viewUrl) ?>"
+                               class="inline-flex h-9 items-center justify-center rounded-lg border px-4 text-xs font-extrabold transition-colors <?= $isViewActive ? 'border-primary-500 bg-primary-600 text-white shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700' ?>">
+                                <?= htmlspecialchars($viewLabel) ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h2 class="text-sm font-semibold uppercase text-slate-700">Sales Manager Toggle (All Types)</h2>
+                    <div class="flex flex-wrap gap-2">
+                        <?php foreach ($turninsManagers as $managerKey => $managerLabel): ?>
+                            <?php
+                                $managerUrl = '?section=sales-turn-ins&product=' . rawurlencode($selectedTurninsProductKey)
+                                    . '&from=' . rawurlencode($turninsFrom)
+                                    . '&to=' . rawurlencode($turninsTo)
+                                    . '&view=' . rawurlencode($turninsView)
+                                    . '&manager=' . rawurlencode($managerKey);
+                                $isManagerActive = $turninsManager === $managerKey;
+                            ?>
+                            <a href="<?= htmlspecialchars($managerUrl) ?>"
+                               class="inline-flex h-9 items-center justify-center rounded-lg border px-4 text-xs font-bold transition-colors <?= $isManagerActive ? 'border-green-500 bg-green-500 text-white shadow-sm' : 'border-primary-200 bg-white text-primary-700 hover:border-primary-300 hover:bg-cyan-50' ?>">
+                                <?= htmlspecialchars($managerLabel) ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="overflow-auto max-h-[520px] rounded-xl border border-slate-200 shadow-sm">
+                    <table id="sales-turnins-table" class="min-w-[1180px] w-full border-collapse text-[11px]">
+                        <thead class="text-white">
+                            <tr class="bg-primary-700">
+                                <th class="sticky left-0 z-20 border border-primary-600 bg-primary-700 px-3 py-3 text-center">SALES CATEGORY</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">TOTAL</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">ACTIVATED</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">FOR SCHEDULE OF INSTALLATION</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">FOR INSTALLATION</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">FOR MSA INSTALLATION</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">DOUBLE ENTRY</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">RE-SCHEDULE</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">ON-HOLD INSTALLATION</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">FOR VALIDATION</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">FOR REVALIDATION</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($turninsRows as $row): ?>
+                                <tr class="bg-white text-slate-700 hover:bg-cyan-50/50 transition-colors">
+                                    <td class="sticky left-0 z-10 border border-slate-200 bg-white px-3 py-3 text-left text-[10px] font-extrabold uppercase leading-tight text-primary-700"><?= htmlspecialchars($row['category']) ?></td>
+                                    <?php foreach (['total', 'activated', 'schedule', 'installation', 'msa', 'double_entry', 'reschedule', 'on_hold', 'validation', 'revalidation'] as $turninsKey): ?>
+                                        <td class="border border-slate-200 px-3 py-3 text-center font-semibold <?= $turninsKey === 'total' ? 'bg-primary-50 text-primary-700 font-extrabold' : '' ?>"><?= (int)$row[$turninsKey] ?></td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-blue-100 text-slate-900 font-extrabold">
+                                <td class="sticky left-0 z-20 border border-blue-200 bg-blue-100 px-3 py-3 text-center text-[10px] uppercase">Over All Total</td>
+                                <?php foreach (['total', 'activated', 'schedule', 'installation', 'msa', 'double_entry', 'reschedule', 'on_hold', 'validation', 'revalidation'] as $turninsKey): ?>
+                                    <td class="border border-blue-200 px-3 py-3 text-center"><?= array_sum(array_column($turninsRows, $turninsKey)) ?></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php
+        return;
+    }
+
+    if ($activeRoute === 'partners_report') {
+        $selectedPartnersProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $partnersProductKeys = array_column($products, 'key');
+        if (!in_array($selectedPartnersProductKey, $partnersProductKeys, true)) {
+            $selectedPartnersProductKey = 's2s';
+        }
+
+        $partnersYear = (string)($_GET['year'] ?? '2026');
+        $partnersYears = ['2026', '2025', '2024'];
+        if (!in_array($partnersYear, $partnersYears, true)) {
+            $partnersYear = '2026';
+        }
+
+        $partnersScope = strtolower(trim((string)($_GET['scope'] ?? 'all')));
+        if (!in_array($partnersScope, ['all', 'ncr', 'regional'], true)) {
+            $partnersScope = 'all';
+        }
+
+        $partnersShift = [
+            's2s' => 0,
+            'fiberx' => 1,
+            'bida' => 2,
+            'sme' => 3,
+        ][$selectedPartnersProductKey] ?? 0;
+        $partnerRows = [
+            ['partner' => '3DM INTERNET INSTALLATION SERVICES', 'ncr' => 229, 'regional' => 0],
+            ['partner' => '5 JHMD INTERNET INSTALLATION SERVICES', 'ncr' => 28, 'regional' => 36],
+            ['partner' => 'AJL INTERNET INSTALLATION SERVICES', 'ncr' => 0, 'regional' => 148],
+            ['partner' => 'ALLYS 88 CORPORATION', 'ncr' => 138, 'regional' => 14],
+            ['partner' => 'ARGIN NETWORK SERVICES INC', 'ncr' => 156, 'regional' => 60],
+            ['partner' => 'AYM2 INTERNET INSTALLATION SERVICES', 'ncr' => 0, 'regional' => 12],
+            ['partner' => 'DIGITECH', 'ncr' => 0, 'regional' => 82],
+            ['partner' => 'FASTLINES INFORMATION SERVICES', 'ncr' => 323, 'regional' => 6],
+            ['partner' => 'FERNANDO ROGER INTERNET INSTALLATION SERVICES', 'ncr' => 0, 'regional' => 21],
+        ];
+        foreach ($partnerRows as &$partnerRow) {
+            $partnerRow['ncr'] = max(0, (int)$partnerRow['ncr'] + ($partnersShift * 7));
+            $partnerRow['regional'] = max(0, (int)$partnerRow['regional'] + ($partnersShift * 5));
+            $partnerRow['total'] = (int)$partnerRow['ncr'] + (int)$partnerRow['regional'];
+        }
+        unset($partnerRow);
+        if ($partnersScope === 'ncr') {
+            $partnerRows = array_values(array_filter($partnerRows, static fn(array $row): bool => (int)$row['ncr'] > 0));
+        } elseif ($partnersScope === 'regional') {
+            $partnerRows = array_values(array_filter($partnerRows, static fn(array $row): bool => (int)$row['regional'] > 0));
+        }
+        $partnerMonths = ['January', 'February', 'March'];
+        ?>
+
+        <div class="space-y-5">
+            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
+                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">NCR & Regional Partners Monthly Sales Activation Report</h1>
+                <p class="text-xs text-slate-600">Partner activation monitoring by product, year, scope, and monthly NCR/regional count.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <?php foreach ($products as $product): ?>
+                    <?php
+                        $isPartnersProductActive = $selectedPartnersProductKey === $product['key'];
+                        $partnersProductUrl = '?section=partners-report&product=' . rawurlencode((string)$product['key'])
+                            . '&year=' . rawurlencode($partnersYear)
+                            . '&scope=' . rawurlencode($partnersScope);
+                    ?>
+                    <a href="<?= htmlspecialchars($partnersProductUrl) ?>"
+                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isPartnersProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="w-full h-20 rounded-lg border <?= $isPartnersProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-left">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold <?= $isPartnersProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> Partners</p>
+                            </div>
+                            <?php if ($isPartnersProductActive): ?>
+                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
+                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+                    <form method="GET" class="flex flex-wrap items-center gap-2">
+                        <input type="hidden" name="section" value="partners-report">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($selectedPartnersProductKey) ?>">
+                        <label class="flex h-9 items-center gap-2 text-xs font-bold text-slate-600">
+                            <span class="whitespace-nowrap">Select Year:</span>
+                            <select name="year" class="h-9 w-28 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                                <?php foreach ($partnersYears as $year): ?>
+                                    <option value="<?= htmlspecialchars($year) ?>" <?= $partnersYear === $year ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <?php foreach (['all' => 'ALL', 'ncr' => 'NCR', 'regional' => 'REGIONAL'] as $scopeKey => $scopeLabel): ?>
+                            <button type="submit" name="scope" value="<?= htmlspecialchars($scopeKey) ?>" class="inline-flex h-9 items-center justify-center rounded-lg border px-4 text-xs font-extrabold transition-colors <?= $partnersScope === $scopeKey ? 'border-primary-500 bg-primary-600 text-white shadow-sm' : 'border-primary-200 bg-white text-primary-700 hover:border-primary-300 hover:bg-cyan-50' ?>">
+                                <?= htmlspecialchars($scopeLabel) ?>
+                            </button>
+                        <?php endforeach; ?>
+                    </form>
+                    <button type="button" id="partners-report-export" class="inline-flex h-9 items-center justify-center rounded-lg bg-green-600 px-4 text-xs font-bold text-white hover:bg-green-700 transition-colors">Export</button>
+                </div>
+
+                <div class="overflow-auto max-h-[620px] rounded-xl border border-slate-200 shadow-sm">
+                    <table id="partners-report-table" class="min-w-[1280px] w-full border-collapse text-[11px]">
+                        <thead class="text-white">
+                            <tr class="bg-primary-700">
+                                <th rowspan="2" class="sticky left-0 z-20 border border-primary-600 bg-primary-700 px-3 py-3 text-center">PARTNER</th>
+                                <th rowspan="2" class="border border-primary-600 px-3 py-3 text-center">TOTAL</th>
+                                <th rowspan="2" class="border border-primary-600 px-3 py-3 text-center">TOTAL NCR</th>
+                                <th rowspan="2" class="border border-primary-600 px-3 py-3 text-center">TOTAL REGIONAL</th>
+                                <?php foreach ($partnerMonths as $month): ?>
+                                    <th colspan="2" class="border border-primary-600 px-3 py-3 text-center uppercase"><?= htmlspecialchars($month) ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                            <tr class="bg-primary-600">
+                                <?php foreach ($partnerMonths as $month): ?>
+                                    <th class="border border-primary-500 px-3 py-2.5 text-center">NCR</th>
+                                    <th class="border border-primary-500 px-3 py-2.5 text-center">REGIONAL</th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($partnerRows as $rowIndex => $row): ?>
+                                <tr class="<?= $rowIndex % 2 === 0 ? 'bg-slate-100' : 'bg-white' ?> text-slate-700 hover:bg-cyan-50/50 transition-colors">
+                                    <td class="sticky left-0 z-10 border border-slate-200 <?= $rowIndex % 2 === 0 ? 'bg-slate-100' : 'bg-white' ?> px-3 py-3 text-center font-bold uppercase text-slate-800"><?= htmlspecialchars($row['partner']) ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center font-extrabold text-slate-900"><?= (int)$row['total'] ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center font-extrabold text-slate-900"><?= (int)$row['ncr'] ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center font-extrabold text-slate-900"><?= (int)$row['regional'] ?></td>
+                                    <?php foreach ($partnerMonths as $monthIndex => $month): ?>
+                                        <td class="border border-slate-200 px-3 py-3 text-center font-semibold"><?= $monthIndex === 0 ? (int)$row['ncr'] : 0 ?></td>
+                                        <td class="border border-slate-200 px-3 py-3 text-center font-semibold"><?= $monthIndex === 0 ? (int)$row['regional'] : 0 ?></td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-primary-700 text-white font-extrabold">
+                                <td class="sticky left-0 z-20 border border-primary-600 bg-primary-700 px-3 py-3 text-center">Grand Total</td>
+                                <td class="border border-primary-600 px-3 py-3 text-center"><?= array_sum(array_column($partnerRows, 'total')) ?></td>
+                                <td class="border border-primary-600 px-3 py-3 text-center"><?= array_sum(array_column($partnerRows, 'ncr')) ?></td>
+                                <td class="border border-primary-600 px-3 py-3 text-center"><?= array_sum(array_column($partnerRows, 'regional')) ?></td>
+                                <?php foreach ($partnerMonths as $monthIndex => $month): ?>
+                                    <td class="border border-primary-600 px-3 py-3 text-center"><?= $monthIndex === 0 ? array_sum(array_column($partnerRows, 'ncr')) : 0 ?></td>
+                                    <td class="border border-primary-600 px-3 py-3 text-center"><?= $monthIndex === 0 ? array_sum(array_column($partnerRows, 'regional')) : 0 ?></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const exportButton = document.getElementById('partners-report-export');
+                const table = document.getElementById('partners-report-table');
+                exportButton?.addEventListener('click', () => {
+                    if (!table) return;
+                    const csvRows = Array.from(table.querySelectorAll('tr')).map((row) => (
+                        Array.from(row.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim())
+                    ));
+                    const csv = csvRows.map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'partners-report-<?= htmlspecialchars(strtolower($selectedPartnersProductKey . '-' . $partnersYear . '-' . $partnersScope)) ?>.csv';
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                });
+            });
+        </script>
+        <?php
+        return;
+    }
+
+    if ($activeRoute === 'tat_activation') {
+        $selectedTatProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $tatProductKeys = array_column($products, 'key');
+        if (!in_array($selectedTatProductKey, $tatProductKeys, true)) {
+            $selectedTatProductKey = 's2s';
+        }
+
+        $tatStartDate = (string)($_GET['start_date'] ?? '2026-01-01');
+        $tatEndDate = (string)($_GET['end_date'] ?? '2026-01-30');
+        $tatShift = [
+            's2s' => 0,
+            'fiberx' => 1,
+            'bida' => 2,
+            'sme' => 3,
+        ][$selectedTatProductKey] ?? 0;
+        $tatRows = [
+            ['label' => 'INHOUSE PAGE', '0_days' => 20, '1_3_days' => 11, '4_7_days' => 1, '8_14_days' => 0, '15_30_days' => 0, 'over_30_days' => 0],
+            ['label' => 'PARTNERS', '0_days' => 1098, '1_3_days' => 416, '4_7_days' => 54, '8_14_days' => 12, '15_30_days' => 2, 'over_30_days' => 0],
+            ['label' => 'TEAM ACE', '0_days' => 122, '1_3_days' => 82, '4_7_days' => 10, '8_14_days' => 1, '15_30_days' => 0, 'over_30_days' => 0],
+            ['label' => 'TEAM MARGA', '0_days' => 344, '1_3_days' => 282, '4_7_days' => 38, '8_14_days' => 5, '15_30_days' => 3, 'over_30_days' => 0],
+            ['label' => 'TEAM PADDY', '0_days' => 62, '1_3_days' => 264, '4_7_days' => 26, '8_14_days' => 6, '15_30_days' => 2, 'over_30_days' => 0],
+            ['label' => 'TEAM VINCENT', '0_days' => 227, '1_3_days' => 118, '4_7_days' => 10, '8_14_days' => 0, '15_30_days' => 0, 'over_30_days' => 0],
+        ];
+        foreach ($tatRows as &$tatRow) {
+            foreach (['0_days', '1_3_days', '4_7_days', '8_14_days', '15_30_days', 'over_30_days'] as $tatKey) {
+                $tatRow[$tatKey] = max(0, (int)$tatRow[$tatKey] + ($tatShift * ($tatKey === '0_days' ? 18 : 3)));
+            }
+            $tatRow['grand_total'] = array_sum(array_intersect_key($tatRow, array_flip(['0_days', '1_3_days', '4_7_days', '8_14_days', '15_30_days', 'over_30_days'])));
+        }
+        unset($tatRow);
+        $tatKeys = ['0_days', '1_3_days', '4_7_days', '8_14_days', '15_30_days', 'over_30_days'];
+        $tatTotals = [];
+        foreach ($tatKeys as $tatKey) {
+            $tatTotals[$tatKey] = array_sum(array_column($tatRows, $tatKey));
+        }
+        $tatGrandTotal = array_sum($tatTotals);
+        ?>
+
+        <div class="space-y-5">
+            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
+                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">TAT Activation Report</h1>
+                <p class="text-xs text-slate-600">Activation turnaround monitoring by product, date range, channel, and aging bucket.</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <?php foreach ($products as $product): ?>
+                    <?php
+                        $isTatProductActive = $selectedTatProductKey === $product['key'];
+                        $tatProductUrl = '?section=tat-activation&product=' . rawurlencode((string)$product['key'])
+                            . '&start_date=' . rawurlencode($tatStartDate)
+                            . '&end_date=' . rawurlencode($tatEndDate);
+                    ?>
+                    <a href="<?= htmlspecialchars($tatProductUrl) ?>"
+                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isTatProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="w-full h-20 rounded-lg border <?= $isTatProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                        </div>
+                        <div class="flex items-center justify-between gap-2 text-left">
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold <?= $isTatProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> TAT</p>
+                            </div>
+                            <?php if ($isTatProductActive): ?>
+                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
+                            <?php endif; ?>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto_auto] gap-3">
+                    <input type="hidden" name="section" value="tat-activation">
+                    <input type="hidden" name="product" value="<?= htmlspecialchars($selectedTatProductKey) ?>">
+                    <label class="flex flex-col gap-1 text-xs font-bold text-slate-600">
+                        Start Date
+                        <input type="date" name="start_date" value="<?= htmlspecialchars($tatStartDate) ?>" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                    </label>
+                    <label class="flex flex-col gap-1 text-xs font-bold text-slate-600">
+                        End Date
+                        <input type="date" name="end_date" value="<?= htmlspecialchars($tatEndDate) ?>" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400">
+                    </label>
+                    <button type="submit" class="inline-flex h-10 self-end items-center justify-center rounded-lg bg-primary-600 px-8 text-xs font-bold text-white hover:bg-primary-700 transition-colors">Filter</button>
+                    <a href="?section=tat-activation&product=<?= htmlspecialchars(rawurlencode($selectedTatProductKey)) ?>" class="inline-flex h-10 self-end items-center justify-center rounded-lg border border-slate-200 bg-white px-8 text-xs font-bold text-slate-600 hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700 transition-colors">Reset</a>
+                </form>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <?php
+                        $tatKpis = [
+                            ['label' => 'Same Day (0 Days)', 'value' => $tatTotals['0_days'], 'tone' => 'border-l-4 border-green-500'],
+                            ['label' => '1-3 Days', 'value' => $tatTotals['1_3_days'], 'tone' => 'border-l-4 border-yellow-400'],
+                            ['label' => '4-7 Days', 'value' => $tatTotals['4_7_days'], 'tone' => 'border-l-4 border-orange-400'],
+                            ['label' => 'Over 7 Days', 'value' => $tatTotals['8_14_days'] + $tatTotals['15_30_days'] + $tatTotals['over_30_days'], 'tone' => 'border-l-4 border-red-500'],
+                        ];
+                    ?>
+                    <?php foreach ($tatKpis as $kpi): ?>
+                        <?php $percent = $tatGrandTotal > 0 ? number_format(((int)$kpi['value'] / $tatGrandTotal) * 100, 2) : '0.00'; ?>
+                        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm <?= htmlspecialchars($kpi['tone']) ?>">
+                            <p class="text-[10px] uppercase tracking-wide text-slate-500 font-extrabold"><?= htmlspecialchars($kpi['label']) ?></p>
+                            <p class="mt-2 text-2xl font-extrabold text-slate-900"><?= number_format((int)$kpi['value']) ?></p>
+                            <p class="text-xs text-slate-500"><?= htmlspecialchars($percent) ?>% of total</p>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="rounded-xl border border-amber-100 bg-amber-50/70 p-3">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-3">
+                        <h2 class="text-sm font-extrabold text-slate-900">Detailed TAT Breakdown</h2>
+                        <div class="flex gap-2">
+                            <button type="button" id="tat-copy-table" class="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50">Copy Table</button>
+                            <button type="button" id="tat-export-csv" class="inline-flex h-8 items-center justify-center rounded-lg bg-primary-600 px-3 text-[11px] font-bold text-white hover:bg-primary-700">Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+                        <table id="tat-activation-table" class="min-w-[980px] w-full border-collapse text-[11px]">
+                            <thead>
+                                <tr class="bg-amber-50 text-slate-700">
+                                    <th class="border border-slate-200 px-3 py-3 text-left">Row Labels</th>
+                                    <th class="border border-slate-200 px-3 py-3 text-center">0 Days</th>
+                                    <th class="border border-slate-200 px-3 py-3 text-center">1-3 Days</th>
+                                    <th class="border border-slate-200 px-3 py-3 text-center">4-7 Days</th>
+                                    <th class="border border-slate-200 px-3 py-3 text-center">8-14 Days</th>
+                                    <th class="border border-slate-200 px-3 py-3 text-center">15-30 Days</th>
+                                    <th class="border border-slate-200 px-3 py-3 text-center">&gt;30 Days</th>
+                                    <th class="border border-slate-200 px-3 py-3 text-center">Grand Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($tatRows as $row): ?>
+                                    <tr class="bg-white text-slate-700 hover:bg-amber-50/40 transition-colors">
+                                        <td class="border border-slate-200 px-3 py-3 font-bold uppercase text-slate-800"><?= htmlspecialchars($row['label']) ?></td>
+                                        <?php foreach ($tatKeys as $tatKey): ?>
+                                            <td class="border border-slate-200 px-3 py-3 text-center font-semibold"><?= (int)$row[$tatKey] ?></td>
+                                        <?php endforeach; ?>
+                                        <td class="border border-slate-200 bg-amber-50 px-3 py-3 text-center font-extrabold text-slate-900"><?= (int)$row['grand_total'] ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-amber-100 text-slate-900 font-extrabold">
+                                    <td class="border border-amber-200 px-3 py-3">Grand Total</td>
+                                    <?php foreach ($tatKeys as $tatKey): ?>
+                                        <td class="border border-amber-200 px-3 py-3 text-center"><?= (int)$tatTotals[$tatKey] ?></td>
+                                    <?php endforeach; ?>
+                                    <td class="border border-amber-200 px-3 py-3 text-center"><?= (int)$tatGrandTotal ?></td>
+                                </tr>
+                                <tr class="bg-white text-slate-700 font-bold">
+                                    <td class="border border-slate-200 px-3 py-3">Percentage</td>
+                                    <?php foreach ($tatKeys as $tatKey): ?>
+                                        <td class="border border-slate-200 px-3 py-3 text-center"><?= $tatGrandTotal > 0 ? number_format(($tatTotals[$tatKey] / $tatGrandTotal) * 100, 2) : '0.00' ?>%</td>
+                                    <?php endforeach; ?>
+                                    <td class="border border-slate-200 px-3 py-3 text-center">100.00%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <p class="mt-3 text-[11px] text-slate-500">* 0 Days includes same-day activation and pre-input activations.</p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const table = document.getElementById('tat-activation-table');
+                const tableRows = () => Array.from(table?.querySelectorAll('tr') || []).map((row) => (
+                    Array.from(row.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim())
+                ));
+
+                document.getElementById('tat-copy-table')?.addEventListener('click', async () => {
+                    const tsv = tableRows().map((row) => row.join('\t')).join('\n');
+                    await navigator.clipboard?.writeText(tsv);
+                });
+
+                document.getElementById('tat-export-csv')?.addEventListener('click', () => {
+                    const csv = tableRows().map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'tat-activation-<?= htmlspecialchars(strtolower($selectedTatProductKey . '-' . $tatStartDate . '-' . $tatEndDate)) ?>.csv';
+                    link.click();
+                    URL.revokeObjectURL(link.href);
                 });
             });
         </script>
