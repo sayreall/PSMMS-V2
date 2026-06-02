@@ -86,6 +86,17 @@ class DashboardRouteResolver
         return App::url($this->resolvePath($user));
     }
 
+    public function resolveDisplayRole(array $user): string
+    {
+        $position = $this->resolvePosition($user);
+        if ($position !== '') {
+            return ucwords(str_replace('_', ' ', $position));
+        }
+
+        $role = strtolower(trim((string)($user['role'] ?? 'user')));
+        return ucwords(str_replace('_', ' ', $role !== '' ? $role : 'user'));
+    }
+
     private function resolvePosition(array $user): string
     {
         $db = Database::getInstance();

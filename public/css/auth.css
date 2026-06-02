@@ -442,6 +442,79 @@ body.auth-login .visual-glow {
 .flash-error { background: var(--error-bg); color: var(--error-text); border-color: #fecaca; }
 .flash-info { background: var(--info-bg); color: var(--info-text); border-color: #bfdbfe; }
 
+.swal2-popup {
+    border-radius: 18px;
+    border: 1px solid rgba(79, 70, 229, 0.18);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 24px 56px rgba(15, 23, 42, 0.18);
+    padding: 26px 24px 20px;
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+}
+
+.swal2-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.swal2-html-container,
+.swal2-content {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.swal2-icon {
+    border-width: 3px;
+}
+
+.swal2-success {
+    border-color: #16a34a;
+    color: #16a34a;
+}
+
+.swal2-warning {
+    border-color: #f59e0b;
+    color: #f59e0b;
+}
+
+.swal2-error {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.swal2-info {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.swal2-actions {
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.swal2-styled.swal2-confirm {
+    border-radius: 999px;
+    padding: 10px 22px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.25);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.swal2-styled.swal2-cancel {
+    border-radius: 999px;
+    padding: 10px 18px;
+    background: #eef2ff;
+    color: #3730a3;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.swal2-styled:focus-visible {
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.22);
+}
+
 @media (max-width: 1024px) {
     .auth-wrap { grid-template-columns: 1fr; }
     .auth-visual { min-height: 240px; }

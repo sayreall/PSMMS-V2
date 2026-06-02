@@ -3,6 +3,7 @@
 namespace App\Controllers\Users\AsmManager;
 
 use App\Config\App;
+use App\Config\Database;
 use App\Controllers\BaseController;
 use App\Helpers\Auth;
 use App\Helpers\Csrf;
@@ -156,7 +157,7 @@ class ManagersController extends BaseController
                 'contact_no' => $contact_no ?: null,
                 'password' => $hashedPassword,
                 'role' => 'asm_manager',
-                'status' => 'active',
+                'status' => $status,
             ]);
 
             $credentialEmailSent = Mailer::send(
@@ -184,6 +185,10 @@ class ManagersController extends BaseController
             'profile_picture' => $profilePicturePath,
             'status' => $status,
         ]);
+
+        if ($linkedUserId > 0) {
+            $this->syncLinkedUserStatus($linkedUserId, $email, $company_email, $status);
+        }
 
         (new ActivityLogModel())->log(Auth::id(), 'manager_create', "Created manager: {$manager_name}");
 
@@ -223,6 +228,27 @@ class ManagersController extends BaseController
         return $password;
     }
 
+    private function syncLinkedUserStatus(int $userId, string $email, string $companyEmail, string $status): void
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("
+            UPDATE users
+            SET status = :status, updated_at = :updated_at
+            WHERE id = :id
+               OR (:email_filter <> '' AND email = :email_value)
+               OR (:company_email_filter <> '' AND company_email = :company_email_value)
+        ");
+        $stmt->execute([
+            ':status' => $status,
+            ':updated_at' => date('Y-m-d H:i:s'),
+            ':id' => $userId,
+            ':email_filter' => $email,
+            ':email_value' => $email,
+            ':company_email_filter' => $companyEmail,
+            ':company_email_value' => $companyEmail,
+        ]);
+    }
+
     public function approve(string $source, int $id): void
     {
         Csrf::verify();
@@ -232,28 +258,51 @@ class ManagersController extends BaseController
         $recipientName = 'User';
 
         if ($source === 'manager') {
-            $fetch = $db->prepare("SELECT manager_name, email, status FROM managers WHERE id = :id LIMIT 1");
+            $fetch = $db->prepare("SELECT user_id, manager_name, email, company_email, status FROM managers WHERE id = :id LIMIT 1");
             $fetch->execute([':id' => $id]);
             $row = $fetch->fetch(\PDO::FETCH_ASSOC) ?: [];
             $recipientEmail = (string)($row['email'] ?? '');
+            $companyEmail = (string)($row['company_email'] ?? '');
             $recipientName = (string)($row['manager_name'] ?? 'Manager');
+            $linkedUserId = (int)($row['user_id'] ?? 0);
 
             $stmt = $db->prepare("UPDATE managers SET status = 'active', updated_at = :updated_at WHERE id = :id AND status = 'pending'");
             $stmt->execute([
                 ':id' => $id,
                 ':updated_at' => date('Y-m-d H:i:s'),
             ]);
+
+            if ($linkedUserId > 0 || $recipientEmail !== '' || $companyEmail !== '') {
+                $this->syncLinkedUserStatus($linkedUserId, $recipientEmail, $companyEmail, 'active');
+            }
         } elseif ($source === 'user') {
-            $fetch = $db->prepare("SELECT name, email, status FROM users WHERE id = :id AND role = 'asm_manager' LIMIT 1");
+            $fetch = $db->prepare("SELECT name, email, company_email, status FROM users WHERE id = :id AND role = 'asm_manager' LIMIT 1");
             $fetch->execute([':id' => $id]);
             $row = $fetch->fetch(\PDO::FETCH_ASSOC) ?: [];
             $recipientEmail = (string)($row['email'] ?? '');
+            $companyEmail = (string)($row['company_email'] ?? '');
             $recipientName = (string)($row['name'] ?? 'User');
 
             $stmt = $db->prepare("UPDATE users SET status = 'active', updated_at = :updated_at WHERE id = :id AND role = 'asm_manager' AND status = 'pending'");
             $stmt->execute([
                 ':id' => $id,
                 ':updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            $managerUpdate = $db->prepare("
+                UPDATE managers
+                SET status = 'active', updated_at = :updated_at
+                WHERE user_id = :user_id
+                   OR (:email_filter <> '' AND email = :email_value)
+                   OR (:company_email_filter <> '' AND company_email = :company_email_value)
+            ");
+            $managerUpdate->execute([
+                ':updated_at' => date('Y-m-d H:i:s'),
+                ':user_id' => $id,
+                ':email_filter' => $recipientEmail,
+                ':email_value' => $recipientEmail,
+                ':company_email_filter' => $companyEmail,
+                ':company_email_value' => $companyEmail,
             ]);
         } else {
             Session::flash('message', 'Invalid manager source.');
@@ -287,6 +336,72 @@ class ManagersController extends BaseController
             }
             Session::flash('message', 'Manager approved, but email notification failed to send.');
             Session::flash('message_type', 'warning');
+        }
+
+        $this->redirect(App::url('managers'));
+    }
+
+    public function delete(string $source, int $id): void
+    {
+        Csrf::verify();
+
+        $db = Database::getInstance();
+        $deleted = false;
+
+        if ($source === 'manager') {
+            $fetch = $db->prepare("SELECT id, user_id, email, company_email FROM managers WHERE id = :id LIMIT 1");
+            $fetch->execute([':id' => $id]);
+            $row = $fetch->fetch(\PDO::FETCH_ASSOC) ?: null;
+
+            if (!$row) {
+                Session::flash('message', 'Manager record not found.');
+                Session::flash('message_type', 'error');
+                $this->redirect(App::url('managers'));
+            }
+
+            $del = $db->prepare("DELETE FROM managers WHERE id = :id LIMIT 1");
+            $del->execute([':id' => $id]);
+            $deleted = $del->rowCount() > 0;
+
+            $linkedUserId = (int)($row['user_id'] ?? 0);
+            if ($linkedUserId > 0) {
+                $db->prepare("DELETE FROM users WHERE id = :id AND role = 'asm_manager' LIMIT 1")
+                    ->execute([':id' => $linkedUserId]);
+            }
+        } elseif ($source === 'user') {
+            $fetch = $db->prepare("SELECT id, email, company_email FROM users WHERE id = :id AND role = 'asm_manager' LIMIT 1");
+            $fetch->execute([':id' => $id]);
+            $row = $fetch->fetch(\PDO::FETCH_ASSOC) ?: null;
+
+            if (!$row) {
+                Session::flash('message', 'Manager user not found.');
+                Session::flash('message_type', 'error');
+                $this->redirect(App::url('managers'));
+            }
+
+            $delUser = $db->prepare("DELETE FROM users WHERE id = :id AND role = 'asm_manager' LIMIT 1");
+            $delUser->execute([':id' => $id]);
+            $deleted = $delUser->rowCount() > 0;
+
+            $email = (string)($row['email'] ?? '');
+            $companyEmail = (string)($row['company_email'] ?? '');
+            if ($email !== '' || $companyEmail !== '') {
+                $db->prepare("DELETE FROM managers WHERE email = :email OR company_email = :company_email")
+                    ->execute([':email' => $email, ':company_email' => $companyEmail]);
+            }
+        } else {
+            Session::flash('message', 'Invalid manager source.');
+            Session::flash('message_type', 'error');
+            $this->redirect(App::url('managers'));
+        }
+
+        if ($deleted) {
+            (new ActivityLogModel())->log(Auth::id(), 'manager_delete', "Deleted manager {$source} ID: {$id}");
+            Session::flash('message', 'Manager deleted successfully.');
+            Session::flash('message_type', 'success');
+        } else {
+            Session::flash('message', 'No manager record was deleted.');
+            Session::flash('message_type', 'info');
         }
 
         $this->redirect(App::url('managers'));

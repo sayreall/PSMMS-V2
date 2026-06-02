@@ -4,6 +4,7 @@ $authUser = Auth::user();
 $sidebarResolver = new \App\Models\DashboardRouteResolver();
 $sidebarDashboardPath = $sidebarResolver->resolvePath($authUser ?? []);
 $sidebarDashboardSlug = basename($sidebarDashboardPath);
+$sidebarDisplayRole = $sidebarResolver->resolveDisplayRole($authUser ?? []);
 $currentUserRole = strtolower(trim((string)($authUser['role'] ?? '')));
 $isSuperAdminSidebar = ($currentUserRole === 'super_admin' && $sidebarDashboardSlug === 'super-admin');
 $isAdminSidebar = (
@@ -73,7 +74,7 @@ if ($isSuperAdminSidebar) {
 } elseif ($isAdminSidebar) {
     $menuItems[] = ['key' => 'dashboard', 'label' => 'Operations Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
 } elseif ($isAsmSidebar) {
-    $menuItems[] = ['key' => 'dashboard', 'label' => 'ASM Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
+    $menuItems[] = ['key' => 'dashboard', 'label' => $sidebarDisplayRole . ' Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
 } else {
     $menuItems[] = ['key' => 'dashboard', 'label' => 'Overview', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
 }
@@ -269,9 +270,13 @@ if ($isSuperAdminSidebar) {
                     </button>
 
                     <?php
-                        $profileName = trim((string)($authUser['name'] ?? 'User'));
+                        $firstName = trim((string)($authUser['first_name'] ?? ''));
+                        $lastName = trim((string)($authUser['last_name'] ?? ''));
+                        $fullName = trim($firstName . ' ' . $lastName);
+                        $fallbackName = trim((string)($authUser['name'] ?? $authUser['email'] ?? 'User'));
+                        $profileName = $fullName !== '' ? $fullName : $fallbackName;
                         $profileInitial = strtoupper(substr($profileName !== '' ? $profileName : 'U', 0, 1));
-                        $profileRole = ucwords(str_replace('_', ' ', (string)($authUser['role'] ?? 'User')));
+                        $profileRole = $sidebarResolver->resolveDisplayRole($authUser ?? []);
                     ?>
                     <div class="profile-menu" data-profile-menu>
                         <button type="button" class="profile-trigger" data-profile-trigger aria-haspopup="true" aria-expanded="false">
@@ -326,11 +331,11 @@ if ($isSuperAdminSidebar) {
     <!-- Confirmation Dialog -->
     <div id="confirm-dialog" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeConfirm()"></div>
-        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
+        <div class="confirm-card bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
             <h3 class="text-lg font-semibold text-slate-900 mb-2" id="confirm-title">Confirm</h3>
             <p class="text-slate-500 text-sm mb-6" id="confirm-message">Are you sure?</p>
             <div class="flex justify-end gap-3">
-                <button onclick="closeConfirm()" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+                <button onclick="closeConfirm()" class="confirm-cancel px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
                 <button id="confirm-btn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Confirm</button>
             </div>
         </div>

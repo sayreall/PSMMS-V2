@@ -143,7 +143,7 @@ class UsersController extends BaseController
         $name = $this->composeFullName($first_name, $middle_name, $last_name);
         $email = trim($data['email'] ?? '');
         $company_email = trim($data['company_email'] ?? '');
-        $password = $data['password'] ?? '';
+        $password = trim((string)($data['password'] ?? ''));
         $role = trim($data['role'] ?? 'accounting');
         $status = trim($data['status'] ?? 'active');
         $isSuperAdminCreator = Auth::hasRole('super_admin');
@@ -168,7 +168,7 @@ class UsersController extends BaseController
         }
 
         $generatedPassword = null;
-        if ($isSuperAdminCreator) {
+        if ($isSuperAdminCreator && $password === '') {
             $generatedPassword = $this->generateTemporaryPassword();
             $password = $generatedPassword;
         }
@@ -353,14 +353,27 @@ class UsersController extends BaseController
             $this->redirectBack();
         }
 
-        $this->userModel->delete($id);
-        (new ActivityLogModel())->log(Auth::id(), 'user_delete', "Deleted user ID: $id");
+        $db = \App\Config\Database::getInstance();
+        $db->prepare('DELETE FROM admins WHERE user_id = :id')->execute([':id' => $id]);
+        $db->prepare('DELETE FROM managers WHERE user_id = :id')->execute([':id' => $id]);
+        $db->prepare('DELETE FROM inhouse_sales WHERE user_id = :id')->execute([':id' => $id]);
+        $db->prepare('DELETE FROM msa_partners WHERE user_id = :id')->execute([':id' => $id]);
 
-        Session::flash('message', 'User deleted successfully.');
-        Session::flash('message_type', 'success');
+        $deleted = $this->userModel->delete($id);
+        if ($deleted) {
+            (new ActivityLogModel())->log(Auth::id(), 'user_delete', "Deleted user ID: $id");
+            Session::flash('message', 'User deleted successfully.');
+            Session::flash('message_type', 'success');
+        } else {
+            Session::flash('message', 'Unable to delete user. Please try again.');
+            Session::flash('message_type', 'error');
+        }
 
         if (App::isAjax() || App::isApiRequest()) {
-            $this->json(['success' => true, 'redirect' => App::url('users')]);
+            $this->json([
+                'success' => $deleted,
+                'redirect' => App::url('users'),
+            ]);
         }
 
         $this->redirect(App::url('users'));

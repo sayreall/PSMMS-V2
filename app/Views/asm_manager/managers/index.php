@@ -182,9 +182,9 @@ $managers = $managers ?? [];
                     <span>Position</span>
                     <select name="position">
                         <option value="">Type of Manager Position</option>
-                        <option value="sales_manager">Sales Manager</option>
-                        <option value="area_manager">Area Manager</option>
-                        <option value="operations_manager">Operations Manager</option>
+                        <option value="super_manager">Super Manager</option>
+                        <option value="area_sales_manager">Area Sales Manager</option>
+                        <option value="head_manager">Head Manager</option>
                     </select>
                 </label>
 

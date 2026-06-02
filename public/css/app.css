@@ -519,6 +519,79 @@ table.dataTable tbody td {
     background: #f8fafc;
 }
 
+.swal2-popup {
+    border-radius: 18px;
+    border: 1px solid rgba(14, 165, 164, 0.15);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 24px 56px rgba(15, 23, 42, 0.18);
+    padding: 28px 26px 22px;
+    font-family: 'Poppins', sans-serif;
+    color: #0f172a;
+}
+
+.swal2-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.swal2-html-container,
+.swal2-content {
+    font-size: 13px;
+    color: #475569;
+}
+
+.swal2-icon {
+    border-width: 3px;
+}
+
+.swal2-success {
+    border-color: #16a34a;
+    color: #16a34a;
+}
+
+.swal2-warning {
+    border-color: #f59e0b;
+    color: #f59e0b;
+}
+
+.swal2-error {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.swal2-info {
+    border-color: #0ea5a4;
+    color: #0ea5a4;
+}
+
+.swal2-actions {
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.swal2-styled.swal2-confirm {
+    border-radius: 999px;
+    padding: 10px 22px;
+    background: linear-gradient(90deg, #0ea5a4 0%, #0891b2 100%);
+    box-shadow: 0 10px 20px rgba(14, 165, 164, 0.25);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.swal2-styled.swal2-cancel {
+    border-radius: 999px;
+    padding: 10px 18px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.swal2-styled:focus-visible {
+    box-shadow: 0 0 0 3px rgba(14, 165, 164, 0.25);
+}
+
 .manager-badge {
     display: inline-flex;
     align-items: center;
@@ -580,11 +653,35 @@ table.dataTable tbody td {
     overflow: visible;
 }
 
+#modal-container > div:first-child {
+    background: radial-gradient(circle at top, rgba(14, 165, 164, 0.18), rgba(15, 23, 42, 0.55));
+}
+
+#modal-content {
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+
 .manager-modal {
-    padding: 20px;
-    border: 2px solid #0ea5e9;
-    border-radius: 12px;
-    background: #ffffff;
+    position: relative;
+    padding: 22px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+.manager-modal::before {
+    content: "";
+    position: absolute;
+    left: 22px;
+    right: 22px;
+    top: 14px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(14, 165, 164, 0.35), rgba(14, 165, 164, 0));
 }
 
 .manager-modal-header {
@@ -592,27 +689,34 @@ table.dataTable tbody td {
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #dbeafe;
-    margin-bottom: 16px;
+    padding: 6px 0 14px;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 18px;
 }
 
 .manager-modal-header h3 {
     margin: 0;
     color: #0f172a;
-    font-size: 29px;
+    font-size: 24px;
     font-weight: 700;
 }
 
 .manager-modal-close {
     width: 32px;
     height: 32px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #64748b;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    background: #f8fafc;
+    color: #475569;
     font-size: 14px;
     font-weight: 700;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.manager-modal-close:hover {
+    background: #eef2f6;
+    box-shadow: 0 6px 12px rgba(15, 23, 42, 0.12);
+    transform: translateY(-1px);
 }
 
 .manager-modal-form {
@@ -645,7 +749,7 @@ table.dataTable tbody td {
     height: 40px;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
-    background: #f8fafc;
+    background: #ffffff;
     padding: 0 11px;
     font-size: 12px;
     color: #334155;
@@ -773,16 +877,66 @@ table.dataTable tbody td {
     font-size: 12px;
     font-weight: 700;
     border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
 .manager-modal-submit {
-    background: #0ea5e9;
+    background: linear-gradient(90deg, #0ea5a4 0%, #0891b2 100%);
     color: #ffffff;
+    box-shadow: 0 10px 20px rgba(14, 165, 164, 0.22);
 }
 
 .manager-modal-cancel {
-    background: #ef4444;
-    color: #ffffff;
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.manager-modal-submit:hover,
+.manager-modal-cancel:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.98);
+}
+
+.manager-modal-submit:focus-visible,
+.manager-modal-cancel:focus-visible,
+.manager-modal-close:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(14, 165, 164, 0.25);
+}
+
+#confirm-dialog .confirm-card {
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 24px 56px rgba(15, 23, 42, 0.2);
+}
+
+#confirm-dialog #confirm-title {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+#confirm-dialog #confirm-message {
+    color: #64748b;
+}
+
+#confirm-dialog .confirm-cancel {
+    background: #e2e8f0;
+    color: #475569;
+    border-radius: 999px;
+}
+
+#confirm-dialog #confirm-btn {
+    border-radius: 999px;
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 10px 18px rgba(239, 68, 68, 0.22);
+}
+
+#confirm-dialog #confirm-btn:focus-visible,
+#confirm-dialog .confirm-cancel:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(14, 165, 164, 0.25);
 }
 
 .manager-modal-compact {
@@ -823,6 +977,10 @@ table.dataTable tbody td {
     border: 1px solid #dbe3ec;
     border-radius: 8px;
     background: #f8fafc;
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .manager-delete-text {
