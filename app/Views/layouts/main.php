@@ -5,6 +5,7 @@ $sidebarResolver = new \App\Models\DashboardRouteResolver();
 $sidebarDashboardPath = $sidebarResolver->resolvePath($authUser ?? []);
 $sidebarDashboardSlug = basename($sidebarDashboardPath);
 $sidebarDisplayRole = $sidebarResolver->resolveDisplayRole($authUser ?? []);
+$sidebarSectionTitle = 'Main Menu';
 $currentUserRole = strtolower(trim((string)($authUser['role'] ?? '')));
 $isSuperAdminSidebar = ($currentUserRole === 'super_admin' && $sidebarDashboardSlug === 'super-admin');
 $isAdminSidebar = (
@@ -71,6 +72,29 @@ if ($isSuperAdminSidebar) {
     ];
     $menuItems[] = ['key' => 'products', 'label' => 'Products', 'url' => App\Config\App::url('products'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>' ];
     $menuItems[] = ['key' => 'users', 'label' => 'User Management', 'url' => App\Config\App::url('users'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' ];
+} elseif ($sidebarDashboardSlug === 'asm-head-manager') {
+    $sidebarSectionTitle = 'Components';
+    $headManagerDashboardUrl = App\Config\App::url($sidebarDashboardPath);
+    $menuItems[] = ['key' => 'dashboard', 'label' => 'Dashboard', 'url' => $headManagerDashboardUrl, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 11.5L12 4l9 7.5M5 10v10h5v-6h4v6h5V10"/>'];
+    $menuItems[] = ['key' => 'summary_report', 'label' => 'Summary Report', 'url' => $headManagerDashboardUrl . '?section=summary-report', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-4M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/>'];
+    $menuItems[] = ['key' => 'monthly_sales_report', 'label' => 'Monthly Sales Report', 'url' => $headManagerDashboardUrl . '?section=monthly-sales-report', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>'];
+    $menuItems[] = [
+        'key' => 'installer_report',
+        'label' => 'Installer Report',
+        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6h6v6m2 4H7a2 2 0 01-2-2V7a2 2 0 012-2h3l2 2h5a2 2 0 012 2v10a2 2 0 01-2 2z"/>',
+        'children' => [
+            ['key' => 'daily_tech_productivity', 'label' => 'Daily Tech Productivity', 'url' => $headManagerDashboardUrl . '?section=daily-tech-productivity', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/>'],
+            ['key' => 'technician_incentive', 'label' => 'Technician Incentive', 'url' => $headManagerDashboardUrl . '?section=technician-incentive', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 10v2"/>'],
+            ['key' => 'tech_team_activation', 'label' => 'Tech Team Activation', 'url' => $headManagerDashboardUrl . '?section=tech-team-activation', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>'],
+            ['key' => 'technician_per_soc', 'label' => 'Technician Per SOC', 'url' => $headManagerDashboardUrl . '?section=technician-per-soc', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h7m11-7l-4 4-2-2"/>'],
+        ],
+    ];
+    $menuItems[] = ['key' => 'productivity_per_area', 'label' => 'Productivity Per Area', 'url' => $headManagerDashboardUrl . '?section=productivity-per-area', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/><circle cx="12" cy="11" r="2" stroke-width="2"/>'];
+    $menuItems[] = ['key' => 'pending_job_order', 'label' => 'Pending Job Order', 'url' => $headManagerDashboardUrl . '?section=pending-job-order', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'];
+    $menuItems[] = ['key' => 'sales_turn_ins', 'label' => 'Sales Turn-ins', 'url' => $headManagerDashboardUrl . '?section=sales-turn-ins', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l2 13h11l2-9H7m3 13a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/>'];
+    $menuItems[] = ['key' => 'daily_sales_activation', 'label' => 'Daily Sales Activation', 'url' => $headManagerDashboardUrl . '?section=daily-sales-activation', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h7m11-7l-4 4-2-2"/>'];
+    $menuItems[] = ['key' => 'tat_activation', 'label' => 'TAT Activation', 'url' => $headManagerDashboardUrl . '?section=tat-activation', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>'];
+    $menuItems[] = ['key' => 'faq', 'label' => 'FAQ', 'url' => $headManagerDashboardUrl . '?section=faq', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5M4 6h16M4 18h16"/>'];
 } elseif ($isAdminSidebar) {
     $menuItems[] = ['key' => 'dashboard', 'label' => 'Operations Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
 } elseif ($isAsmSidebar) {
@@ -177,7 +201,7 @@ if ($isSuperAdminSidebar) {
             </div>
 
             <!-- Main Section -->
-            <p class="sidebar-section-title text-[10px] font-semibold text-slate-400 uppercase tracking-[0.14em] px-3 mb-1">Main Menu</p>
+            <p class="sidebar-section-title text-[10px] font-semibold text-slate-400 uppercase tracking-[0.14em] px-3 mb-1"><?= htmlspecialchars($sidebarSectionTitle) ?></p>
 
             <?php foreach ($menuItems as $item): ?>
                 <?php if (!empty($item['children']) && is_array($item['children'])): ?>

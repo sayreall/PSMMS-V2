@@ -2,6 +2,8 @@
 $activeRoute = 'profile';
 $user = $user ?? [];
 $errors = \App\Helpers\Session::getFlash('errors') ?? [];
+$displayRole = trim((string)($displayRole ?? ''));
+$roleLabel = strtoupper($displayRole !== '' ? $displayRole : str_replace('_', ' ', (string)($user['role'] ?? '-')));
 ?>
 
 <div class="max-w-4xl space-y-6">
@@ -47,7 +49,7 @@ $errors = \App\Helpers\Session::getFlash('errors') ?? [];
                 </div>
                 <div>
                     <p class="text-xs text-slate-500 mb-1">Role</p>
-                    <div class="px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-700"><?= strtoupper(str_replace('_', ' ', htmlspecialchars($user['role'] ?? '-'))) ?></div>
+                    <div class="px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-700"><?= htmlspecialchars($roleLabel) ?></div>
                 </div>
                 <div>
                     <p class="text-xs text-slate-500 mb-1">Status</p>

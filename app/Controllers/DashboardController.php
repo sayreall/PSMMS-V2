@@ -93,6 +93,7 @@ class DashboardController extends BaseController
         return $this->render('dashboard.profile', [
             'title' => 'My Profile',
             'user' => $user,
+            'displayRole' => $this->dashboardRouteResolver->resolveDisplayRole($user ?? []),
         ]);
     }
 
@@ -102,6 +103,7 @@ class DashboardController extends BaseController
         return $this->render('dashboard.view-profile', [
             'title' => 'View Profile',
             'user' => $user,
+            'displayRole' => $this->dashboardRouteResolver->resolveDisplayRole($user ?? []),
         ]);
     }
 

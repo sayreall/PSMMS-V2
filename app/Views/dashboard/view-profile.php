@@ -18,7 +18,8 @@ $updatedAt = $user['updated_at'] ?? '';
 $updatedLabel = $updatedAt ? date('M d, Y', strtotime($updatedAt)) : '-';
 
 $displayName = trim((string)($user['name'] ?? '')) !== '' ? (string)$user['name'] : 'Unknown User';
-$roleLabel = strtoupper(str_replace('_', ' ', (string)($user['role'] ?? '-')));
+$displayRole = trim((string)($displayRole ?? ''));
+$roleLabel = strtoupper($displayRole !== '' ? $displayRole : str_replace('_', ' ', (string)($user['role'] ?? '-')));
 $emailLabel = (string)($user['email'] ?? '-');
 $companyEmailLabel = (string)($user['company_email'] ?? '-');
 $contactLabel = (string)($user['contact_no'] ?? '-');
