@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 26, 2026 at 11:13 AM
+-- Generation Time: Jun 03, 2026 at 06:03 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -85,7 +85,54 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `description`, `ip_addre
 (47, 7, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:19:12'),
 (48, 7, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:21:38'),
 (49, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 05:24:57'),
-(50, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 08:11:57');
+(50, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-05-26 08:11:57'),
+(51, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:02:39'),
+(52, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:17:58'),
+(53, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:18:17'),
+(54, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:26:27'),
+(55, 7, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:26:34'),
+(56, 7, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:30:35'),
+(57, 8, 'register', 'New user registered', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:31:11'),
+(58, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:31:46'),
+(59, 1, 'manager_approve', 'Approved manager manager ID: 4', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:32:06'),
+(60, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:32:17'),
+(61, 7, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:32:24'),
+(62, 7, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:35:52'),
+(64, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:36:29'),
+(65, 1, 'manager_approve', 'Approved manager manager ID: 5', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:36:38'),
+(66, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:36:45'),
+(67, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:37:31'),
+(68, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:37:51'),
+(69, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:39:19'),
+(70, 1, 'manager_delete', 'Deleted manager manager ID: 5', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:53:00'),
+(71, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:53:22'),
+(73, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:54:19'),
+(74, 1, 'manager_approve', 'Approved manager manager ID: 6', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:54:31'),
+(75, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:54:48'),
+(76, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:59:10'),
+(77, 1, 'manager_delete', 'Deleted manager manager ID: 6', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:59:18'),
+(78, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 01:59:27'),
+(79, 11, 'register', 'New user registered', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 02:00:12'),
+(80, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 02:00:39'),
+(81, 1, 'manager_approve', 'Approved manager manager ID: 7', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 02:00:49'),
+(82, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 02:00:55'),
+(83, 11, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 02:34:52'),
+(84, 11, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 05:08:33'),
+(85, 11, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 05:30:39'),
+(86, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 05:34:04'),
+(87, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 05:39:49'),
+(88, 11, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 05:40:09'),
+(89, 11, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-02 10:16:23'),
+(90, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-03 00:29:23'),
+(91, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-03 00:44:37'),
+(92, 12, 'register', 'New user registered', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-03 01:11:06'),
+(93, 1, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-03 01:11:17'),
+(94, 1, 'admin_approve', 'Approved admin: John Cyril San Antonio', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-03 01:11:23'),
+(95, 1, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-03 01:47:11'),
+(96, 7, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-03 01:49:40'),
+(97, 7, 'logout', 'User logged out', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-03 01:49:45'),
+(98, 11, 'login', 'User logged in', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-03 03:02:19'),
+(99, 11, 'profile_update', 'User updated profile', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36', '2026-06-03 03:19:30');
 
 -- --------------------------------------------------------
 
@@ -97,8 +144,8 @@ CREATE TABLE `admins` (
   `id` int(10) UNSIGNED NOT NULL,
   `admin_id` int(10) UNSIGNED DEFAULT NULL,
   `create_at` datetime DEFAULT NULL,
-  `user_id` int(10) UNSIGNED DEFAULT NULL,
   `user_type` varchar(50) DEFAULT NULL,
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
   `first_name` varchar(100) NOT NULL,
   `middle_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) NOT NULL,
@@ -123,8 +170,9 @@ CREATE TABLE `admins` (
 -- Dumping data for table `admins`
 --
 
-INSERT INTO `admins` (`id`, `user_id`, `first_name`, `last_name`, `position`, `area`, `contact_no`, `employee_id`, `department`, `company_email`, `email`, `photos`, `status`, `created_at`, `updated_at`) VALUES
-(2, 7, 'John Cyril', 'San Antonio', 'sales_admin', NULL, '09505960921', 'PCC0122', 'operation', 'cyrilsantonio19@paragoncorp.com.ph', 'cyrilsanantonio19@gmail.com', 'admins/adm_29892953a357371cb31498c54c44bd6b.png', 'active', '2026-05-26 05:16:24', '2026-05-26 05:18:23');
+INSERT INTO `admins` (`id`, `admin_id`, `create_at`, `user_type`, `user_id`, `first_name`, `middle_name`, `last_name`, `username`, `position`, `area`, `contact_no`, `contact`, `address`, `employee_id`, `department`, `company_email`, `password`, `email`, `photos`, `status`, `created_at`, `updated_at`) VALUES
+(2, 2, '2026-05-26 05:16:24', 'super_admin', 7, 'John Cyril', NULL, 'San Antonio', 'John Cyril San Antonio', 'sales_admin', NULL, '09505960921', '09505960921', NULL, 'PCC0122', 'operation', 'cyrilsantonio19@paragoncorp.com.ph', '$2y$12$KoF430CU3b3Dw.5lqUU5LucqpF7I7.RN3IhzLrsAx9P02vsVD12O.', 'cyrilsanantonio19@gmail.com', 'admins/adm_29892953a357371cb31498c54c44bd6b.png', 'active', '2026-05-26 05:16:24', '2026-05-26 05:18:23'),
+(3, 3, '2026-06-03 01:11:06', 'super_admin', 12, 'John Cyril', 'Dunghayan', 'San Antonio', 'John Cyril Dunghayan San Antonio', 'dispatcher', NULL, '09505960921', '09505960921', '1069 Zone 1 Purok 1A Real St.', 'PCC0121', 'operation', 'cedric21@paragoncorp.com.ph', '$2y$12$kb.93uCeDD72vBj83.Ky2e0wdmRyGxk3kGy90ABS3Xpj4xX1qyDmW', 'cyrilsanantonio@gmail.com', NULL, 'active', '2026-06-03 01:11:06', '2026-06-03 01:11:23');
 
 -- --------------------------------------------------------
 
@@ -197,6 +245,22 @@ CREATE TABLE `dispatch_remarks` (
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `dispatch_remarks`
+--
+
+INSERT INTO `dispatch_remarks` (`id`, `dispatch_remarks`, `created_at`, `updated_at`) VALUES
+(1, 'WRONG AREA', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(2, 'WITH EXISTING LINE', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(3, 'UNDECIDED', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(4, 'UNCONTACTED', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(5, 'SUBS UNKNOWN', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(6, 'SITE CONCERN', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(7, 'PERMIT ISSUE', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(8, 'PASSING PRIVATE PROPERTY', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(9, 'PASSING BUSY ROAD', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(10, 'OVERSPAN', '2026-06-03 08:43:28', '2026-06-03 10:53:35');
+
 -- --------------------------------------------------------
 
 --
@@ -211,6 +275,22 @@ CREATE TABLE `dispatch_statuses` (
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `dispatch_statuses`
+--
+
+INSERT INTO `dispatch_statuses` (`id`, `dispatch_status`, `color`, `created_at`, `updated_at`) VALUES
+(1, 'ACTIVATED', '#27d5e1', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(2, 'CANCELLED', '#b71c1c', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(3, 'FOR INSTALLATION', '#4a148c', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(4, 'RE-SCHEDULE', '#beb5b0', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(5, 'ON-HOLD INSTALLATION', '#ef6c00', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(6, 'FOR MSA INSTALLATION', '#ec407a', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(7, 'FOR ACTIVATION', '#00bcd4', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(8, 'RESCHED BY MSA', '#ffeb3b', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(9, 'JRU UNINSTALLABLE', '#6fe6fc', '2026-06-03 08:43:28', '2026-06-03 10:53:35'),
+(10, 'DOUBLE ENTRY', '#1565c0', '2026-06-03 08:43:28', '2026-06-03 10:53:35');
+
 -- --------------------------------------------------------
 
 --
@@ -221,7 +301,6 @@ CREATE TABLE `inhouse_sales` (
   `id` int(10) UNSIGNED NOT NULL,
   `inhouse_id` int(10) UNSIGNED DEFAULT NULL,
   `create_at` datetime DEFAULT NULL,
-  `user_id` int(10) UNSIGNED DEFAULT NULL,
   `user_type` varchar(50) DEFAULT NULL,
   `sales_manager` varchar(150) NOT NULL,
   `first_name` varchar(100) NOT NULL,
@@ -234,6 +313,7 @@ CREATE TABLE `inhouse_sales` (
   `address` varchar(255) DEFAULT NULL,
   `sales_category` varchar(100) NOT NULL,
   `status` enum('pending','active','inactive') NOT NULL DEFAULT 'pending',
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -288,8 +368,8 @@ CREATE TABLE `managers` (
   `id` int(10) UNSIGNED NOT NULL,
   `manager_id` int(10) UNSIGNED DEFAULT NULL,
   `create_at` datetime DEFAULT NULL,
-  `user_id` int(10) UNSIGNED DEFAULT NULL,
   `user_type` varchar(50) DEFAULT NULL,
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
   `manager_name` varchar(150) NOT NULL,
   `position` varchar(100) NOT NULL,
   `first_name` varchar(100) DEFAULT NULL,
@@ -307,6 +387,14 @@ CREATE TABLE `managers` (
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `managers`
+--
+
+INSERT INTO `managers` (`id`, `manager_id`, `create_at`, `user_type`, `user_id`, `manager_name`, `position`, `first_name`, `middle_name`, `last_name`, `sales_manager`, `contact_no`, `contact`, `company_email`, `password`, `email`, `photos`, `status`, `created_at`, `updated_at`) VALUES
+(4, 4, '2026-06-02 01:31:11', 'asm_manager', 8, 'John Cyril Dunghayan San Antonio', 'head_manager', 'John Cyril', 'Dunghayan', 'San Antonio', 'John Cyril Dunghayan San Antonio', '09505960921', '09505960921', 'cyrilsanantonio21@gmail.com', '$2y$12$LL1bFM8KqEER8MLcE4Apwu0Jvw5Hdwcm6YYS0RbUYTxApGrSJjhvS', 'cyrilsanantonio21@gmail.com', NULL, 'active', '2026-06-02 01:31:11', '2026-06-02 01:32:06'),
+(7, 7, '2026-06-02 02:00:12', 'asm_manager', 11, 'Ced CED CEDr', 'head_manager', 'Ced', 'CED', 'CEDr', 'Ced CED CEDr', '09505960921', '09505960921', 'cedric.bagaipo@lspu.edu.ph', '$2y$12$otjWv2laiiPcENSsXeMhp.wWBH4cvCYHidL/W3whPqxEKUdzfJ6HO', 'cedric.bagaipo@lspu.edu.ph', NULL, 'active', '2026-06-02 02:00:12', '2026-06-02 02:00:49');
+
 -- --------------------------------------------------------
 
 --
@@ -317,7 +405,6 @@ CREATE TABLE `msa_partners` (
   `id` int(10) UNSIGNED NOT NULL,
   `partners_id` int(10) UNSIGNED DEFAULT NULL,
   `create_at` datetime DEFAULT NULL,
-  `user_id` int(10) UNSIGNED DEFAULT NULL,
   `user_type` varchar(50) DEFAULT NULL,
   `sales_manager` varchar(150) DEFAULT NULL,
   `company_name` varchar(150) NOT NULL,
@@ -328,10 +415,11 @@ CREATE TABLE `msa_partners` (
   `email` varchar(150) NOT NULL,
   `password` varchar(255) DEFAULT NULL,
   `photos` varchar(255) DEFAULT NULL,
-  `area_type` varchar(30) NOT NULL,
+  `area_type` varchar(30) DEFAULT NULL,
   `address` varchar(255) NOT NULL,
   `sales_category` varchar(100) DEFAULT NULL,
   `status` enum('pending','active','inactive') NOT NULL DEFAULT 'pending',
+  `user_id` int(10) UNSIGNED DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -493,7 +581,10 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `name`, `first_name`, `middle_name`, `last_name`, `email`, `company_email`, `contact_no`, `password`, `role`, `status`, `avatar`, `created_at`, `updated_at`) VALUES
 (1, 'System Admin', 'System Admin', NULL, '', 'admin@psmms.local', NULL, NULL, '$2y$12$6/bYLVQDFFp2w4c2pTQ8KuRRW12foTIf6iiR7idiwLu0RZKgHNXpO', 'super_admin', 'active', 'avatars/usr_5064524f9a796daf714e060a11c34d91.jpg', '2026-05-15 05:35:32', '2026-05-15 05:35:32'),
 (6, 'John Cyril Dunghayan San Antonio', 'John Cyril Dunghayan San Antonio', NULL, '', 'cyrilsanantonio34@gmail.com', 'cyrilsanantonio34@paragon.com', '09505960921', '$2y$12$pNckb45wQyE4PPWCBVRBj.N.C6tj4CE3Q6pMth/bDnOfnwwCGSr6C', 'asm_manager', 'active', NULL, '2026-05-15 06:33:16', '2026-05-15 06:33:24'),
-(7, 'John Cyril San Antonio', 'John Cyril', NULL, 'San Antonio', 'cyrilsanantonio19@gmail.com', 'cyrilsantonio19@paragoncorp.com.ph', '09505960921', '$2y$12$KoF430CU3b3Dw.5lqUU5LucqpF7I7.RN3IhzLrsAx9P02vsVD12O.', 'super_admin', 'active', NULL, '2026-05-26 05:16:24', '2026-05-26 05:18:23');
+(7, 'John Cyril San Antonio', 'John Cyril', NULL, 'San Antonio', 'cyrilsanantonio19@gmail.com', 'cyrilsantonio19@paragoncorp.com.ph', '09505960921', '$2y$12$KoF430CU3b3Dw.5lqUU5LucqpF7I7.RN3IhzLrsAx9P02vsVD12O.', 'super_admin', 'active', NULL, '2026-05-26 05:16:24', '2026-05-26 05:18:23'),
+(8, 'John Cyril Dunghayan San Antonio', 'John Cyril', 'Dunghayan', 'San Antonio', 'cyrilsanantonio21@gmail.com', 'cyrilsanantonio21@gmail.com', '09505960921', '$2y$12$LL1bFM8KqEER8MLcE4Apwu0Jvw5Hdwcm6YYS0RbUYTxApGrSJjhvS', 'asm_manager', 'pending', NULL, '2026-06-02 01:31:11', '2026-06-02 01:31:11'),
+(11, 'Ced CED CEDr', 'Ced', 'CED', 'CEDr', 'cedric.bagaipo@lspu.edu.ph', 'cedric.bagaipo@lspu.edu.ph', '09505960921', '$2y$12$otjWv2laiiPcENSsXeMhp.wWBH4cvCYHidL/W3whPqxEKUdzfJ6HO', 'asm_manager', 'active', 'avatars/usr_879d0130bc008792e8db0e33a15cda88.jpg', '2026-06-02 02:00:12', '2026-06-02 10:33:11'),
+(12, 'John Cyril Dunghayan San Antonio', 'John Cyril', 'Dunghayan', 'San Antonio', 'cyrilsanantonio@gmail.com', 'cedric21@paragoncorp.com.ph', '09505960921', '$2y$12$kb.93uCeDD72vBj83.Ky2e0wdmRyGxk3kGy90ABS3Xpj4xX1qyDmW', 'super_admin', 'active', NULL, '2026-06-03 01:11:06', '2026-06-03 01:11:23');
 
 --
 -- Indexes for dumped tables
@@ -622,7 +713,6 @@ ALTER TABLE `msa_partners`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `msa_email_unique` (`email`),
   ADD KEY `msa_user_id_index` (`user_id`),
-  ADD KEY `msa_area_type_index` (`area_type`),
   ADD KEY `msa_status_index` (`status`),
   ADD KEY `msa_created_at_index` (`created_at`);
 
@@ -712,13 +802,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=100;
 
 --
 -- AUTO_INCREMENT for table `admins`
 --
 ALTER TABLE `admins`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `agent_codes`
@@ -742,13 +832,13 @@ ALTER TABLE `asm_per_areas`
 -- AUTO_INCREMENT for table `dispatch_remarks`
 --
 ALTER TABLE `dispatch_remarks`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `dispatch_statuses`
 --
 ALTER TABLE `dispatch_statuses`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `inhouse_sales`
@@ -772,7 +862,7 @@ ALTER TABLE `installer_tech_team_areas`
 -- AUTO_INCREMENT for table `managers`
 --
 ALTER TABLE `managers`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `msa_partners`
@@ -826,7 +916,7 @@ ALTER TABLE `sales_categories`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Constraints for dumped tables
