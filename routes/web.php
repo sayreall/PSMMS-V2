@@ -43,10 +43,12 @@ $router->group('', function (Router $router): void {
     $router->post('/managers/{source}/{id}/approve', 'Users\\AsmManager\\ManagersController@approve');
     $router->get('/inhouse', 'Users\\InhouseSales\\InhouseController@index');
     $router->post('/inhouse', 'Users\\InhouseSales\\InhouseController@store');
+    $router->post('/inhouse/{source}/{id}/update', 'Users\\InhouseSales\\InhouseController@update');
     $router->post('/inhouse/{source}/{id}/approve', 'Users\\InhouseSales\\InhouseController@approve');
     $router->post('/inhouse/{source}/{id}/delete', 'Users\\InhouseSales\\InhouseController@delete');
     $router->get('/partners', 'Users\\MsaPartners\\PartnersController@index');
     $router->post('/partners', 'Users\\MsaPartners\\PartnersController@store');
+    $router->post('/partners/{source}/{id}/update', 'Users\\MsaPartners\\PartnersController@update');
     $router->post('/partners/{source}/{id}/approve', 'Users\\MsaPartners\\PartnersController@approve');
     $router->post('/partners/{source}/{id}/delete', 'Users\\MsaPartners\\PartnersController@delete');
     $router->get('/admins', 'Users\\SuperAdmin\\AdminsController@index');

@@ -17,7 +17,10 @@ function syncCompanyEmail(localField) {
     const targetField = scope.querySelector(`[name="${targetName}"]`) || form.querySelector(`[name="${targetName}"]`);
     if (!targetField) return null;
 
-    const local = (localField.value || '').trim();
+    const local = (localField.value || '').trim().split('@')[0].replace(/\s+/g, '');
+    if (localField.value !== local) {
+        localField.value = local;
+    }
     targetField.value = local ? `${local}@${domain}` : '';
     return targetField;
 }

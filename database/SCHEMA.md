@@ -17,6 +17,17 @@ This document describes the current MySQL schema used by PSMMS Dashboard.
 12. `012_create_sales_categories_table.sql`
 13. `013_create_sales_agents_table.sql`
 14. `014_create_agent_codes_table.sql`
+15. `015_create_installer_tech_data_table.sql`
+16. `016_create_installer_tech_team_areas_table.sql`
+17. `017_create_asm_names_table.sql`
+18. `018_create_asm_per_areas_table.sql`
+19. `019_create_dispatch_statuses_table.sql`
+20. `020_create_dispatch_remarks_table.sql`
+21. `021_create_address_tables.sql`
+22. `022_alter_admins_add_admin_account_columns.sql`
+23. `023_alter_managers_add_manager_account_columns.sql`
+24. `024_alter_inhouse_sales_add_inhouse_account_columns.sql`
+25. `025_alter_msa_partners_add_partners_account_columns.sql`
 
 ## Tables
 
@@ -87,13 +98,22 @@ Purpose: stores manager profile records used by the Managers module.
 
 Columns:
 - `id` `INT UNSIGNED` PK auto increment
+- `manager_id` `INT UNSIGNED` nullable
+- `create_at` `DATETIME` nullable
 - `user_id` `INT UNSIGNED` nullable, FK to `users.id`
+- `user_type` `VARCHAR(50)` nullable
 - `manager_name` `VARCHAR(150)` not null
 - `position` `VARCHAR(100)` not null
+- `first_name` `VARCHAR(100)` nullable
+- `middle_name` `VARCHAR(100)` nullable
+- `last_name` `VARCHAR(100)` nullable
+- `sales_manager` `VARCHAR(150)` nullable
 - `contact_no` `VARCHAR(30)` nullable
+- `contact` `VARCHAR(30)` nullable
 - `company_email` `VARCHAR(150)` nullable, unique
+- `password` `VARCHAR(255)` nullable
 - `email` `VARCHAR(150)` nullable, unique
-- `profile_picture` `VARCHAR(255)` nullable
+- `photos` `VARCHAR(255)` nullable
 - `status` `ENUM('pending','active','inactive')` not null default `active`
 - `created_at` `DATETIME` not null
 - `updated_at` `DATETIME` not null
@@ -114,17 +134,25 @@ Purpose: stores admin profile records used by the Admin module.
 
 Columns:
 - `id` `INT UNSIGNED` PK auto increment
+- `admin_id` `INT UNSIGNED` nullable
+- `create_at` `DATETIME` nullable
 - `user_id` `INT UNSIGNED` nullable, FK to `users.id`
+- `user_type` `VARCHAR(50)` nullable
 - `first_name` `VARCHAR(100)` not null
+- `middle_name` `VARCHAR(100)` nullable
 - `last_name` `VARCHAR(100)` not null
+- `username` `VARCHAR(100)` nullable
 - `position` `VARCHAR(100)` not null
 - `area` `VARCHAR(150)` nullable
 - `contact_no` `VARCHAR(30)` nullable
+- `contact` `VARCHAR(30)` nullable
+- `address` `VARCHAR(255)` nullable
 - `employee_id` `VARCHAR(50)` not null, unique
 - `department` `VARCHAR(100)` not null
 - `company_email` `VARCHAR(150)` nullable, unique
+- `password` `VARCHAR(255)` nullable
 - `email` `VARCHAR(150)` nullable, unique
-- `profile_picture` `VARCHAR(255)` nullable
+- `photos` `VARCHAR(255)` nullable
 - `status` `ENUM('pending','active','inactive')` not null default `active`
 - `created_at` `DATETIME` not null
 - `updated_at` `DATETIME` not null
@@ -146,21 +174,25 @@ Purpose: stores in-house sales profile records.
 
 Columns:
 - `id` `INT UNSIGNED` PK auto increment
+- `inhouse_id` `INT UNSIGNED` nullable
+- `create_at` `DATETIME` nullable
 - `user_id` `INT UNSIGNED` nullable, FK to `users.id`
+- `user_type` `VARCHAR(50)` nullable
 - `sales_manager` `VARCHAR(150)` not null
-- `sales_category` `VARCHAR(100)` not null
 - `first_name` `VARCHAR(100)` not null
+- `middle_name` `VARCHAR(100)` nullable
 - `last_name` `VARCHAR(100)` not null
-- `employee_id` `VARCHAR(50)` not null, unique
-- `contact_no` `VARCHAR(30)` not null
+- `contact` `VARCHAR(30)` nullable
 - `email` `VARCHAR(150)` not null, unique
-- `profile_picture` `VARCHAR(255)` nullable
+- `password` `VARCHAR(255)` nullable
+- `photos` `VARCHAR(255)` nullable
+- `address` `VARCHAR(255)` nullable
+- `sales_category` `VARCHAR(100)` not null
 - `status` `ENUM('pending','active','inactive')` not null default `pending`
 - `created_at` `DATETIME` not null
 - `updated_at` `DATETIME` not null
 
 Indexes:
-- unique `inhouse_employee_id_unique (employee_id)`
 - unique `inhouse_email_unique (email)`
 - `inhouse_user_id_index (user_id)`
 - `inhouse_status_index (status)`
@@ -174,24 +206,30 @@ Purpose: stores MSA partner profile records.
 
 Columns:
 - `id` `INT UNSIGNED` PK auto increment
+- `partners_id` `INT UNSIGNED` nullable
+- `create_at` `DATETIME` nullable
 - `user_id` `INT UNSIGNED` nullable, FK to `users.id`
+- `user_type` `VARCHAR(50)` nullable
+- `sales_manager` `VARCHAR(150)` nullable
 - `company_name` `VARCHAR(150)` not null
-- `username` `VARCHAR(100)` not null, unique
-- `contact_no` `VARCHAR(30)` not null
-- `address` `VARCHAR(255)` not null
-- `installer` `VARCHAR(150)` not null
-- `msa_type` `VARCHAR(30)` not null
+- `first_name` `VARCHAR(100)` nullable
+- `middle_name` `VARCHAR(100)` nullable
+- `last_name` `VARCHAR(100)` nullable
+- `contact` `VARCHAR(30)` nullable
 - `email` `VARCHAR(150)` not null, unique
-- `profile_picture` `VARCHAR(255)` nullable
+- `password` `VARCHAR(255)` nullable
+- `photos` `VARCHAR(255)` nullable
+- `area_type` `VARCHAR(30)` not null
+- `address` `VARCHAR(255)` not null
+- `sales_category` `VARCHAR(100)` nullable
 - `status` `ENUM('pending','active','inactive')` not null default `pending`
 - `created_at` `DATETIME` not null
 - `updated_at` `DATETIME` not null
 
 Indexes:
-- unique `msa_username_unique (username)`
 - unique `msa_email_unique (email)`
 - `msa_user_id_index (user_id)`
-- `msa_type_index (msa_type)`
+- `msa_area_type_index (area_type)`
 - `msa_status_index (status)`
 - `msa_created_at_index (created_at)`
 

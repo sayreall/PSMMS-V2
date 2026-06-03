@@ -41,12 +41,20 @@ class ManagersController extends BaseController
                     m.id AS row_id,
                     'manager' AS source_type,
                     m.id,
+                    m.manager_id,
+                    m.user_type,
                     m.manager_name,
+                    m.first_name,
+                    m.middle_name,
+                    m.last_name,
+                    m.sales_manager,
                     m.position,
                     m.contact_no,
+                    m.contact,
                     m.company_email,
+                    m.password,
                     m.email,
-                    m.profile_picture,
+                    m.photos,
                     m.status,
                     m.created_at
                 FROM managers m
@@ -57,12 +65,20 @@ class ManagersController extends BaseController
                     u.id AS row_id,
                     'user' AS source_type,
                     u.id,
+                    u.id AS manager_id,
+                    u.role AS user_type,
                     u.name AS manager_name,
+                    u.first_name,
+                    u.middle_name,
+                    u.last_name,
+                    u.name AS sales_manager,
                     u.role AS position,
                     COALESCE(u.contact_no, '') AS contact_no,
+                    COALESCE(u.contact_no, '') AS contact,
                     u.company_email,
+                    u.password,
                     u.email,
-                    u.avatar AS profile_picture,
+                    u.avatar AS photos,
                     u.status,
                     u.created_at
                 FROM users u
@@ -94,24 +110,40 @@ class ManagersController extends BaseController
 
         $data = $this->requestData();
 
+        $first_name = trim($data['first_name'] ?? '');
+        $middle_name = trim($data['middle_name'] ?? '');
+        $last_name = trim($data['last_name'] ?? '');
         $manager_name = trim($data['manager_name'] ?? '');
+        if ($manager_name === '') {
+            $manager_name = $this->composeFullName($first_name, $middle_name, $last_name);
+        }
+        $sales_manager = trim($data['sales_manager'] ?? '');
+        if ($sales_manager === '') {
+            $sales_manager = $manager_name;
+        }
         $position = trim($data['position'] ?? '');
-        $contact_no = trim($data['contact_no'] ?? '');
+        $contact_no = trim($data['contact'] ?? ($data['contact_no'] ?? ''));
         $company_email = trim($data['company_email'] ?? '');
         $email = trim($data['email'] ?? '');
+        $password = trim((string)($data['password'] ?? ''));
         $status = trim($data['status'] ?? 'active');
 
         $rules = [
             'manager_name' => 'required|min:2|max:150',
+            'first_name' => 'max:100',
+            'middle_name' => 'max:100',
+            'last_name' => 'max:100',
+            'sales_manager' => 'max:150',
             'position' => 'required|max:100',
             'contact_no' => 'required|max:30',
             'company_email' => 'required|email|unique:managers.company_email',
             'email' => 'required|email|unique:managers.email',
+            'password' => 'min:8',
             'status' => 'required|in:pending,active,inactive',
         ];
 
         $validator = (new Validation())->validate(
-            compact('manager_name', 'position', 'contact_no', 'company_email', 'email', 'status'),
+            compact('manager_name', 'first_name', 'middle_name', 'last_name', 'sales_manager', 'position', 'contact_no', 'company_email', 'email', 'password', 'status'),
             $rules
         );
 
@@ -121,10 +153,10 @@ class ManagersController extends BaseController
             $this->redirectBack();
         }
 
-        $profilePicturePath = null;
-        if (isset($_FILES['profile_picture']) && ($_FILES['profile_picture']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
-            $profilePicturePath = Upload::store($_FILES['profile_picture'], 'managers', 'mgr_');
-            if ($profilePicturePath === null) {
+        $photoPath = null;
+        if (isset($_FILES['photos']) && ($_FILES['photos']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $photoPath = Upload::store($_FILES['photos'], 'managers', 'mgr_');
+            if ($photoPath === null) {
                 Session::flash('message', 'Profile picture upload failed. Please use a valid image file (max 5MB).');
                 Session::flash('message_type', 'error');
                 $this->redirectBack();
@@ -132,7 +164,7 @@ class ManagersController extends BaseController
         }
 
         $db = \App\Config\Database::getInstance();
-        $userLookup = $db->prepare("SELECT id, email, company_email FROM users WHERE email = :email OR company_email = :company_email LIMIT 1");
+        $userLookup = $db->prepare("SELECT id, email, company_email, password FROM users WHERE email = :email OR company_email = :company_email LIMIT 1");
         $userLookup->execute([
             ':email' => $email,
             ':company_email' => $company_email,
@@ -146,12 +178,17 @@ class ManagersController extends BaseController
 
         if ($existingUser) {
             $linkedUserId = (int)($existingUser['id'] ?? 0);
+            $hashedPassword = (string)($existingUser['password'] ?? '');
         } else {
-            $generatedPassword = $this->generateTemporaryPassword();
-            $hashedPassword = password_hash($generatedPassword, PASSWORD_BCRYPT, ['cost' => 12]);
+            $generatedPassword = $password !== '' ? null : $this->generateTemporaryPassword();
+            $plainPassword = $password !== '' ? $password : $generatedPassword;
+            $hashedPassword = password_hash((string)$plainPassword, PASSWORD_BCRYPT, ['cost' => 12]);
 
             $linkedUserId = $this->userModel->createUser([
                 'name' => $manager_name,
+                'first_name' => $first_name ?: null,
+                'middle_name' => $middle_name ?: null,
+                'last_name' => $last_name ?: null,
                 'email' => $email,
                 'company_email' => $company_email,
                 'contact_no' => $contact_no ?: null,
@@ -160,29 +197,38 @@ class ManagersController extends BaseController
                 'status' => $status,
             ]);
 
-            $credentialEmailSent = Mailer::send(
-                $email,
-                $manager_name,
-                'Your PSMMS account credentials',
-                '<p>Hello ' . htmlspecialchars($manager_name) . ',</p>'
-                . '<p>A manager account has been created for you by Super Admin.</p>'
-                . '<p><strong>Email:</strong> ' . htmlspecialchars($email) . '</p>'
-                . '<p style="font-size:16px;"><strong>Temporary Password:</strong></p>'
-                . '<p style="font-size:20px;font-weight:700;letter-spacing:.5px;padding:8px 12px;border:1px solid #e2e8f0;background:#f8fafc;display:inline-block;">' . htmlspecialchars($generatedPassword) . '</p>'
-                . '<p>Please sign in and change your password immediately.</p>'
-                . '<p>Regards,<br>PSMMS Team</p>',
-                $mailError
-            );
+            if ($generatedPassword !== null) {
+                $credentialEmailSent = Mailer::send(
+                    $email,
+                    $manager_name,
+                    'Your PSMMS account credentials',
+                    '<p>Hello ' . htmlspecialchars($manager_name) . ',</p>'
+                    . '<p>A manager account has been created for you by Super Admin.</p>'
+                    . '<p><strong>Email:</strong> ' . htmlspecialchars($email) . '</p>'
+                    . '<p style="font-size:16px;"><strong>Temporary Password:</strong></p>'
+                    . '<p style="font-size:20px;font-weight:700;letter-spacing:.5px;padding:8px 12px;border:1px solid #e2e8f0;background:#f8fafc;display:inline-block;">' . htmlspecialchars((string)$generatedPassword) . '</p>'
+                    . '<p>Please sign in and change your password immediately.</p>'
+                    . '<p>Regards,<br>PSMMS Team</p>',
+                    $mailError
+                );
+            }
         }
 
         $this->managerModel->createManager([
             'user_id' => $linkedUserId ?: null,
+            'user_type' => 'asm_manager',
             'manager_name' => $manager_name,
+            'first_name' => $first_name ?: null,
+            'middle_name' => $middle_name ?: null,
+            'last_name' => $last_name ?: null,
+            'sales_manager' => $sales_manager,
             'position' => $position,
             'contact_no' => $contact_no ?: null,
+            'contact' => $contact_no ?: null,
             'company_email' => $company_email,
+            'password' => isset($hashedPassword) ? $hashedPassword : null,
             'email' => $email,
-            'profile_picture' => $profilePicturePath,
+            'photos' => $photoPath,
             'status' => $status,
         ]);
 
@@ -247,6 +293,142 @@ class ManagersController extends BaseController
             ':company_email_filter' => $companyEmail,
             ':company_email_value' => $companyEmail,
         ]);
+    }
+
+    public function update(string $source, int $id): void
+    {
+        Csrf::verify();
+
+        $data = $this->requestData();
+        $firstName = trim($data['first_name'] ?? '');
+        $middleName = trim($data['middle_name'] ?? '');
+        $lastName = trim($data['last_name'] ?? '');
+        $managerName = trim($data['manager_name'] ?? '');
+        if ($managerName === '') {
+            $managerName = $this->composeFullName($firstName, $middleName, $lastName);
+        }
+        $salesManager = trim($data['sales_manager'] ?? '');
+        if ($salesManager === '') {
+            $salesManager = $managerName;
+        }
+
+        $payload = [
+            'manager_name' => $managerName,
+            'first_name' => $firstName,
+            'middle_name' => $middleName,
+            'last_name' => $lastName,
+            'sales_manager' => $salesManager,
+            'position' => trim($data['position'] ?? ''),
+            'contact' => trim($data['contact'] ?? ($data['contact_no'] ?? '')),
+            'email' => trim($data['email'] ?? ''),
+            'company_email' => trim($data['company_email'] ?? ''),
+            'status' => trim($data['status'] ?? 'active'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        $db = Database::getInstance();
+
+        if ($source === 'manager') {
+            $existingStmt = $db->prepare("SELECT id, user_id FROM managers WHERE id = :id LIMIT 1");
+            $existingStmt->execute([':id' => $id]);
+            $existing = $existingStmt->fetch(\PDO::FETCH_ASSOC) ?: null;
+
+            if (!$existing) {
+                Session::flash('message', 'Manager record not found.');
+                Session::flash('message_type', 'error');
+                $this->redirect(App::url('managers'));
+            }
+
+            $stmt = $db->prepare("
+                UPDATE managers
+                SET manager_name = :manager_name,
+                    first_name = :first_name,
+                    middle_name = :middle_name,
+                    last_name = :last_name,
+                    sales_manager = :sales_manager,
+                    position = :position,
+                    contact_no = :contact,
+                    contact = :contact,
+                    email = :email,
+                    company_email = :company_email,
+                    user_type = COALESCE(user_type, 'asm_manager'),
+                    status = :status,
+                    updated_at = :updated_at
+                WHERE id = :id
+                LIMIT 1
+            ");
+            $stmt->execute([
+                ':id' => $id,
+                ':manager_name' => $payload['manager_name'],
+                ':first_name' => $payload['first_name'] !== '' ? $payload['first_name'] : null,
+                ':middle_name' => $payload['middle_name'] !== '' ? $payload['middle_name'] : null,
+                ':last_name' => $payload['last_name'] !== '' ? $payload['last_name'] : null,
+                ':sales_manager' => $payload['sales_manager'] !== '' ? $payload['sales_manager'] : null,
+                ':position' => $payload['position'],
+                ':contact' => $payload['contact'] !== '' ? $payload['contact'] : null,
+                ':email' => $payload['email'],
+                ':company_email' => $payload['company_email'],
+                ':status' => $payload['status'],
+                ':updated_at' => $payload['updated_at'],
+            ]);
+
+            $linkedUserId = (int)($existing['user_id'] ?? 0);
+            if ($linkedUserId > 0) {
+                $this->syncLinkedUserProfile($linkedUserId, $payload);
+            }
+        } elseif ($source === 'user') {
+            $this->syncLinkedUserProfile($id, $payload);
+        } else {
+            Session::flash('message', 'Invalid manager source.');
+            Session::flash('message_type', 'error');
+            $this->redirect(App::url('managers'));
+        }
+
+        Session::flash('message', 'Manager updated successfully.');
+        Session::flash('message_type', 'success');
+
+        if (App::isAjax() || App::isApiRequest()) {
+            $this->json(['success' => true, 'redirect' => App::url('managers')]);
+        }
+
+        $this->redirect(App::url('managers'));
+    }
+
+    private function syncLinkedUserProfile(int $userId, array $payload): void
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("
+            UPDATE users
+            SET name = :name,
+                first_name = :first_name,
+                middle_name = :middle_name,
+                last_name = :last_name,
+                email = :email,
+                company_email = :company_email,
+                contact_no = :contact_no,
+                status = :status,
+                updated_at = :updated_at
+            WHERE id = :id
+              AND role = 'asm_manager'
+            LIMIT 1
+        ");
+        $stmt->execute([
+            ':id' => $userId,
+            ':name' => $payload['manager_name'],
+            ':first_name' => $payload['first_name'] !== '' ? $payload['first_name'] : null,
+            ':middle_name' => $payload['middle_name'] !== '' ? $payload['middle_name'] : null,
+            ':last_name' => $payload['last_name'] !== '' ? $payload['last_name'] : null,
+            ':email' => $payload['email'],
+            ':company_email' => $payload['company_email'] !== '' ? $payload['company_email'] : null,
+            ':contact_no' => $payload['contact'] !== '' ? $payload['contact'] : null,
+            ':status' => $payload['status'],
+            ':updated_at' => $payload['updated_at'],
+        ]);
+    }
+
+    private function composeFullName(string $first, string $middle, string $last): string
+    {
+        return trim(preg_replace('/\s+/', ' ', trim("$first $middle $last")) ?? '');
     }
 
     public function approve(string $source, int $id): void

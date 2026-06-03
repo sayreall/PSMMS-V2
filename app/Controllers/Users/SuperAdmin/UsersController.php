@@ -13,6 +13,8 @@ use App\Helpers\Upload;
 use App\Models\Users\SuperAdmin\AdminModel;
 use App\Models\ActivityLogModel;
 use App\Models\Users\AsmManager\ManagerModel;
+use App\Models\Users\InhouseSales\InhouseSalesModel;
+use App\Models\Users\MsaPartners\MsaPartnerModel;
 use App\Models\UserModel;
 use PDO;
 
@@ -21,6 +23,8 @@ class UsersController extends BaseController
     private UserModel $userModel;
     private ManagerModel $managerModel;
     private AdminModel $adminModel;
+    private InhouseSalesModel $inhouseSalesModel;
+    private MsaPartnerModel $msaPartnerModel;
     private ActivityLogModel $activityLogModel;
 
     public function __construct()
@@ -28,6 +32,8 @@ class UsersController extends BaseController
         $this->userModel = new UserModel();
         $this->managerModel = new ManagerModel();
         $this->adminModel = new AdminModel();
+        $this->inhouseSalesModel = new InhouseSalesModel();
+        $this->msaPartnerModel = new MsaPartnerModel();
         $this->activityLogModel = new ActivityLogModel();
         $this->middleware[] = \App\Middleware\AdminMiddleware::class;
 
@@ -155,7 +161,7 @@ class UsersController extends BaseController
             'email'    => 'required|email|unique:users.email',
             'company_email' => 'required|email|unique:users.company_email',
             'password' => $isSuperAdminCreator ? 'min:8' : 'required|min:8',
-            'role'     => 'required|in:accounting,asm_manager,admin,head_manager,super_admin',
+            'role'     => 'required|in:accounting,asm_manager,admin,head_manager,super_admin,inhouse_sales,msa_partners',
             'status'   => 'required|in:pending,active,inactive',
         ];
 
@@ -192,12 +198,19 @@ class UsersController extends BaseController
             if (!$managerExists) {
                 $this->managerModel->createManager([
                     'user_id' => $userId,
+                    'user_type' => $role,
                     'manager_name' => $name,
+                    'first_name' => $first_name,
+                    'middle_name' => $middle_name ?: null,
+                    'last_name' => $last_name,
+                    'sales_manager' => $name,
                     'position' => $role,
                     'contact_no' => null,
+                    'contact' => null,
                     'company_email' => $company_email,
+                    'password' => $hashedPassword,
                     'email' => $email,
-                    'profile_picture' => null,
+                    'photos' => null,
                     'status' => $status,
                 ]);
             }
@@ -208,16 +221,65 @@ class UsersController extends BaseController
             if (!$adminExists) {
                 $this->adminModel->createAdmin([
                     'user_id' => $userId,
+                    'user_type' => $role,
                     'first_name' => $first_name,
+                    'middle_name' => $middle_name ?: null,
                     'last_name' => $last_name,
+                    'username' => $name,
                     'position' => 'sales_admin',
                     'area' => null,
                     'contact_no' => null,
+                    'contact' => null,
                     'employee_id' => 'ADM' . str_pad((string)$userId, 5, '0', STR_PAD_LEFT),
                     'department' => 'operation',
                     'company_email' => $company_email,
+                    'password' => $hashedPassword,
                     'email' => $email,
-                    'profile_picture' => null,
+                    'photos' => null,
+                    'status' => $status,
+                ]);
+            }
+        }
+
+        if ($role === 'inhouse_sales') {
+            $inhouseExists = $this->inhouseSalesModel->findBy('email', $email);
+            if (!$inhouseExists) {
+                $this->inhouseSalesModel->createInhouseSales([
+                    'user_id' => $userId,
+                    'user_type' => $role,
+                    'sales_manager' => '',
+                    'first_name' => $first_name,
+                    'middle_name' => $middle_name ?: null,
+                    'last_name' => $last_name,
+                    'contact' => null,
+                    'email' => $email,
+                    'password' => $hashedPassword,
+                    'photos' => null,
+                    'address' => null,
+                    'sales_category' => '',
+                    'status' => $status,
+                ]);
+            }
+        }
+
+        if ($role === 'msa_partners') {
+            $partnerExists = $this->msaPartnerModel->findBy('email', $email);
+            if (!$partnerExists) {
+                $this->msaPartnerModel->createMsaPartner([
+                    'user_id' => $userId,
+                    'user_type' => $role,
+                    'sales_manager' => '',
+                    'company_name' => $name,
+                    'first_name' => $first_name,
+                    'middle_name' => $middle_name ?: null,
+                    'last_name' => $last_name,
+                    'contact' => null,
+                    'email' => $email,
+                    'password' => $hashedPassword,
+                    'photos' => null,
+                    'area_type' => 'regional',
+                    'address' => '',
+                    'sales_category' => '',
                     'status' => $status,
                 ]);
             }
@@ -300,7 +362,7 @@ class UsersController extends BaseController
             'last_name' => 'required|min:2|max:100',
             'email'  => 'required|email',
             'company_email' => 'required|email',
-            'role'   => 'required|in:accounting,asm_manager,admin,head_manager,super_admin',
+            'role'   => 'required|in:accounting,asm_manager,admin,head_manager,super_admin,inhouse_sales,msa_partners',
             'status' => 'required|in:pending,active,inactive',
         ];
 
@@ -322,6 +384,108 @@ class UsersController extends BaseController
             'role' => $role,
             'status' => $status,
         ]);
+
+        if ($role === 'inhouse_sales') {
+            $db = \App\Config\Database::getInstance();
+            $exists = $db->prepare("SELECT id FROM inhouse_sales WHERE user_id = :user_id OR email = :email LIMIT 1");
+            $exists->execute([':user_id' => $id, ':email' => $email]);
+            $inhouse = $exists->fetch(PDO::FETCH_ASSOC) ?: null;
+
+            if ($inhouse) {
+                $db->prepare("
+                    UPDATE inhouse_sales
+                    SET
+                        user_id = :user_id,
+                        user_type = 'inhouse_sales',
+                        first_name = :first_name,
+                        middle_name = :middle_name,
+                        last_name = :last_name,
+                        email = :email,
+                        status = :status,
+                        updated_at = :updated_at
+                    WHERE id = :id
+                    LIMIT 1
+                ")->execute([
+                    ':id' => (int)$inhouse['id'],
+                    ':user_id' => $id,
+                    ':first_name' => $first_name,
+                    ':middle_name' => $middle_name ?: null,
+                    ':last_name' => $last_name,
+                    ':email' => $email,
+                    ':status' => $status,
+                    ':updated_at' => date('Y-m-d H:i:s'),
+                ]);
+            } else {
+                $this->inhouseSalesModel->createInhouseSales([
+                    'user_id' => $id,
+                    'user_type' => $role,
+                    'sales_manager' => '',
+                    'first_name' => $first_name,
+                    'middle_name' => $middle_name ?: null,
+                    'last_name' => $last_name,
+                    'contact' => null,
+                    'email' => $email,
+                    'password' => null,
+                    'photos' => null,
+                    'address' => null,
+                    'sales_category' => '',
+                    'status' => $status,
+                ]);
+            }
+        }
+
+        if ($role === 'msa_partners') {
+            $db = \App\Config\Database::getInstance();
+            $exists = $db->prepare("SELECT id FROM msa_partners WHERE user_id = :user_id OR email = :email LIMIT 1");
+            $exists->execute([':user_id' => $id, ':email' => $email]);
+            $partner = $exists->fetch(PDO::FETCH_ASSOC) ?: null;
+
+            if ($partner) {
+                $db->prepare("
+                    UPDATE msa_partners
+                    SET
+                        user_id = :user_id,
+                        user_type = 'msa_partners',
+                        company_name = :company_name,
+                        first_name = :first_name,
+                        middle_name = :middle_name,
+                        last_name = :last_name,
+                        email = :email,
+                        status = :status,
+                        updated_at = :updated_at
+                    WHERE id = :id
+                    LIMIT 1
+                ")->execute([
+                    ':id' => (int)$partner['id'],
+                    ':user_id' => $id,
+                    ':company_name' => $name,
+                    ':first_name' => $first_name,
+                    ':middle_name' => $middle_name ?: null,
+                    ':last_name' => $last_name,
+                    ':email' => $email,
+                    ':status' => $status,
+                    ':updated_at' => date('Y-m-d H:i:s'),
+                ]);
+            } else {
+                $this->msaPartnerModel->createMsaPartner([
+                    'user_id' => $id,
+                    'user_type' => $role,
+                    'sales_manager' => '',
+                    'company_name' => $name,
+                    'first_name' => $first_name,
+                    'middle_name' => $middle_name ?: null,
+                    'last_name' => $last_name,
+                    'contact' => null,
+                    'email' => $email,
+                    'password' => null,
+                    'photos' => null,
+                    'area_type' => 'regional',
+                    'address' => '',
+                    'sales_category' => '',
+                    'status' => $status,
+                ]);
+            }
+        }
         (new ActivityLogModel())->log(Auth::id(), 'user_update', "Updated user ID: $id");
 
         Session::flash('message', 'User updated successfully.');

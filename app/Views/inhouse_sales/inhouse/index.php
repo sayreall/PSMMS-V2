@@ -32,8 +32,10 @@ $asmManagers = $asmManagers ?? [];
                     <tr>
                         <th>Profile</th>
                         <th>Name</th>
-                        <th>Contact No.</th>
-                        <th>Team</th>
+                        <th>Contact</th>
+                        <th>Email</th>
+                        <th>Sales Manager</th>
+                        <th>Category</th>
                         <th>Action</th>
                         <th>Validation</th>
                     </tr>
@@ -41,7 +43,7 @@ $asmManagers = $asmManagers ?? [];
                 <tbody>
                     <?php foreach ($inhouseUsers as $row): ?>
                     <?php
-                        $fullName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+                        $fullName = trim(($row['first_name'] ?? '') . ' ' . ($row['middle_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
                         $team = trim((string)($row['sales_manager'] ?? ''));
                         if ($team === '') {
                             $team = trim((string)($row['sales_category'] ?? '-'));
@@ -59,15 +61,17 @@ $asmManagers = $asmManagers ?? [];
                     ?>
                     <tr>
                         <td>
-                            <?php if (!empty($row['profile_picture'])): ?>
-                                <img src="<?= App\Config\App::url('uploads/' . $row['profile_picture']) ?>" alt="<?= htmlspecialchars($fullName ?: 'In-House') ?>" class="manager-avatar-image">
+                            <?php if (!empty($row['photos'])): ?>
+                                <img src="<?= App\Config\App::url('uploads/' . $row['photos']) ?>" alt="<?= htmlspecialchars($fullName ?: 'In-House') ?>" class="manager-avatar-image">
                             <?php else: ?>
                                 <div class="manager-avatar"><?= strtoupper(substr($fullName ?: 'I', 0, 1)) ?></div>
                             <?php endif; ?>
                         </td>
                         <td class="manager-name-cell"><?= htmlspecialchars($fullName) ?></td>
-                        <td><?= htmlspecialchars($row['contact_no'] ?? '-') ?></td>
+                        <td><?= htmlspecialchars($row['contact'] ?? '-') ?></td>
+                        <td><?= htmlspecialchars($row['email'] ?? '-') ?></td>
                         <td><?= htmlspecialchars(strtoupper($team)) ?></td>
+                        <td><?= htmlspecialchars(strtoupper((string)($row['sales_category'] ?? '-'))) ?></td>
                         <td>
                             <div class="manager-action-group">
                                 <?php if (($row['status'] ?? '') === 'pending'): ?>
@@ -108,13 +112,16 @@ $asmManagers = $asmManagers ?? [];
                                     aria-label="Edit"
                                     onclick='openEditInhouseModal(<?= json_encode([
                                         'id' => (int)($row['id'] ?? 0),
+                                        'update_url' => App\Config\App::url('inhouse/' . urlencode((string)($row['source_type'] ?? 'inhouse')) . '/' . (int)($row['id'] ?? 0) . '/update'),
                                         'source_type' => (string)($row['source_type'] ?? 'inhouse'),
                                         'first_name' => (string)($row['first_name'] ?? ''),
+                                        'middle_name' => (string)($row['middle_name'] ?? ''),
                                         'last_name' => (string)($row['last_name'] ?? ''),
-                                        'contact_no' => (string)($row['contact_no'] ?? ''),
+                                        'contact' => (string)($row['contact'] ?? ''),
                                         'email' => (string)($row['email'] ?? ''),
                                         'sales_manager' => (string)($row['sales_manager'] ?? ''),
                                         'sales_category' => (string)($row['sales_category'] ?? ''),
+                                        'address' => (string)($row['address'] ?? ''),
                                         'status' => (string)($row['status'] ?? 'active'),
                                     ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'
                                 >
@@ -127,9 +134,10 @@ $asmManagers = $asmManagers ?? [];
                                     onclick='openViewInhouseModal(<?= json_encode([
                                         'name' => $fullName ?: '-',
                                         'email' => (string)($row['email'] ?? '-'),
-                                        'contact_no' => (string)($row['contact_no'] ?? '-'),
+                                        'contact' => (string)($row['contact'] ?? '-'),
                                         'sales_manager' => (string)($row['sales_manager'] ?? '-'),
                                         'sales_category' => (string)($row['sales_category'] ?? '-'),
+                                        'address' => (string)($row['address'] ?? '-'),
                                         'status' => $badge,
                                     ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'
                                 >
@@ -191,18 +199,18 @@ $asmManagers = $asmManagers ?? [];
                 </label>
 
                 <label class="manager-modal-field">
+                    <span>Enter Middle Name</span>
+                    <input type="text" name="middle_name" placeholder="Enter Middle Name">
+                </label>
+
+                <label class="manager-modal-field">
                     <span>Enter Last Name</span>
                     <input type="text" name="last_name" placeholder="Enter Last Name">
                 </label>
 
                 <label class="manager-modal-field">
-                    <span>Employee ID</span>
-                    <input type="text" name="employee_id" placeholder="Enter Employee ID">
-                </label>
-
-                <label class="manager-modal-field">
                     <span>Contact</span>
-                    <input type="text" name="contact_no" placeholder="Enter Contact">
+                    <input type="text" name="contact" placeholder="Enter Contact" maxlength="11" inputmode="numeric">
                 </label>
 
                 <label class="manager-modal-field">
@@ -211,8 +219,18 @@ $asmManagers = $asmManagers ?? [];
                 </label>
 
                 <label class="manager-modal-field">
-                    <span>Profile Picture</span>
-                    <input type="file" name="profile_picture">
+                    <span>Password</span>
+                    <input type="password" name="password" placeholder="Optional password">
+                </label>
+
+                <label class="manager-modal-field">
+                    <span>Photos</span>
+                    <input type="file" name="photos" accept="image/*">
+                </label>
+
+                <label class="manager-modal-field manager-modal-field-wide">
+                    <span>Address</span>
+                    <input type="text" name="address" placeholder="Enter Address">
                 </label>
 
                 <label class="manager-modal-field">
@@ -291,35 +309,63 @@ $asmManagers = $asmManagers ?? [];
             <h3>Edit In-House</h3>
             <button type="button" class="manager-modal-close" onclick="closeInhouseInfoModal()" aria-label="Close">x</button>
         </div>
-        <form class="manager-modal-form" onsubmit="event.preventDefault(); closeInhouseInfoModal();">
+        <form id="inhouse-edit-form" class="manager-modal-form" method="POST" action="" enctype="multipart/form-data">
+            <?= \App\Helpers\Csrf::field(); ?>
             <div class="manager-modal-grid">
                 <label class="manager-modal-field">
                     <span>First Name</span>
-                    <input type="text" data-ei="first_name">
+                    <input type="text" name="first_name" data-ei="first_name">
+                </label>
+                <label class="manager-modal-field">
+                    <span>Middle Name</span>
+                    <input type="text" name="middle_name" data-ei="middle_name">
                 </label>
                 <label class="manager-modal-field">
                     <span>Last Name</span>
-                    <input type="text" data-ei="last_name">
+                    <input type="text" name="last_name" data-ei="last_name">
                 </label>
                 <label class="manager-modal-field">
                     <span>Contact</span>
-                    <input type="text" data-ei="contact_no">
+                    <input type="text" name="contact" data-ei="contact" maxlength="11" inputmode="numeric">
                 </label>
                 <label class="manager-modal-field">
                     <span>Email</span>
-                    <input type="email" data-ei="email">
+                    <input type="email" name="email" data-ei="email">
                 </label>
                 <label class="manager-modal-field">
                     <span>Sales Manager</span>
-                    <input type="text" data-ei="sales_manager">
+                    <select name="sales_manager" data-ei="sales_manager">
+                        <option value="">Choose Sales Manager</option>
+                        <?php foreach ($asmManagers as $managerName): ?>
+                            <option value="<?= htmlspecialchars($managerName) ?>"><?= htmlspecialchars(strtoupper($managerName)) ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </label>
                 <label class="manager-modal-field">
                     <span>Category</span>
-                    <input type="text" data-ei="sales_category">
+                    <select name="sales_category" data-ei="sales_category">
+                        <option value="">Choose Sales Category</option>
+                        <option value="fiberx">FIBER-X</option>
+                        <option value="surf2sawa">SURF2SAWA</option>
+                        <option value="bida">BIDA</option>
+                        <option value="sme">SME</option>
+                    </select>
+                </label>
+                <label class="manager-modal-field">
+                    <span>Password</span>
+                    <input type="password" name="password" placeholder="Leave blank to keep current password">
+                </label>
+                <label class="manager-modal-field">
+                    <span>Photos</span>
+                    <input type="file" name="photos" accept="image/*">
+                </label>
+                <label class="manager-modal-field manager-modal-field-wide">
+                    <span>Address</span>
+                    <input type="text" name="address" data-ei="address">
                 </label>
                 <label class="manager-modal-field">
                     <span>Status</span>
-                    <select data-ei="status">
+                    <select name="status" data-ei="status">
                         <option value="active">Active</option>
                         <option value="pending">Pending</option>
                         <option value="inactive">Inactive</option>
@@ -454,9 +500,10 @@ $asmManagers = $asmManagers ?? [];
             'View In-House User',
             '<div><span>Name</span><p>' + (inhouse.name || '-') + '</p></div>'
             + '<div><span>Email</span><p>' + (inhouse.email || '-') + '</p></div>'
-            + '<div><span>Contact</span><p>' + (inhouse.contact_no || '-') + '</p></div>'
+            + '<div><span>Contact</span><p>' + (inhouse.contact || '-') + '</p></div>'
             + '<div><span>Sales Manager</span><p>' + (inhouse.sales_manager || '-') + '</p></div>'
             + '<div><span>Category</span><p>' + (inhouse.sales_category || '-') + '</p></div>'
+            + '<div><span>Address</span><p>' + (inhouse.address || '-') + '</p></div>'
             + '<div><span>Status</span><p>' + (inhouse.status || '-') + '</p></div>'
         );
     }
@@ -468,10 +515,15 @@ $asmManagers = $asmManagers ?? [];
         const content = document.getElementById('modal-content');
         if (content) {
             content.classList.add('manager-modal-shell');
+            const form = content.querySelector('#inhouse-edit-form');
+            if (form) {
+                form.action = inhouse.update_url || '';
+                form.addEventListener('submit', submitInhouseEditForm);
+            }
             content.querySelectorAll('[data-ei]').forEach((node) => {
                 const key = node.getAttribute('data-ei');
                 if (node.tagName === 'SELECT') {
-                    node.value = inhouse[key] || 'active';
+                    node.value = inhouse[key] || (key === 'status' ? 'active' : '');
                 } else {
                     node.value = inhouse[key] || '';
                 }
@@ -481,5 +533,45 @@ $asmManagers = $asmManagers ?? [];
 
     function openDeleteInhouseModal(inhouse) {
         openInhouseDeleteModal(inhouse.delete_url || '', inhouse.name || 'this in-house user');
+    }
+
+    async function submitInhouseEditForm(event) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        if (!form || !form.action) return;
+
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Saving...';
+        }
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: new FormData(form),
+            });
+
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok || payload.success === false) {
+                const firstError = payload && typeof payload === 'object'
+                    ? Object.values(payload).flat().find(Boolean)
+                    : null;
+                alert(firstError || 'Unable to update in-house user.');
+                return;
+            }
+
+            window.location.href = payload.redirect || window.location.href;
+        } finally {
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Save';
+            }
+        }
     }
 </script>

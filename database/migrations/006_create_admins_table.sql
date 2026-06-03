@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS admins (
     department VARCHAR(100) NOT NULL,
     company_email VARCHAR(150) DEFAULT NULL,
     email VARCHAR(150) DEFAULT NULL,
-    profile_picture VARCHAR(255) DEFAULT NULL,
     status ENUM('pending','active','inactive') NOT NULL DEFAULT 'active',
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,

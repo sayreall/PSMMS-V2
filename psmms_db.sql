@@ -95,17 +95,25 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `description`, `ip_addre
 
 CREATE TABLE `admins` (
   `id` int(10) UNSIGNED NOT NULL,
+  `admin_id` int(10) UNSIGNED DEFAULT NULL,
+  `create_at` datetime DEFAULT NULL,
   `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `user_type` varchar(50) DEFAULT NULL,
   `first_name` varchar(100) NOT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) NOT NULL,
+  `username` varchar(100) DEFAULT NULL,
   `position` varchar(100) NOT NULL,
   `area` varchar(150) DEFAULT NULL,
   `contact_no` varchar(30) DEFAULT NULL,
+  `contact` varchar(30) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
   `employee_id` varchar(50) NOT NULL,
   `department` varchar(100) NOT NULL,
   `company_email` varchar(150) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `email` varchar(150) DEFAULT NULL,
-  `profile_picture` varchar(255) DEFAULT NULL,
+  `photos` varchar(255) DEFAULT NULL,
   `status` enum('pending','active','inactive') NOT NULL DEFAULT 'active',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
@@ -115,7 +123,7 @@ CREATE TABLE `admins` (
 -- Dumping data for table `admins`
 --
 
-INSERT INTO `admins` (`id`, `user_id`, `first_name`, `last_name`, `position`, `area`, `contact_no`, `employee_id`, `department`, `company_email`, `email`, `profile_picture`, `status`, `created_at`, `updated_at`) VALUES
+INSERT INTO `admins` (`id`, `user_id`, `first_name`, `last_name`, `position`, `area`, `contact_no`, `employee_id`, `department`, `company_email`, `email`, `photos`, `status`, `created_at`, `updated_at`) VALUES
 (2, 7, 'John Cyril', 'San Antonio', 'sales_admin', NULL, '09505960921', 'PCC0122', 'operation', 'cyrilsantonio19@paragoncorp.com.ph', 'cyrilsanantonio19@gmail.com', 'admins/adm_29892953a357371cb31498c54c44bd6b.png', 'active', '2026-05-26 05:16:24', '2026-05-26 05:18:23');
 
 -- --------------------------------------------------------
@@ -211,15 +219,20 @@ CREATE TABLE `dispatch_statuses` (
 
 CREATE TABLE `inhouse_sales` (
   `id` int(10) UNSIGNED NOT NULL,
+  `inhouse_id` int(10) UNSIGNED DEFAULT NULL,
+  `create_at` datetime DEFAULT NULL,
   `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `user_type` varchar(50) DEFAULT NULL,
   `sales_manager` varchar(150) NOT NULL,
-  `sales_category` varchar(100) NOT NULL,
   `first_name` varchar(100) NOT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
   `last_name` varchar(100) NOT NULL,
-  `employee_id` varchar(50) NOT NULL,
-  `contact_no` varchar(30) NOT NULL,
+  `contact` varchar(30) DEFAULT NULL,
   `email` varchar(150) NOT NULL,
-  `profile_picture` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `photos` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `sales_category` varchar(100) NOT NULL,
   `status` enum('pending','active','inactive') NOT NULL DEFAULT 'pending',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
@@ -273,13 +286,22 @@ CREATE TABLE `installer_tech_team_areas` (
 
 CREATE TABLE `managers` (
   `id` int(10) UNSIGNED NOT NULL,
+  `manager_id` int(10) UNSIGNED DEFAULT NULL,
+  `create_at` datetime DEFAULT NULL,
   `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `user_type` varchar(50) DEFAULT NULL,
   `manager_name` varchar(150) NOT NULL,
   `position` varchar(100) NOT NULL,
+  `first_name` varchar(100) DEFAULT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) DEFAULT NULL,
+  `sales_manager` varchar(150) DEFAULT NULL,
   `contact_no` varchar(30) DEFAULT NULL,
+  `contact` varchar(30) DEFAULT NULL,
   `company_email` varchar(150) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `email` varchar(150) DEFAULT NULL,
-  `profile_picture` varchar(255) DEFAULT NULL,
+  `photos` varchar(255) DEFAULT NULL,
   `status` enum('pending','active','inactive') NOT NULL DEFAULT 'active',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
@@ -293,15 +315,22 @@ CREATE TABLE `managers` (
 
 CREATE TABLE `msa_partners` (
   `id` int(10) UNSIGNED NOT NULL,
+  `partners_id` int(10) UNSIGNED DEFAULT NULL,
+  `create_at` datetime DEFAULT NULL,
   `user_id` int(10) UNSIGNED DEFAULT NULL,
+  `user_type` varchar(50) DEFAULT NULL,
+  `sales_manager` varchar(150) DEFAULT NULL,
   `company_name` varchar(150) NOT NULL,
-  `username` varchar(100) NOT NULL,
-  `contact_no` varchar(30) NOT NULL,
-  `address` varchar(255) NOT NULL,
-  `installer` varchar(150) NOT NULL,
-  `msa_type` varchar(30) NOT NULL,
+  `first_name` varchar(100) DEFAULT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) DEFAULT NULL,
+  `contact` varchar(30) DEFAULT NULL,
   `email` varchar(150) NOT NULL,
-  `profile_picture` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `photos` varchar(255) DEFAULT NULL,
+  `area_type` varchar(30) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `sales_category` varchar(100) DEFAULT NULL,
   `status` enum('pending','active','inactive') NOT NULL DEFAULT 'pending',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
@@ -548,7 +577,6 @@ ALTER TABLE `dispatch_statuses`
 --
 ALTER TABLE `inhouse_sales`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `inhouse_employee_id_unique` (`employee_id`),
   ADD UNIQUE KEY `inhouse_email_unique` (`email`),
   ADD KEY `inhouse_user_id_index` (`user_id`),
   ADD KEY `inhouse_status_index` (`status`),
@@ -592,10 +620,9 @@ ALTER TABLE `managers`
 --
 ALTER TABLE `msa_partners`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `msa_username_unique` (`username`),
   ADD UNIQUE KEY `msa_email_unique` (`email`),
   ADD KEY `msa_user_id_index` (`user_id`),
-  ADD KEY `msa_type_index` (`msa_type`),
+  ADD KEY `msa_area_type_index` (`area_type`),
   ADD KEY `msa_status_index` (`status`),
   ADD KEY `msa_created_at_index` (`created_at`);
 

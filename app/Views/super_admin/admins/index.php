@@ -48,12 +48,12 @@ $admins = $admins ?? [];
                             $badge = 'Declined';
                             $badgeClass = 'manager-badge manager-badge-declined';
                         }
-                        $fullName = trim(($admin['first_name'] ?? '') . ' ' . ($admin['last_name'] ?? ''));
+                        $fullName = trim(preg_replace('/\s+/', ' ', trim(($admin['first_name'] ?? '') . ' ' . ($admin['middle_name'] ?? '') . ' ' . ($admin['last_name'] ?? ''))) ?? '');
                     ?>
                     <tr>
                         <td>
-                            <?php if (!empty($admin['profile_picture'])): ?>
-                                <img src="<?= App\Config\App::url('uploads/' . $admin['profile_picture']) ?>" alt="<?= htmlspecialchars($fullName ?: 'Admin') ?>" class="manager-avatar-image">
+                            <?php if (!empty($admin['photos'])): ?>
+                                <img src="<?= App\Config\App::url('uploads/' . $admin['photos']) ?>" alt="<?= htmlspecialchars($fullName ?: 'Admin') ?>" class="manager-avatar-image">
                             <?php else: ?>
                                 <div class="manager-avatar"><?= strtoupper(substr($fullName ?: 'A', 0, 1)) ?></div>
                             <?php endif; ?>
@@ -94,10 +94,13 @@ $admins = $admins ?? [];
                                     onclick='openEditAdminModal(<?= json_encode([
                                         'id' => $admin['id'] ?? 0,
                                         'first_name' => $admin['first_name'] ?? '',
+                                        'middle_name' => $admin['middle_name'] ?? '',
                                         'last_name' => $admin['last_name'] ?? '',
+                                        'username' => $admin['username'] ?? '',
                                         'position' => $admin['position'] ?? '',
                                         'area' => $admin['area'] ?? '',
                                         'contact_no' => $admin['contact_no'] ?? '',
+                                        'address' => $admin['address'] ?? '',
                                         'employee_id' => $admin['employee_id'] ?? '',
                                         'department' => $admin['department'] ?? '',
                                         'company_email' => $admin['company_email'] ?? '',
@@ -115,9 +118,11 @@ $admins = $admins ?? [];
                                     aria-label="View"
                                     onclick='openViewAdminModal(<?= json_encode([
                                         'full_name' => $fullName,
+                                        'username' => $admin['username'] ?? '',
                                         'position' => $admin['position'] ?? '',
                                         'area' => $admin['area'] ?? '',
                                         'contact_no' => $admin['contact_no'] ?? '',
+                                        'address' => $admin['address'] ?? '',
                                         'employee_id' => $admin['employee_id'] ?? '',
                                         'department' => $admin['department'] ?? '',
                                         'company_email' => $admin['company_email'] ?? '',
@@ -165,8 +170,18 @@ $admins = $admins ?? [];
                 </label>
 
                 <label class="manager-modal-field">
+                    <span>Middle Name</span>
+                    <input type="text" name="middle_name" placeholder="Enter Middle Name">
+                </label>
+
+                <label class="manager-modal-field">
                     <span>Last Name</span>
                     <input type="text" name="last_name" placeholder="Enter Last Name">
+                </label>
+
+                <label class="manager-modal-field">
+                    <span>Username</span>
+                    <input type="text" name="username" placeholder="Enter Username">
                 </label>
 
                 <label class="manager-modal-field">
@@ -201,6 +216,11 @@ $admins = $admins ?? [];
                 </label>
 
                 <label class="manager-modal-field">
+                    <span>Address</span>
+                    <input type="text" name="address" placeholder="Enter Address">
+                </label>
+
+                <label class="manager-modal-field">
                     <span>Employee ID</span>
                     <input type="text" name="employee_id" placeholder="Enter Employee ID">
                 </label>
@@ -210,7 +230,7 @@ $admins = $admins ?? [];
                     <select name="department">
                         <option value="">Select Department</option>
                         <option value="operation">Operation</option>
-                        <option value="sales">Sales</option>
+                        <option value="accounting">Accounting</option>
                     </select>
                 </label>
 
@@ -225,8 +245,13 @@ $admins = $admins ?? [];
                 </label>
 
                 <label class="manager-modal-field">
-                    <span>Profile Picture</span>
-                    <input type="file" name="profile_picture">
+                    <span>Password <em>(Optional)</em></span>
+                    <input type="password" name="password" placeholder="At least 8 characters">
+                </label>
+
+                <label class="manager-modal-field">
+                    <span>Photos</span>
+                    <input type="file" name="photos" accept="image/*">
                 </label>
 
                 <label class="manager-modal-field">
@@ -255,9 +280,11 @@ $admins = $admins ?? [];
         </div>
         <div class="manager-view-grid">
             <div><span>Name</span><p data-va="full_name"></p></div>
+            <div><span>Username</span><p data-va="username"></p></div>
             <div><span>Position</span><p data-va="position"></p></div>
             <div><span>Area</span><p data-va="area"></p></div>
             <div><span>Contact</span><p data-va="contact_no"></p></div>
+            <div><span>Address</span><p data-va="address"></p></div>
             <div><span>Employee ID</span><p data-va="employee_id"></p></div>
             <div><span>Department</span><p data-va="department"></p></div>
             <div><span>Company Email</span><p data-va="company_email"></p></div>
@@ -273,22 +300,51 @@ $admins = $admins ?? [];
             <h3>Edit Admin</h3>
             <button type="button" class="manager-modal-close" onclick="closeAddAdminModal()" aria-label="Close">x</button>
         </div>
-        <form class="manager-modal-form" onsubmit="event.preventDefault(); closeAddAdminModal();">
+        <form class="manager-modal-form" method="POST">
             <?= \App\Helpers\Csrf::field() ?>
             <input type="hidden" name="_method" value="PUT">
             <div class="manager-modal-grid">
-                <label class="manager-modal-field"><span>First Name</span><input type="text" data-ea="first_name"></label>
-                <label class="manager-modal-field"><span>Last Name</span><input type="text" data-ea="last_name"></label>
-                <label class="manager-modal-field"><span>Position</span><input type="text" data-ea="position"></label>
-                <label class="manager-modal-field"><span>Area</span><input type="text" data-ea="area"></label>
-                <label class="manager-modal-field"><span>Contact</span><input type="text" data-ea="contact_no"></label>
-                <label class="manager-modal-field"><span>Employee ID</span><input type="text" data-ea="employee_id"></label>
-                <label class="manager-modal-field"><span>Department</span><input type="text" data-ea="department"></label>
-                <label class="manager-modal-field"><span>Company Email</span><input type="email" data-ea="company_email"></label>
-                <label class="manager-modal-field"><span>Email Address</span><input type="email" data-ea="email"></label>
+                <label class="manager-modal-field"><span>First Name</span><input type="text" name="first_name" data-ea="first_name"></label>
+                <label class="manager-modal-field"><span>Middle Name</span><input type="text" name="middle_name" data-ea="middle_name"></label>
+                <label class="manager-modal-field"><span>Last Name</span><input type="text" name="last_name" data-ea="last_name"></label>
+                <label class="manager-modal-field"><span>Username</span><input type="text" name="username" data-ea="username"></label>
+                <label class="manager-modal-field">
+                    <span>Position</span>
+                    <select name="position" data-ea="position">
+                        <option value="">Select Type of Position</option>
+                        <option value="dispatcher">Dispatcher</option>
+                        <option value="tech_leaders">Tech Leaders</option>
+                        <option value="sales_team_leader">Sales Team Leader</option>
+                        <option value="validator">Validator</option>
+                        <option value="accounting">Accounting</option>
+                        <option value="sales_admin">Sales Admin</option>
+                        <option value="backend">Backend</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="area_sales_manager">Area Sales Manager</option>
+                        <option value="general_manager">General Manager</option>
+                        <option value="product_business_manager">Product &amp; Business Manager</option>
+                    </select>
+                </label>
+                <label class="manager-modal-field"><span>Area</span><input type="text" name="area" data-ea="area"></label>
+                <label class="manager-modal-field"><span>Contact</span><input type="text" name="contact_no" data-ea="contact_no"></label>
+                <label class="manager-modal-field"><span>Address</span><input type="text" name="address" data-ea="address"></label>
+                <label class="manager-modal-field"><span>Employee ID</span><input type="text" name="employee_id" data-ea="employee_id"></label>
+                <label class="manager-modal-field">
+                    <span>Department</span>
+                    <select name="department" data-ea="department">
+                        <option value="">Select Department</option>
+                        <option value="operation">Operation</option>
+                        <option value="accounting">Accounting</option>
+                    </select>
+                </label>
+                <label class="manager-modal-field"><span>Company Email</span><input type="email" name="company_email" data-ea="company_email"></label>
+                <label class="manager-modal-field"><span>Email Address</span><input type="email" name="email" data-ea="email"></label>
                 <label class="manager-modal-field">
                     <span>Status</span>
-                    <select data-ea="status">
+                    <select name="status" data-ea="status">
                         <option value="active">Active</option>
                         <option value="pending">Pending</option>
                         <option value="inactive">Inactive</option>
@@ -361,11 +417,44 @@ $admins = $admins ?? [];
             if (form) {
                 form.action = '<?= App\Config\App::url('admins') ?>/' + encodeURIComponent(admin.id || 0);
                 form.method = 'POST';
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton) submitButton.disabled = true;
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                            },
+                            credentials: 'same-origin',
+                            body: new FormData(form),
+                        });
+
+                        const contentType = response.headers.get('content-type') || '';
+                        if (contentType.includes('application/json')) {
+                            const payload = await response.json();
+                            if (payload.success) {
+                                window.location.href = payload.redirect || '<?= App\Config\App::url('admins') ?>';
+                                return;
+                            }
+                        }
+
+                        window.location.reload();
+                    } catch (error) {
+                        window.location.reload();
+                    } finally {
+                        if (submitButton) submitButton.disabled = false;
+                    }
+                });
             }
             content.querySelectorAll('[data-ea]').forEach((node) => {
                 const key = node.getAttribute('data-ea');
                 if (node.tagName === 'SELECT') {
-                    node.value = admin[key] || 'active';
+                    node.value = admin[key] || (key === 'status' ? 'active' : '');
                 } else {
                     node.value = admin[key] || '';
                 }

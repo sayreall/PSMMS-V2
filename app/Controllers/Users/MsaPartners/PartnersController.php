@@ -30,6 +30,8 @@ class PartnersController extends BaseController
     public function index(): string
     {
         $db = Database::getInstance();
+        $asmManagers = $this->getSalesManagerOptions();
+        $salesCategoryOptions = ['surf2sawa', 'fiberx', 'bida', 'sme'];
         $sql = "
             SELECT *
             FROM (
@@ -37,14 +39,20 @@ class PartnersController extends BaseController
                     mp.id AS row_id,
                     'partner' AS source_type,
                     mp.id,
+                    mp.partners_id,
+                    COALESCE(NULLIF(mp.user_type, ''), 'msa_partners') AS user_type,
+                    mp.sales_manager,
                     mp.company_name,
-                    mp.username,
-                    mp.contact_no,
-                    mp.address,
-                    mp.installer,
-                    mp.msa_type,
+                    mp.first_name,
+                    mp.middle_name,
+                    mp.last_name,
+                    mp.contact,
                     mp.email,
-                    mp.profile_picture,
+                    mp.password,
+                    mp.photos,
+                    mp.area_type,
+                    mp.address,
+                    mp.sales_category,
                     mp.status,
                     mp.created_at
                 FROM msa_partners mp
@@ -55,14 +63,20 @@ class PartnersController extends BaseController
                     u.id AS row_id,
                     'user' AS source_type,
                     u.id,
+                    u.id AS partners_id,
+                    u.role AS user_type,
+                    '' AS sales_manager,
                     COALESCE(u.name, '') AS company_name,
-                    COALESCE(u.name, '') AS username,
-                    COALESCE(u.contact_no, '') AS contact_no,
-                    '' AS address,
-                    '' AS installer,
-                    '' AS msa_type,
+                    COALESCE(u.first_name, '') AS first_name,
+                    COALESCE(u.middle_name, '') AS middle_name,
+                    COALESCE(u.last_name, '') AS last_name,
+                    COALESCE(u.contact_no, '') AS contact,
                     COALESCE(u.email, '') AS email,
-                    u.avatar AS profile_picture,
+                    u.password,
+                    u.avatar AS photos,
+                    '' AS area_type,
+                    '' AS address,
+                    '' AS sales_category,
                     u.status,
                     u.created_at
                 FROM users u
@@ -84,6 +98,8 @@ class PartnersController extends BaseController
         return $this->render('msa_partners.partners.index', [
             'title' => 'Partners',
             'partners' => $partners,
+            'asmManagers' => $asmManagers,
+            'salesCategoryOptions' => $salesCategoryOptions,
         ]);
     }
 
@@ -93,28 +109,36 @@ class PartnersController extends BaseController
         Csrf::verify();
 
         $data = $this->requestData();
+        $sales_manager = trim($data['sales_manager'] ?? '');
         $company_name = trim($data['company_name'] ?? '');
-        $username = trim($data['username'] ?? '');
-        $contact_no = trim($data['contact_no'] ?? '');
-        $address = trim($data['address'] ?? '');
-        $installer = trim($data['installer'] ?? '');
-        $msa_type = trim($data['msa_type'] ?? '');
+        $first_name = trim($data['first_name'] ?? '');
+        $middle_name = trim($data['middle_name'] ?? '');
+        $last_name = trim($data['last_name'] ?? '');
+        $contact = trim($data['contact'] ?? '');
         $email = trim($data['email'] ?? '');
+        $password = trim((string)($data['password'] ?? ''));
+        $area_type = trim($data['area_type'] ?? '');
+        $address = trim($data['address'] ?? '');
+        $sales_category = trim($data['sales_category'] ?? '');
         $status = trim($data['status'] ?? 'active');
 
         $rules = [
+            'sales_manager' => 'required|max:150',
             'company_name' => 'required|min:2|max:150',
-            'username' => 'required|min:2|max:100|unique:msa_partners.username',
-            'contact_no' => 'required|regex:/^\d{11}$/',
-            'address' => 'required|min:5|max:255',
-            'installer' => 'required|min:2|max:150',
-            'msa_type' => 'required|in:regional,ncr',
+            'first_name' => 'required|min:2|max:100',
+            'middle_name' => 'max:100',
+            'last_name' => 'required|min:2|max:100',
+            'contact' => 'required|regex:/^\d{11}$/',
             'email' => 'required|email|unique:msa_partners.email',
+            'password' => $password !== '' ? 'min:8' : 'max:255',
+            'area_type' => 'required|in:regional,ncr',
+            'address' => 'required|min:5|max:255',
+            'sales_category' => 'required|in:surf2sawa,fiberx,bida,sme',
             'status' => 'required|in:pending,active,inactive',
         ];
 
         $validator = (new Validation())->validate(
-            compact('company_name', 'username', 'contact_no', 'address', 'installer', 'msa_type', 'email', 'status'),
+            compact('sales_manager', 'company_name', 'first_name', 'middle_name', 'last_name', 'contact', 'email', 'password', 'area_type', 'address', 'sales_category', 'status'),
             $rules
         );
 
@@ -124,11 +148,11 @@ class PartnersController extends BaseController
             $this->redirectBack();
         }
 
-        $profilePicturePath = null;
-        if (isset($_FILES['profile_picture']) && ($_FILES['profile_picture']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
-            $profilePicturePath = Upload::store($_FILES['profile_picture'], 'msa_partners', 'msa_');
-            if ($profilePicturePath === null) {
-                Session::flash('message', 'Profile picture upload failed. Please use a valid image file (max 5MB).');
+        $photos = null;
+        if (isset($_FILES['photos']) && ($_FILES['photos']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $photos = Upload::store($_FILES['photos'], 'msa_partners', 'msa_');
+            if ($photos === null) {
+                Session::flash('message', 'Photo upload failed. Please use a valid image file (max 5MB).');
                 Session::flash('message_type', 'error');
                 $this->redirectBack();
             }
@@ -136,20 +160,213 @@ class PartnersController extends BaseController
 
         $this->msaPartnerModel->createMsaPartner([
             'user_id' => null,
+            'user_type' => 'msa_partners',
+            'sales_manager' => $sales_manager,
             'company_name' => $company_name,
-            'username' => $username,
-            'contact_no' => $contact_no,
-            'address' => $address,
-            'installer' => $installer,
-            'msa_type' => $msa_type,
+            'first_name' => $first_name,
+            'middle_name' => $middle_name ?: null,
+            'last_name' => $last_name,
+            'contact' => $contact,
             'email' => $email,
-            'profile_picture' => $profilePicturePath,
+            'password' => $password !== '' ? password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]) : null,
+            'photos' => $photos,
+            'area_type' => $area_type,
+            'address' => $address,
+            'sales_category' => $sales_category,
             'status' => $status,
         ]);
 
         (new ActivityLogModel())->log(Auth::id(), 'msa_partner_create', "Created MSA partner: {$company_name}");
         Session::flash('message', 'MSA partner added successfully.');
         Session::flash('message_type', 'success');
+        $this->redirect(App::url('partners'));
+    }
+
+    public function update(string $source, int $id): void
+    {
+        Csrf::verify();
+
+        $data = $this->requestData();
+        $sales_manager = trim($data['sales_manager'] ?? '');
+        $company_name = trim($data['company_name'] ?? '');
+        $first_name = trim($data['first_name'] ?? '');
+        $middle_name = trim($data['middle_name'] ?? '');
+        $last_name = trim($data['last_name'] ?? '');
+        $contact = trim($data['contact'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $password = trim((string)($data['password'] ?? ''));
+        $area_type = trim($data['area_type'] ?? '');
+        $address = trim($data['address'] ?? '');
+        $sales_category = trim($data['sales_category'] ?? '');
+        $status = trim($data['status'] ?? 'active');
+
+        $rules = [
+            'sales_manager' => 'required|max:150',
+            'company_name' => 'required|min:2|max:150',
+            'first_name' => 'required|min:2|max:100',
+            'middle_name' => 'max:100',
+            'last_name' => 'required|min:2|max:100',
+            'contact' => 'required|regex:/^\d{11}$/',
+            'email' => 'required|email',
+            'password' => $password !== '' ? 'min:8' : 'max:255',
+            'area_type' => 'required|in:regional,ncr',
+            'address' => 'required|min:5|max:255',
+            'sales_category' => 'required|in:surf2sawa,fiberx,bida,sme',
+            'status' => 'required|in:pending,active,inactive',
+        ];
+
+        $validator = (new Validation())->validate(
+            compact('sales_manager', 'company_name', 'first_name', 'middle_name', 'last_name', 'contact', 'email', 'password', 'area_type', 'address', 'sales_category', 'status'),
+            $rules
+        );
+
+        if (!$validator->passes()) {
+            if (App::isAjax() || App::isApiRequest()) {
+                Validation::jsonResponse($validator->errors());
+            }
+            Session::flash('message', 'Unable to update MSA partner. Please check the form values.');
+            Session::flash('message_type', 'error');
+            $this->redirectBack();
+        }
+
+        $db = Database::getInstance();
+        $hashedPassword = $password !== '' ? password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]) : null;
+        $photos = null;
+
+        if (isset($_FILES['photos']) && ($_FILES['photos']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $photos = Upload::store($_FILES['photos'], 'msa_partners', 'msa_');
+            if ($photos === null) {
+                $errors = ['photos' => ['Photo upload failed. Please use a valid image file (max 5MB).']];
+                if (App::isAjax() || App::isApiRequest()) {
+                    Validation::jsonResponse($errors);
+                }
+                Session::flash('message', $errors['photos'][0]);
+                Session::flash('message_type', 'error');
+                $this->redirectBack();
+            }
+        }
+
+        $linkedUserId = 0;
+        $now = date('Y-m-d H:i:s');
+
+        if ($source === 'partner') {
+            $fetch = $db->prepare("SELECT id, user_id FROM msa_partners WHERE id = :id LIMIT 1");
+            $fetch->execute([':id' => $id]);
+            $partner = $fetch->fetch(\PDO::FETCH_ASSOC) ?: null;
+
+            if (!$partner) {
+                $this->respondPartnerUpdateNotFound();
+            }
+
+            $linkedUserId = (int)($partner['user_id'] ?? 0);
+            $payload = [
+                ':id' => $id,
+                ':sales_manager' => $sales_manager,
+                ':company_name' => $company_name,
+                ':first_name' => $first_name,
+                ':middle_name' => $middle_name !== '' ? $middle_name : null,
+                ':last_name' => $last_name,
+                ':contact' => $contact,
+                ':email' => $email,
+                ':area_type' => $area_type,
+                ':address' => $address,
+                ':sales_category' => $sales_category,
+                ':status' => $status,
+                ':updated_at' => $now,
+            ];
+
+            $setPassword = '';
+            if ($hashedPassword !== null) {
+                $setPassword = ', password = :password';
+                $payload[':password'] = $hashedPassword;
+            }
+
+            $setPhotos = '';
+            if ($photos !== null) {
+                $setPhotos = ', photos = :photos';
+                $payload[':photos'] = $photos;
+            }
+
+            $stmt = $db->prepare("
+                UPDATE msa_partners
+                SET
+                    user_type = 'msa_partners',
+                    sales_manager = :sales_manager,
+                    company_name = :company_name,
+                    first_name = :first_name,
+                    middle_name = :middle_name,
+                    last_name = :last_name,
+                    contact = :contact,
+                    email = :email,
+                    area_type = :area_type,
+                    address = :address,
+                    sales_category = :sales_category,
+                    status = :status,
+                    updated_at = :updated_at
+                    {$setPassword}
+                    {$setPhotos}
+                WHERE id = :id
+                LIMIT 1
+            ");
+            $stmt->execute($payload);
+        } elseif ($source === 'user') {
+            $fetch = $db->prepare("SELECT id, password FROM users WHERE id = :id AND role = 'msa_partners' LIMIT 1");
+            $fetch->execute([':id' => $id]);
+            $user = $fetch->fetch(\PDO::FETCH_ASSOC) ?: null;
+
+            if (!$user) {
+                $this->respondPartnerUpdateNotFound();
+            }
+
+            $linkedUserId = $id;
+            $this->msaPartnerModel->createMsaPartner([
+                'user_id' => $id,
+                'user_type' => 'msa_partners',
+                'sales_manager' => $sales_manager,
+                'company_name' => $company_name,
+                'first_name' => $first_name,
+                'middle_name' => $middle_name ?: null,
+                'last_name' => $last_name,
+                'contact' => $contact,
+                'email' => $email,
+                'password' => $hashedPassword ?? ($user['password'] ?? null),
+                'photos' => $photos,
+                'area_type' => $area_type,
+                'address' => $address,
+                'sales_category' => $sales_category,
+                'status' => $status,
+            ]);
+        } else {
+            $errors = ['source' => ['Invalid partner source.']];
+            if (App::isAjax() || App::isApiRequest()) {
+                Validation::jsonResponse($errors, 422);
+            }
+            Session::flash('message', 'Invalid partner source.');
+            Session::flash('message_type', 'error');
+            $this->redirect(App::url('partners'));
+        }
+
+        if ($linkedUserId > 0) {
+            $this->syncLinkedUserProfile($linkedUserId, [
+                'first_name' => $first_name,
+                'middle_name' => $middle_name,
+                'last_name' => $last_name,
+                'email' => $email,
+                'contact' => $contact,
+                'status' => $status,
+                'password' => $hashedPassword,
+                'photos' => $photos,
+            ]);
+        }
+
+        (new ActivityLogModel())->log(Auth::id(), 'msa_partner_update', "Updated MSA partner {$source} ID: {$id}");
+        Session::flash('message', 'MSA partner updated successfully.');
+        Session::flash('message_type', 'success');
+
+        if (App::isAjax() || App::isApiRequest()) {
+            $this->json(['success' => true, 'redirect' => App::url('partners')]);
+        }
+
         $this->redirect(App::url('partners'));
     }
 
@@ -236,6 +453,101 @@ class PartnersController extends BaseController
 
         Session::flash('message', $deleted ? 'MSA partner deleted successfully.' : 'No partner record was deleted.');
         Session::flash('message_type', $deleted ? 'success' : 'info');
+        $this->redirect(App::url('partners'));
+    }
+
+    private function getSalesManagerOptions(): array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("
+            SELECT DISTINCT sm.manager_name
+            FROM (
+                SELECT TRIM(COALESCE(m.manager_name, '')) AS manager_name
+                FROM managers m
+                WHERE LOWER(TRIM(COALESCE(m.position, ''))) IN ('asm_manager', 'area_sales_manager')
+
+                UNION ALL
+
+                SELECT TRIM(
+                    COALESCE(
+                        NULLIF(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')), ' '),
+                        u.name,
+                        ''
+                    )
+                ) AS manager_name
+                FROM users u
+                WHERE LOWER(TRIM(COALESCE(u.role, ''))) = 'asm_manager'
+            ) sm
+            WHERE sm.manager_name <> ''
+            ORDER BY sm.manager_name ASC
+        ");
+        $stmt->execute();
+
+        return array_values(array_filter(array_map(
+            static fn(array $row): string => trim((string)($row['manager_name'] ?? '')),
+            $stmt->fetchAll(\PDO::FETCH_ASSOC)
+        )));
+    }
+
+    private function syncLinkedUserProfile(int $userId, array $data): void
+    {
+        $db = Database::getInstance();
+        $first = trim((string)($data['first_name'] ?? ''));
+        $middle = trim((string)($data['middle_name'] ?? ''));
+        $last = trim((string)($data['last_name'] ?? ''));
+        $name = trim(preg_replace('/\s+/', ' ', trim("$first $middle $last")) ?? '');
+
+        $payload = [
+            ':id' => $userId,
+            ':name' => $name,
+            ':first_name' => $first,
+            ':middle_name' => $middle !== '' ? $middle : null,
+            ':last_name' => $last,
+            ':email' => trim((string)($data['email'] ?? '')),
+            ':contact_no' => trim((string)($data['contact'] ?? '')),
+            ':status' => trim((string)($data['status'] ?? 'active')),
+            ':updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        $setPassword = '';
+        if (!empty($data['password'])) {
+            $setPassword = ', password = :password';
+            $payload[':password'] = $data['password'];
+        }
+
+        $setAvatar = '';
+        if (!empty($data['photos'])) {
+            $setAvatar = ', avatar = :avatar';
+            $payload[':avatar'] = $data['photos'];
+        }
+
+        $stmt = $db->prepare("
+            UPDATE users
+            SET
+                name = :name,
+                first_name = :first_name,
+                middle_name = :middle_name,
+                last_name = :last_name,
+                email = :email,
+                contact_no = :contact_no,
+                status = :status,
+                updated_at = :updated_at
+                {$setPassword}
+                {$setAvatar}
+            WHERE id = :id
+            LIMIT 1
+        ");
+        $stmt->execute($payload);
+    }
+
+    private function respondPartnerUpdateNotFound(): void
+    {
+        if (App::isAjax() || App::isApiRequest()) {
+            Validation::jsonResponse(['id' => ['MSA partner not found.']], 404);
+        }
+
+        Session::flash('message', 'MSA partner not found.');
+        Session::flash('message_type', 'error');
         $this->redirect(App::url('partners'));
     }
 }

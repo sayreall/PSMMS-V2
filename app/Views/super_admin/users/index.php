@@ -41,6 +41,8 @@ $order = $order ?? 'DESC';
                 <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Admin</option>
                 <option value="head_manager" <?= $role === 'head_manager' ? 'selected' : '' ?>>Head Manager</option>
                 <option value="super_admin" <?= $role === 'super_admin' ? 'selected' : '' ?>>Super Admin</option>
+                <option value="inhouse_sales" <?= $role === 'inhouse_sales' ? 'selected' : '' ?>>In-House Sales</option>
+                <option value="msa_partners" <?= $role === 'msa_partners' ? 'selected' : '' ?>>MSA Partners</option>
             </select>
         </div>
         <div class="md:col-span-4 flex items-center gap-2">

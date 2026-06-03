@@ -6,7 +6,7 @@ $inhouseProductOptions = $inhouseProductOptions ?? ['surf2sawa', 'fiberx', 'bida
 $companyEmailOld = $old['company_email'] ?? '';
 $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode('@', $companyEmailOld)[0] : '');
 ?>
-<form id="register-form" class="auth-form auth-form-compact" method="POST" action="<?= App\Config\App::url('register') ?>" data-ajax="true">
+<form id="register-form" class="auth-form auth-form-compact" method="POST" action="<?= App\Config\App::url('register') ?>" enctype="multipart/form-data" data-ajax="true">
     <?= \App\Helpers\Csrf::field() ?>
 
     <div class="form-col" data-role-hide="inhouse_sales,msa_partners" data-role-field>
@@ -15,7 +15,7 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
         <p class="form-error" data-error-for="first_name"><?= $errors['first_name'][0] ?? '' ?></p>
     </div>
 
-    <div class="form-col" data-role-hide="super_admin,inhouse_sales,msa_partners" data-role-field>
+    <div class="form-col" data-role-hide="inhouse_sales,msa_partners" data-role-field>
         <label class="form-label">Middle name</label>
         <input type="text" name="middle_name" value="<?= htmlspecialchars($old['middle_name'] ?? '') ?>" class="form-input" placeholder="Middle name" data-validate="min:2">
         <p class="form-error" data-error-for="middle_name"><?= $errors['middle_name'][0] ?? '' ?></p>
@@ -36,7 +36,7 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
     <div class="form-col form-col-full" data-role-hide="asm_manager,super_admin,inhouse_sales,msa_partners" data-role-field>
         <label class="form-label">Company email</label>
         <div class="input-suffix-wrap">
-            <input type="text" name="company_email_local" value="<?= htmlspecialchars($companyEmailLocal) ?>" class="form-input" placeholder="name" data-validate="required" data-domain="paragoncorp.com.ph" data-email-target="company_email">
+            <input type="text" name="company_email_local" value="<?= htmlspecialchars($companyEmailLocal) ?>" class="form-input" placeholder="name" data-validate="required" data-domain="paragoncorp.com.ph" data-email-target="company_email" pattern="[^@\s]+">
             <span class="input-suffix">@paragoncorp.com.ph</span>
         </div>
         <input type="hidden" name="company_email" value="<?= htmlspecialchars($companyEmailOld) ?>" data-validate="required|email">
@@ -59,6 +59,12 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
             <option value="head_manager" <?= $managerPosition === 'head_manager' ? 'selected' : '' ?>>HEAD MANAGER</option>
         </select>
         <p class="form-error" data-error-for="manager_position"><?= $errors['manager_position'][0] ?? '' ?></p>
+    </div>
+
+    <div class="form-col" data-role-only="asm_manager" data-role-field hidden>
+        <label class="form-label">Sales Manager</label>
+        <input type="text" name="manager_sales_manager" value="<?= htmlspecialchars($old['manager_sales_manager'] ?? '') ?>" class="form-input" placeholder="Enter Sales Manager" data-role-only="asm_manager">
+        <p class="form-error" data-error-for="manager_sales_manager"><?= $errors['manager_sales_manager'][0] ?? '' ?></p>
     </div>
 
     <div class="form-col" data-role-only="inhouse_sales" data-role-field hidden>
@@ -96,15 +102,15 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
     </div>
 
     <div class="form-col" data-role-only="inhouse_sales" data-role-field hidden>
-        <label class="form-label">Last name</label>
-        <input type="text" name="inhouse_last_name" value="<?= htmlspecialchars($old['inhouse_last_name'] ?? '') ?>" class="form-input" placeholder="Enter Last Name" data-validate-base="required" data-role-only="inhouse_sales">
-        <p class="form-error" data-error-for="inhouse_last_name"><?= $errors['inhouse_last_name'][0] ?? '' ?></p>
+        <label class="form-label">Middle name</label>
+        <input type="text" name="inhouse_middle_name" value="<?= htmlspecialchars($old['inhouse_middle_name'] ?? '') ?>" class="form-input" placeholder="Enter Middle Name" data-role-only="inhouse_sales">
+        <p class="form-error" data-error-for="inhouse_middle_name"><?= $errors['inhouse_middle_name'][0] ?? '' ?></p>
     </div>
 
     <div class="form-col" data-role-only="inhouse_sales" data-role-field hidden>
-        <label class="form-label">Employee ID</label>
-        <input type="text" name="inhouse_employee_id" value="<?= htmlspecialchars($old['inhouse_employee_id'] ?? '') ?>" class="form-input" placeholder="Enter Employee ID" data-validate-base="required" data-role-only="inhouse_sales" maxlength="7" pattern="PCC[0-9]{4}">
-        <p class="form-error" data-error-for="inhouse_employee_id"><?= $errors['inhouse_employee_id'][0] ?? '' ?></p>
+        <label class="form-label">Last name</label>
+        <input type="text" name="inhouse_last_name" value="<?= htmlspecialchars($old['inhouse_last_name'] ?? '') ?>" class="form-input" placeholder="Enter Last Name" data-validate-base="required" data-role-only="inhouse_sales">
+        <p class="form-error" data-error-for="inhouse_last_name"><?= $errors['inhouse_last_name'][0] ?? '' ?></p>
     </div>
 
     <div class="form-col" data-role-only="inhouse_sales" data-role-field hidden>
@@ -122,6 +128,26 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
         <p class="form-error" data-error-for="inhouse_email"><?= $errors['inhouse_email'][0] ?? '' ?></p>
     </div>
 
+    <div class="form-col form-col-full" data-role-only="inhouse_sales" data-role-field hidden>
+        <label class="form-label">Address</label>
+        <input type="text" name="inhouse_address" value="<?= htmlspecialchars($old['inhouse_address'] ?? '') ?>" class="form-input" placeholder="Enter House No. st. Barangay, Municipal, Province" data-role-only="inhouse_sales">
+        <p class="form-error" data-error-for="inhouse_address"><?= $errors['inhouse_address'][0] ?? '' ?></p>
+    </div>
+
+
+    <div class="form-col" data-role-only="msa_partners" data-role-field hidden>
+        <label class="form-label">Sales Manager</label>
+        <?php $msaSalesManager = $old['msa_sales_manager'] ?? ''; ?>
+        <select name="msa_sales_manager" class="form-input" data-validate-base="required" data-role-only="msa_partners">
+            <option value="">Choose Sales Manager</option>
+            <?php foreach ($asmManagers as $managerName): ?>
+                <option value="<?= htmlspecialchars($managerName) ?>" <?= $msaSalesManager === $managerName ? 'selected' : '' ?>>
+                    <?= htmlspecialchars(strtoupper($managerName)) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <p class="form-error" data-error-for="msa_sales_manager"><?= $errors['msa_sales_manager'][0] ?? '' ?></p>
+    </div>
 
     <div class="form-col" data-role-only="msa_partners" data-role-field hidden>
         <label class="form-label">Company name</label>
@@ -130,9 +156,21 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
     </div>
 
     <div class="form-col" data-role-only="msa_partners" data-role-field hidden>
-        <label class="form-label">Username</label>
-        <input type="text" name="msa_username" value="<?= htmlspecialchars($old['msa_username'] ?? '') ?>" class="form-input" placeholder="Enter Username" data-validate-base="required" data-role-only="msa_partners">
-        <p class="form-error" data-error-for="msa_username"><?= $errors['msa_username'][0] ?? '' ?></p>
+        <label class="form-label">First name</label>
+        <input type="text" name="msa_first_name" value="<?= htmlspecialchars($old['msa_first_name'] ?? '') ?>" class="form-input" placeholder="Enter First Name" data-validate-base="required" data-role-only="msa_partners">
+        <p class="form-error" data-error-for="msa_first_name"><?= $errors['msa_first_name'][0] ?? '' ?></p>
+    </div>
+
+    <div class="form-col" data-role-only="msa_partners" data-role-field hidden>
+        <label class="form-label">Middle name</label>
+        <input type="text" name="msa_middle_name" value="<?= htmlspecialchars($old['msa_middle_name'] ?? '') ?>" class="form-input" placeholder="Enter Middle Name" data-role-only="msa_partners">
+        <p class="form-error" data-error-for="msa_middle_name"><?= $errors['msa_middle_name'][0] ?? '' ?></p>
+    </div>
+
+    <div class="form-col" data-role-only="msa_partners" data-role-field hidden>
+        <label class="form-label">Last name</label>
+        <input type="text" name="msa_last_name" value="<?= htmlspecialchars($old['msa_last_name'] ?? '') ?>" class="form-input" placeholder="Enter Last Name" data-validate-base="required" data-role-only="msa_partners">
+        <p class="form-error" data-error-for="msa_last_name"><?= $errors['msa_last_name'][0] ?? '' ?></p>
     </div>
 
     <div class="form-col" data-role-only="msa_partners" data-role-field hidden>
@@ -148,20 +186,28 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
     </div>
 
     <div class="form-col" data-role-only="msa_partners" data-role-field hidden>
-        <label class="form-label">Installer</label>
-        <input type="text" name="msa_installer" value="<?= htmlspecialchars($old['msa_installer'] ?? '') ?>" class="form-input" placeholder="Enter Installer" data-validate-base="required" data-role-only="msa_partners">
-        <p class="form-error" data-error-for="msa_installer"><?= $errors['msa_installer'][0] ?? '' ?></p>
+        <label class="form-label">Please Select MSA Type</label>
+        <?php $msaAreaType = $old['msa_area_type'] ?? ''; ?>
+        <select name="msa_area_type" class="form-input" data-validate-base="required" data-role-only="msa_partners">
+            <option value="">Choose MSA Type</option>
+            <option value="regional" <?= $msaAreaType === 'regional' ? 'selected' : '' ?>>REGIONAL</option>
+            <option value="ncr" <?= $msaAreaType === 'ncr' ? 'selected' : '' ?>>NCR</option>
+        </select>
+        <p class="form-error" data-error-for="msa_area_type"><?= $errors['msa_area_type'][0] ?? '' ?></p>
     </div>
 
     <div class="form-col" data-role-only="msa_partners" data-role-field hidden>
-        <label class="form-label">Please Select MSA Type</label>
-        <?php $msaType = $old['msa_type'] ?? ''; ?>
-        <select name="msa_type" class="form-input" data-validate-base="required" data-role-only="msa_partners">
-            <option value="">Choose MSA Type</option>
-            <option value="regional" <?= $msaType === 'regional' ? 'selected' : '' ?>>REGIONAL</option>
-            <option value="ncr" <?= $msaType === 'ncr' ? 'selected' : '' ?>>NCR</option>
+        <label class="form-label">Select Category</label>
+        <?php $msaSalesCategory = $old['msa_sales_category'] ?? ''; ?>
+        <select name="msa_sales_category" class="form-input" data-validate-base="required" data-role-only="msa_partners">
+            <option value="">Choose Product</option>
+            <?php foreach ($inhouseProductOptions as $product): ?>
+                <option value="<?= htmlspecialchars($product) ?>" <?= $msaSalesCategory === $product ? 'selected' : '' ?>>
+                    <?= htmlspecialchars(strtoupper($product)) ?>
+                </option>
+            <?php endforeach; ?>
         </select>
-        <p class="form-error" data-error-for="msa_type"><?= $errors['msa_type'][0] ?? '' ?></p>
+        <p class="form-error" data-error-for="msa_sales_category"><?= $errors['msa_sales_category'][0] ?? '' ?></p>
     </div>
 
     <div class="form-col admin-span-full" data-role-only="msa_partners" data-role-field hidden>
@@ -203,6 +249,12 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
         <p class="form-error" data-error-for="admin_area"><?= $errors['admin_area'][0] ?? '' ?></p>
     </div>
 
+    <div class="form-col form-col-full" data-role-only="super_admin" data-role-field hidden>
+        <label class="form-label">Address</label>
+        <input type="text" name="admin_address" value="<?= htmlspecialchars($old['admin_address'] ?? '') ?>" class="form-input" placeholder="Enter House No. st. Barangay, Municipal, Province" data-role-only="super_admin">
+        <p class="form-error" data-error-for="admin_address"><?= $errors['admin_address'][0] ?? '' ?></p>
+    </div>
+
     <div class="form-col" data-role-only="super_admin" data-role-field hidden>
         <label class="form-label">Employee ID</label>
         <input type="text" name="admin_employee_id" value="<?= htmlspecialchars($old['admin_employee_id'] ?? '') ?>" class="form-input" placeholder="Enter Employee ID" data-validate-base="required" data-role-only="super_admin" maxlength="7" pattern="PCC[0-9]{4}">
@@ -223,7 +275,7 @@ $companyEmailLocal = $old['company_email_local'] ?? ($companyEmailOld ? explode(
     <div class="form-col admin-span-full" data-role-only="super_admin" data-role-field hidden>
         <label class="form-label">Company Email</label>
         <div class="input-suffix-wrap">
-            <input type="text" name="company_email_local" value="<?= htmlspecialchars($companyEmailLocal) ?>" class="form-input" placeholder="name" data-validate-base="required" data-domain="paragoncorp.com.ph" data-email-target="company_email" data-role-only="super_admin">
+            <input type="text" name="company_email_local" value="<?= htmlspecialchars($companyEmailLocal) ?>" class="form-input" placeholder="name" data-validate-base="required" data-domain="paragoncorp.com.ph" data-email-target="company_email" data-role-only="super_admin" pattern="[^@\s]+">
             <span class="input-suffix">@paragoncorp.com.ph</span>
         </div>
         <input type="hidden" name="company_email" value="<?= htmlspecialchars($companyEmailOld) ?>" data-validate-base="required|email" data-role-only="super_admin">

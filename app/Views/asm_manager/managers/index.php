@@ -35,8 +35,11 @@ $managers = $managers ?? [];
                     <tr>
                         <th>Profile</th>
                         <th>Name</th>
+                        <th>Sales Manager</th>
                         <th>Position</th>
-                        <th>Contact No.</th>
+                        <th>Contact</th>
+                        <th>Email</th>
+                        <th>Company Email</th>
                         <th>Action</th>
                         <th>Validation</th>
                     </tr>
@@ -56,9 +59,9 @@ $managers = $managers ?? [];
                     ?>
                     <tr>
                         <td>
-                            <?php if (!empty($manager['profile_picture'])): ?>
+                            <?php if (!empty($manager['photos'])): ?>
                                 <img
-                                    src="<?= App\Config\App::url('uploads/' . $manager['profile_picture']) ?>"
+                                    src="<?= App\Config\App::url('uploads/' . $manager['photos']) ?>"
                                     alt="<?= htmlspecialchars($manager['manager_name'] ?? 'Manager') ?>"
                                     class="manager-avatar-image"
                                 >
@@ -69,8 +72,11 @@ $managers = $managers ?? [];
                             <?php endif; ?>
                         </td>
                         <td class="manager-name-cell"><?= htmlspecialchars($manager['manager_name'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($manager['sales_manager'] ?? $manager['manager_name'] ?? '') ?></td>
                         <td><?= htmlspecialchars($manager['position'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($manager['contact_no'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($manager['contact'] ?? $manager['contact_no'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($manager['email'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($manager['company_email'] ?? '') ?></td>
                         <td>
                             <div class="manager-action-group">
                                 <?php if (($manager['status'] ?? '') === 'pending'): ?>
@@ -92,8 +98,12 @@ $managers = $managers ?? [];
                                         'row_id' => $manager['row_id'] ?? $manager['id'] ?? 0,
                                         'source_type' => $manager['source_type'] ?? 'manager',
                                         'manager_name' => $manager['manager_name'] ?? '',
+                                        'first_name' => $manager['first_name'] ?? '',
+                                        'middle_name' => $manager['middle_name'] ?? '',
+                                        'last_name' => $manager['last_name'] ?? '',
+                                        'sales_manager' => $manager['sales_manager'] ?? $manager['manager_name'] ?? '',
                                         'position' => $manager['position'] ?? '',
-                                        'contact_no' => $manager['contact_no'] ?? '',
+                                        'contact' => $manager['contact'] ?? $manager['contact_no'] ?? '',
                                         'company_email' => $manager['company_email'] ?? '',
                                         'email' => $manager['email'] ?? '',
                                         'status' => $manager['status'] ?? 'active',
@@ -129,8 +139,12 @@ $managers = $managers ?? [];
                                     onclick='openViewManagerModal(<?= json_encode([
                                         'id' => $manager['id'] ?? 0,
                                         'manager_name' => $manager['manager_name'] ?? '',
+                                        'first_name' => $manager['first_name'] ?? '',
+                                        'middle_name' => $manager['middle_name'] ?? '',
+                                        'last_name' => $manager['last_name'] ?? '',
+                                        'sales_manager' => $manager['sales_manager'] ?? $manager['manager_name'] ?? '',
                                         'position' => $manager['position'] ?? '',
-                                        'contact_no' => $manager['contact_no'] ?? '',
+                                        'contact' => $manager['contact'] ?? $manager['contact_no'] ?? '',
                                         'company_email' => $manager['company_email'] ?? '',
                                         'email' => $manager['email'] ?? '',
                                         'status' => $manager['status'] ?? 'active',
@@ -174,8 +188,23 @@ $managers = $managers ?? [];
             <?= \App\Helpers\Csrf::field() ?>
             <div class="manager-modal-grid">
                 <label class="manager-modal-field">
-                    <span>Manager Name</span>
-                    <input type="text" name="manager_name" placeholder="Enter First/Last/Middle Name">
+                    <span>First Name</span>
+                    <input type="text" name="first_name" placeholder="Enter First Name">
+                </label>
+
+                <label class="manager-modal-field">
+                    <span>Middle Name</span>
+                    <input type="text" name="middle_name" placeholder="Enter Middle Name">
+                </label>
+
+                <label class="manager-modal-field">
+                    <span>Last Name</span>
+                    <input type="text" name="last_name" placeholder="Enter Last Name">
+                </label>
+
+                <label class="manager-modal-field">
+                    <span>Sales Manager</span>
+                    <input type="text" name="sales_manager" placeholder="Enter Sales Manager">
                 </label>
 
                 <label class="manager-modal-field">
@@ -190,7 +219,7 @@ $managers = $managers ?? [];
 
                 <label class="manager-modal-field">
                     <span>Contact</span>
-                    <input type="text" name="contact_no" placeholder="Enter Contact Number">
+                    <input type="text" name="contact" placeholder="Enter Contact Number">
                 </label>
 
                 <label class="manager-modal-field">
@@ -204,8 +233,13 @@ $managers = $managers ?? [];
                 </label>
 
                 <label class="manager-modal-field">
-                    <span>Profile Picture</span>
-                    <input type="file" name="profile_picture">
+                    <span>Password <em>(Optional)</em></span>
+                    <input type="password" name="password" placeholder="At least 8 characters">
+                </label>
+
+                <label class="manager-modal-field">
+                    <span>Photos</span>
+                    <input type="file" name="photos" accept="image/*">
                 </label>
 
                 <label class="manager-modal-field">
@@ -234,8 +268,12 @@ $managers = $managers ?? [];
         </div>
         <div class="manager-view-grid">
             <div><span>Name</span><p data-vm="manager_name"></p></div>
+            <div><span>First Name</span><p data-vm="first_name"></p></div>
+            <div><span>Middle Name</span><p data-vm="middle_name"></p></div>
+            <div><span>Last Name</span><p data-vm="last_name"></p></div>
+            <div><span>Sales Manager</span><p data-vm="sales_manager"></p></div>
             <div><span>Position</span><p data-vm="position"></p></div>
-            <div><span>Contact</span><p data-vm="contact_no"></p></div>
+            <div><span>Contact</span><p data-vm="contact"></p></div>
             <div><span>Company Email</span><p data-vm="company_email"></p></div>
             <div><span>Email Address</span><p data-vm="email"></p></div>
             <div><span>Status</span><p data-vm="status"></p></div>
@@ -249,21 +287,38 @@ $managers = $managers ?? [];
             <h3>Edit Manager</h3>
             <button type="button" class="manager-modal-close" onclick="closeAddManagerModal()" aria-label="Close">x</button>
         </div>
-        <form class="manager-modal-form" onsubmit="event.preventDefault(); closeAddManagerModal();">
+        <form class="manager-modal-form" method="POST">
             <?= \App\Helpers\Csrf::field() ?>
             <input type="hidden" name="_method" value="PUT">
             <div class="manager-modal-grid">
                 <label class="manager-modal-field">
-                    <span>Manager Name</span>
-                    <input type="text" name="manager_name" data-em="manager_name">
+                    <span>First Name</span>
+                    <input type="text" name="first_name" data-em="first_name">
+                </label>
+                <label class="manager-modal-field">
+                    <span>Middle Name</span>
+                    <input type="text" name="middle_name" data-em="middle_name">
+                </label>
+                <label class="manager-modal-field">
+                    <span>Last Name</span>
+                    <input type="text" name="last_name" data-em="last_name">
+                </label>
+                <label class="manager-modal-field">
+                    <span>Sales Manager</span>
+                    <input type="text" name="sales_manager" data-em="sales_manager">
                 </label>
                 <label class="manager-modal-field">
                     <span>Position</span>
-                    <input type="text" name="position" data-em="position">
+                    <select name="position" data-em="position">
+                        <option value="">Type of Manager Position</option>
+                        <option value="super_manager">Super Manager</option>
+                        <option value="area_sales_manager">Area Sales Manager</option>
+                        <option value="head_manager">Head Manager</option>
+                    </select>
                 </label>
                 <label class="manager-modal-field">
                     <span>Contact</span>
-                    <input type="text" name="contact_no" data-em="contact_no">
+                    <input type="text" name="contact" data-em="contact">
                 </label>
                 <label class="manager-modal-field">
                     <span>Company Email</span>
@@ -350,11 +405,44 @@ $managers = $managers ?? [];
                 const rowId = manager.row_id || manager.id || 0;
                 form.action = '<?= App\Config\App::url('managers') ?>/' + encodeURIComponent(source) + '/' + encodeURIComponent(rowId);
                 form.method = 'POST';
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton) submitButton.disabled = true;
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                            },
+                            credentials: 'same-origin',
+                            body: new FormData(form),
+                        });
+
+                        const contentType = response.headers.get('content-type') || '';
+                        if (contentType.includes('application/json')) {
+                            const payload = await response.json();
+                            if (payload.success) {
+                                window.location.href = payload.redirect || '<?= App\Config\App::url('managers') ?>';
+                                return;
+                            }
+                        }
+
+                        window.location.reload();
+                    } catch (error) {
+                        window.location.reload();
+                    } finally {
+                        if (submitButton) submitButton.disabled = false;
+                    }
+                });
             }
             content.querySelectorAll('[data-em]').forEach((node) => {
                 const key = node.getAttribute('data-em');
                 if (node.tagName === 'SELECT') {
-                    node.value = manager[key] || 'active';
+                    node.value = manager[key] || (key === 'status' ? 'active' : '');
                     return;
                 }
                 node.value = manager[key] || '';

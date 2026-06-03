@@ -8,15 +8,20 @@ class InhouseSalesModel extends Model
 {
     protected string $table = 'inhouse_sales';
     protected array $fillable = [
+        'inhouse_id',
+        'create_at',
         'user_id',
+        'user_type',
         'sales_manager',
-        'sales_category',
         'first_name',
+        'middle_name',
         'last_name',
-        'employee_id',
-        'contact_no',
+        'contact',
         'email',
-        'profile_picture',
+        'password',
+        'photos',
+        'address',
+        'sales_category',
         'status',
         'created_at',
         'updated_at',
@@ -24,8 +29,15 @@ class InhouseSalesModel extends Model
 
     public function createInhouseSales(array $data): int
     {
-        $data['created_at'] = date('Y-m-d H:i:s');
-        $data['updated_at'] = date('Y-m-d H:i:s');
-        return $this->create($data);
+        $now = date('Y-m-d H:i:s');
+        $data['create_at'] = $data['create_at'] ?? $now;
+        $data['created_at'] = $data['created_at'] ?? $now;
+        $data['updated_at'] = $data['updated_at'] ?? $now;
+        $data['user_type'] = $data['user_type'] ?? 'inhouse_sales';
+
+        $id = $this->create($data);
+        $this->update($id, ['inhouse_id' => $data['inhouse_id'] ?? $id]);
+
+        return $id;
     }
 }
