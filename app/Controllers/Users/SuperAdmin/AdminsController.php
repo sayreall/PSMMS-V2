@@ -188,6 +188,9 @@ class AdminsController extends BaseController
         if (!$existing) {
             Session::flash('message', 'Admin not found.');
             Session::flash('message_type', 'error');
+            if (App::isAjax() || App::isApiRequest()) {
+                $this->json(['success' => false, 'message' => 'Admin not found.'], 404);
+            }
             $this->redirectBack();
         }
 
@@ -209,82 +212,127 @@ class AdminsController extends BaseController
             'updated_at' => date('Y-m-d H:i:s'),
         ];
 
-        if (!in_array($payload['department'], ['operation', 'accounting'], true)) {
-            Session::flash('message', 'Department must be Operation or Accounting.');
-            Session::flash('message_type', 'error');
+        $validator = (new Validation())->validate($payload, [
+            'first_name' => 'required|min:2|max:100',
+            'middle_name' => 'max:100',
+            'last_name' => 'required|min:2|max:100',
+            'username' => 'max:100',
+            'position' => 'required|max:100',
+            'area' => 'max:150',
+            'contact_no' => 'required|max:30',
+            'address' => 'max:255',
+            'employee_id' => 'required|max:50',
+            'department' => 'required|in:operation,accounting',
+            'company_email' => 'required|email',
+            'email' => 'required|email',
+            'status' => 'required|in:pending,active,inactive',
+        ]);
 
+        $errors = $validator->errors();
+        foreach (['employee_id', 'company_email', 'email'] as $column) {
+            if ($payload[$column] !== '' && $this->adminColumnExistsForAnotherRow($column, $payload[$column], $id)) {
+                $errors[$column][] = ucfirst(str_replace('_', ' ', $column)) . ' already exists.';
+            }
+        }
+
+        if (!empty($errors)) {
+            Session::flash('message', 'Unable to update admin. Please check the form values.');
+            Session::flash('message_type', 'error');
             if (App::isAjax() || App::isApiRequest()) {
-                $this->json(['success' => false, 'message' => 'Department must be Operation or Accounting.'], 422);
+                $this->json([
+                    'success' => false,
+                    'message' => $this->firstValidationError($errors) ?? 'Unable to update admin.',
+                    'errors' => $errors,
+                ], 422);
             }
 
             $this->redirectBack();
         }
 
-        $stmt = $db->prepare("
-            UPDATE admins
-            SET first_name = :first_name,
-                middle_name = :middle_name,
-                username = :username,
-                last_name = :last_name,
-                position = :position,
-                area = :area,
-                contact_no = :contact_no,
-                contact = :contact,
-                address = :address,
-                employee_id = :employee_id,
-                department = :department,
-                company_email = :company_email,
-                email = :email,
-                user_type = COALESCE(user_type, 'admin'),
-                status = :status,
-                updated_at = :updated_at
-            WHERE id = :id
-            LIMIT 1
-        ");
-        $stmt->execute([
-            ':id' => $id,
-            ':first_name' => $payload['first_name'],
-            ':middle_name' => $payload['middle_name'] !== '' ? $payload['middle_name'] : null,
-            ':username' => $payload['username'] !== '' ? $payload['username'] : $this->composeFullName($payload['first_name'], $payload['middle_name'], $payload['last_name']),
-            ':last_name' => $payload['last_name'],
-            ':position' => $payload['position'],
-            ':area' => $payload['area'] !== '' ? $payload['area'] : null,
-            ':contact_no' => $payload['contact_no'] !== '' ? $payload['contact_no'] : null,
-            ':contact' => $payload['contact_no'] !== '' ? $payload['contact_no'] : null,
-            ':address' => $payload['address'] !== '' ? $payload['address'] : null,
-            ':employee_id' => $payload['employee_id'],
-            ':department' => $payload['department'],
-            ':company_email' => $payload['company_email'],
-            ':email' => $payload['email'],
-            ':status' => $payload['status'],
-            ':updated_at' => $payload['updated_at'],
-        ]);
-
-        $linkedUserId = (int)($existing['user_id'] ?? 0);
-        if ($linkedUserId > 0) {
-            $fullName = $this->composeFullName($payload['first_name'], $payload['middle_name'], $payload['last_name']);
-            $userStmt = $db->prepare("
-                UPDATE users
-                SET name = :name,
+        try {
+            $stmt = $db->prepare("
+                UPDATE admins
+                SET first_name = :first_name,
                     middle_name = :middle_name,
+                    username = :username,
+                    last_name = :last_name,
+                    position = :position,
+                    area = :area,
                     contact_no = :contact_no,
-                    email = :email,
+                    contact = :contact,
+                    address = :address,
+                    employee_id = :employee_id,
+                    department = :department,
                     company_email = :company_email,
+                    email = :email,
+                    user_type = COALESCE(user_type, 'admin'),
                     status = :status,
                     updated_at = :updated_at
                 WHERE id = :id
                 LIMIT 1
             ");
-            $userStmt->execute([
-                ':id' => $linkedUserId,
-                ':name' => $fullName,
+            $stmt->execute([
+                ':id' => $id,
+                ':first_name' => $payload['first_name'],
                 ':middle_name' => $payload['middle_name'] !== '' ? $payload['middle_name'] : null,
+                ':username' => $payload['username'] !== '' ? $payload['username'] : $this->composeFullName($payload['first_name'], $payload['middle_name'], $payload['last_name']),
+                ':last_name' => $payload['last_name'],
+                ':position' => $payload['position'],
+                ':area' => $payload['area'] !== '' ? $payload['area'] : null,
                 ':contact_no' => $payload['contact_no'] !== '' ? $payload['contact_no'] : null,
+                ':contact' => $payload['contact_no'] !== '' ? $payload['contact_no'] : null,
+                ':address' => $payload['address'] !== '' ? $payload['address'] : null,
+                ':employee_id' => $payload['employee_id'],
+                ':department' => $payload['department'],
+                ':company_email' => $payload['company_email'],
                 ':email' => $payload['email'],
-                ':company_email' => $payload['company_email'] !== '' ? $payload['company_email'] : null,
                 ':status' => $payload['status'],
                 ':updated_at' => $payload['updated_at'],
             ]);
+
+            $linkedUserId = (int)($existing['user_id'] ?? 0);
+            if ($linkedUserId > 0) {
+                $fullName = $this->composeFullName($payload['first_name'], $payload['middle_name'], $payload['last_name']);
+                $userStmt = $db->prepare("
+                    UPDATE users
+                    SET name = :name,
+                        first_name = :first_name,
+                        middle_name = :middle_name,
+                        last_name = :last_name,
+                        contact_no = :contact_no,
+                        email = :email,
+                        company_email = :company_email,
+                        status = :status,
+                        updated_at = :updated_at
+                    WHERE id = :id
+                    LIMIT 1
+                ");
+                $userStmt->execute([
+                    ':id' => $linkedUserId,
+                    ':name' => $fullName,
+                    ':first_name' => $payload['first_name'],
+                    ':middle_name' => $payload['middle_name'] !== '' ? $payload['middle_name'] : null,
+                    ':last_name' => $payload['last_name'],
+                    ':contact_no' => $payload['contact_no'] !== '' ? $payload['contact_no'] : null,
+                    ':email' => $payload['email'],
+                    ':company_email' => $payload['company_email'] !== '' ? $payload['company_email'] : null,
+                    ':status' => $payload['status'],
+                    ':updated_at' => $payload['updated_at'],
+                ]);
+            }
+        } catch (\PDOException $exception) {
+            error_log('Admin update failed for ID ' . $id . ': ' . $exception->getMessage());
+            Session::flash('message', 'Unable to update admin. Please check for duplicate email or employee ID.');
+            Session::flash('message_type', 'error');
+
+            if (App::isAjax() || App::isApiRequest()) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Unable to update admin. Please check for duplicate email or employee ID.',
+                ], 422);
+            }
+
+            $this->redirectBack();
         }
 
         Session::flash('message', 'Admin updated successfully.');
@@ -295,6 +343,34 @@ class AdminsController extends BaseController
         }
 
         $this->redirect(App::url('admins'));
+    }
+
+    private function adminColumnExistsForAnotherRow(string $column, string $value, int $id): bool
+    {
+        $allowed = ['employee_id', 'company_email', 'email'];
+        if (!in_array($column, $allowed, true)) {
+            return false;
+        }
+
+        $db = \App\Config\Database::getInstance();
+        $stmt = $db->prepare("SELECT COUNT(*) FROM admins WHERE `$column` = :value AND id <> :id");
+        $stmt->execute([
+            ':value' => $value,
+            ':id' => $id,
+        ]);
+
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
+    private function firstValidationError(array $errors): ?string
+    {
+        foreach ($errors as $fieldErrors) {
+            if (is_array($fieldErrors) && isset($fieldErrors[0])) {
+                return (string)$fieldErrors[0];
+            }
+        }
+
+        return null;
     }
 
     private function composeFullName(string $first, string $middle, string $last): string

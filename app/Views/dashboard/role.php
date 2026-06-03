@@ -3,10 +3,14 @@ $stats = $stats ?? [];
 $dashboardSlug = $dashboardSlug ?? 'general';
 $activeRoute = 'dashboard';
 
-if ($dashboardSlug === 'asm-head-manager') {
+if (in_array($dashboardSlug, ['asm-head-manager', 'asm-manager', 'asm-area-sales-manager'], true)) {
     $headManagerSectionRoutes = [
+        'assigning-area' => 'assigning_area',
+        'sub-agent-report' => 'sub_agent_report',
+        'sales-status' => 'sales_status',
         'summary-report' => 'summary_report',
         'monthly-sales-report' => 'monthly_sales_report',
+        'eod-jo-area' => 'eod_jo_area',
         'daily-tech-productivity' => 'daily_tech_productivity',
         'technician-incentive' => 'technician_incentive',
         'tech-team-activation' => 'tech_team_activation',
@@ -49,10 +53,10 @@ $roleHighlights = [
 
 if ($dashboardSlug === 'asm-head-manager') {
     $products = [
-        ['key' => 's2s', 'name' => 'Surf2Sawa', 'short' => 'S2S', 'value' => '123,700', 'image' => 'images/s2s.jpg', 'tone' => 'text-rose-600', 'badge' => 'bg-rose-100 text-rose-600', 'color' => '#ef4444'],
-        ['key' => 'fiberx', 'name' => 'FiberX', 'short' => 'FIBERX', 'value' => '93,700', 'image' => 'images/fiberx.png', 'tone' => 'text-indigo-600', 'badge' => 'bg-indigo-100 text-indigo-600', 'color' => '#4f46e5'],
-        ['key' => 'bida', 'name' => 'Bida', 'short' => 'BIDA', 'value' => '803,700', 'image' => 'images/bida.jpg', 'tone' => 'text-orange-600', 'badge' => 'bg-orange-100 text-orange-600', 'color' => '#f97316'],
-        ['key' => 'sme', 'name' => 'SME', 'short' => 'SME', 'value' => '83,700', 'image' => 'images/sme.png', 'tone' => 'text-emerald-600', 'badge' => 'bg-emerald-100 text-emerald-600', 'color' => '#10b981'],
+        ['key' => 's2s', 'name' => 'Surf2Sawa', 'short' => 'S2S', 'value' => '123,452', 'delta' => '+2343', 'delta_positive' => true, 'image' => 'images/s2s.jpg', 'tone' => 'text-rose-600', 'badge' => 'bg-rose-100 text-rose-600', 'color' => '#ef4444'],
+        ['key' => 'fiberx', 'name' => 'FiberX', 'short' => 'FIBERX', 'value' => '20,535', 'delta' => '+1,340', 'delta_positive' => true, 'image' => 'images/fiberx.png', 'tone' => 'text-indigo-600', 'badge' => 'bg-indigo-100 text-indigo-600', 'color' => '#4f46e5'],
+        ['key' => 'bida', 'name' => 'Bida', 'short' => 'BIDA', 'value' => '7,637', 'delta' => '-116', 'delta_positive' => false, 'image' => 'images/bida.jpg', 'tone' => 'text-orange-600', 'badge' => 'bg-orange-100 text-orange-600', 'color' => '#f97316'],
+        ['key' => 'sme', 'name' => 'SME Solutions', 'short' => 'SME', 'value' => '12,423', 'delta' => '+4.2', 'delta_positive' => true, 'image' => 'images/sme.png', 'tone' => 'text-emerald-600', 'badge' => 'bg-emerald-100 text-emerald-600', 'color' => '#10b981'],
     ];
 
     $summaryProducts = [
@@ -75,7 +79,7 @@ if ($dashboardSlug === 'asm-head-manager') {
             ['PAUL DANIEL CABUNDOC', 7, 8, 10, 25, 3, 7, 0, 10, 4, '42.86%', '37.50%', '40.00%', 11],
             ['INHOUSE PAGE', 0, 2, 0, 2, 0, 2, 0, 2, 0, '0%', '100.00%', '100.00%', 2],
         ]],
-        'sme' => ['name' => 'SME', 'short' => 'SME', 'image' => 'images/sme.png', 'logo_class' => '', 'period' => 'Jan. 2026 - Jan. 2026', 'forecast' => 61, 'rows' => [
+        'sme' => ['name' => 'SME Solutions', 'short' => 'SME', 'image' => 'images/sme.png', 'logo_class' => '', 'period' => 'Jan. 2026 - Jan. 2026', 'forecast' => 61, 'rows' => [
             ['MARGARET CUNANAN', 30, 16, 6, 52, 18, 8, 2, 28, 0, '60.00%', '50.00%', '53.85%', 30],
             ['VINCENT JOHN VILLENA', 12, 7, 3, 22, 7, 6, 2, 15, 0, '58.33%', '85.71%', '68.18%', 16],
             ['PAUL DANIEL CABUNDOC', 5, 8, 8, 21, 2, 6, 0, 8, 3, '40.00%', '28.57%', '38.10%', 9],
@@ -2607,19 +2611,29 @@ if ($dashboardSlug === 'asm-head-manager') {
     ?>
 
     <div class="space-y-5">
-        <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
-            <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">Product Sales Activation Performance Dashboard</h1>
-            <p class="text-xs text-slate-600">Head Manager monitoring for product activations and daily performance.</p>
-        </div>
-
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <?php foreach ($products as $product): ?>
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 text-center hover:shadow-md transition-shadow">
-                    <div class="w-full h-24 bg-white rounded-lg border border-slate-100 p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
-                        <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
+                <?php $summaryUrl = '?section=summary-report&product=' . rawurlencode((string)$product['key']); ?>
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+                    <div class="flex min-h-[118px] items-start justify-between gap-4 px-5 py-4">
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-medium text-slate-500"><?= htmlspecialchars($product['name']) ?></p>
+                            <p class="mt-1 text-2xl font-extrabold leading-tight text-slate-950"><?= htmlspecialchars($product['value']) ?></p>
+                            <p class="mt-3 text-sm text-slate-500">
+                                <span class="<?= $product['delta_positive'] ? 'text-emerald-600' : 'text-red-600' ?> font-semibold"><?= htmlspecialchars($product['delta']) ?></span>
+                                <span>vs last month</span>
+                            </p>
+                        </div>
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-white p-1.5 shadow-sm">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-h-full max-w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                        </div>
                     </div>
-                    <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['name']) ?> Activation</p>
-                    <p class="text-xl font-extrabold <?= htmlspecialchars($product['tone']) ?> mt-1"><?= htmlspecialchars($product['value']) ?></p>
+                    <a href="<?= htmlspecialchars($summaryUrl) ?>" class="group flex h-12 items-center justify-between border-t border-slate-100 px-5 text-sm font-medium text-slate-950 transition-colors hover:bg-slate-50" aria-label="View <?= htmlspecialchars($product['name']) ?> summary report details">
+                        <span>View Details</span>
+                        <svg class="h-5 w-5 text-slate-500 transition-transform group-hover:translate-x-1 group-hover:text-slate-800" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -2650,26 +2664,35 @@ if ($dashboardSlug === 'asm-head-manager') {
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-                <div class="flex items-start justify-between gap-3 mb-3">
-                    <div>
-                        <h2 class="text-sm font-semibold text-slate-900">Daily Sales Activation</h2>
-                        <p class="text-xs text-slate-500">Current activation mix.</p>
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between gap-3 px-5 py-4">
+                    <h2 class="text-base font-semibold text-slate-950">Daily Sales Activation</h2>
+                    <div class="inline-flex h-10 items-center rounded-full border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">
+                        Daily
                     </div>
-                    <input type="date" class="max-w-[138px] px-2 py-1 rounded-md border border-slate-200 bg-white text-xs text-slate-600 focus:outline-none" aria-label="Select daily activation date">
                 </div>
-                <div class="rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 mb-3 flex items-center justify-between">
-                    <span class="text-xs font-semibold text-blue-600">Overall Activation</span>
-                    <strong class="text-2xl font-extrabold text-blue-600">330</strong>
-                </div>
-                <div class="h-56">
-                    <canvas id="head-manager-daily-chart"></canvas>
-                </div>
-                <div class="grid grid-cols-2 gap-2 mt-3">
-                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-2 text-center"><p class="text-base font-bold text-slate-800">120</p><p class="text-[10px] uppercase text-slate-400">S2S</p></div>
-                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-2 text-center"><p class="text-base font-bold text-slate-800">90</p><p class="text-[10px] uppercase text-slate-400">FiberX</p></div>
-                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-2 text-center"><p class="text-base font-bold text-slate-800">70</p><p class="text-[10px] uppercase text-slate-400">SME</p></div>
-                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-2 text-center"><p class="text-base font-bold text-slate-800">50</p><p class="text-[10px] uppercase text-slate-400">Bida</p></div>
+                <div class="border-t border-slate-100 px-5 py-6">
+                    <div class="mx-auto h-64 max-w-[270px]">
+                        <canvas id="head-manager-daily-chart"></canvas>
+                    </div>
+                    <div class="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="inline-flex items-center gap-2 text-slate-500"><span class="h-2.5 w-2.5 rounded-full bg-[#5b5cf6]"></span>S2S Activation</span>
+                            <strong class="font-semibold text-slate-950">35.2%</strong>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="inline-flex items-center gap-2 text-slate-500"><span class="h-2.5 w-2.5 rounded-full bg-[#08c956]"></span>SME</span>
+                            <strong class="font-semibold text-slate-950">30%</strong>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="inline-flex items-center gap-2 text-slate-500"><span class="h-2.5 w-2.5 rounded-full bg-[#f4b000]"></span>FiberX</span>
+                            <strong class="font-semibold text-slate-950">9.3%</strong>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="inline-flex items-center gap-2 text-slate-500"><span class="h-2.5 w-2.5 rounded-full bg-[#8b4cf6]"></span>Bida</span>
+                            <strong class="font-semibold text-slate-950">7.2%</strong>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2724,33 +2747,55 @@ if ($dashboardSlug === 'asm-head-manager') {
 
             const dailyCanvas = document.getElementById('head-manager-daily-chart');
             if (dailyCanvas) {
+                const centerTextPlugin = {
+                    id: 'dailyCenterText',
+                    afterDraw(chart) {
+                        const { ctx, chartArea } = chart;
+                        const x = (chartArea.left + chartArea.right) / 2;
+                        const y = (chartArea.top + chartArea.bottom) / 2;
+
+                        ctx.save();
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle = '#020617';
+                        ctx.font = '700 34px Onest, sans-serif';
+                        ctx.fillText('3.5K', x, y - 8);
+                        ctx.fillStyle = '#737373';
+                        ctx.font = '400 14px Onest, sans-serif';
+                        ctx.fillText('This month', x, y + 28);
+                        ctx.restore();
+                    },
+                };
+
                 new Chart(dailyCanvas, {
                     type: 'doughnut',
                     data: {
-                        labels: ['S2S', 'FiberX', 'SME', 'Bida'],
+                        labels: ['S2S Activation', 'SME', 'FiberX', 'Bida', 'Unassigned'],
                         datasets: [{
-                            data: [120, 90, 70, 50],
-                            backgroundColor: ['#ef4444', '#4f46e5', '#10b981', '#f97316'],
+                            data: [35.2, 30, 9.3, 7.2, 18.3],
+                            backgroundColor: ['#5b5cf6', '#08c956', '#f4b000', '#8b4cf6', '#e5e5e5'],
                             borderColor: '#ffffff',
-                            borderWidth: 4,
-                            hoverOffset: 8,
+                            borderWidth: 5,
+                            hoverOffset: 5,
                         }],
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        cutout: '62%',
+                        cutout: '58%',
                         plugins: {
                             legend: { display: false },
                             tooltip: {
                                 backgroundColor: '#0f172a',
                                 titleColor: '#ffffff',
-                                bodyColor: '#dbeafe',
+                                bodyColor: '#f8fafc',
                                 padding: 12,
-                                cornerRadius: 10,
+                                cornerRadius: 8,
+                                displayColors: true,
                             },
                         },
                     },
+                    plugins: [centerTextPlugin],
                 });
             }
         });
@@ -2759,6 +2804,563 @@ if ($dashboardSlug === 'asm-head-manager') {
     return;
 }
 ?>
+
+<?php if (in_array($dashboardSlug, ['asm-manager', 'asm-area-sales-manager'], true)): ?>
+    <?php
+        $asmProducts = [
+            ['key' => 's2s', 'name' => 'Surf2Sawa', 'short' => 'S2S', 'value' => '123,452', 'delta' => '+2343', 'delta_positive' => true, 'image' => 'images/s2s.jpg', 'badge' => 'bg-rose-100 text-rose-600', 'color' => '#ef4444'],
+            ['key' => 'fiberx', 'name' => 'FiberX', 'short' => 'FIBERX', 'value' => '20,535', 'delta' => '+1,340', 'delta_positive' => true, 'image' => 'images/fiberx.png', 'badge' => 'bg-indigo-100 text-indigo-600', 'color' => '#5b5cf6'],
+            ['key' => 'bida', 'name' => 'Bida', 'short' => 'BIDA', 'value' => '7,637', 'delta' => '-116', 'delta_positive' => false, 'image' => 'images/bida.jpg', 'badge' => 'bg-orange-100 text-orange-600', 'color' => '#ff6b35'],
+            ['key' => 'sme', 'name' => 'SME Solutions', 'short' => 'SME', 'value' => '12,423', 'delta' => '+4.2', 'delta_positive' => true, 'image' => 'images/sme.png', 'badge' => 'bg-emerald-100 text-emerald-600', 'color' => '#08c956'],
+        ];
+        $asmSelectedProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+        $asmSelectedProduct = $asmProducts[0];
+        foreach ($asmProducts as $product) {
+            if ($product['key'] === $asmSelectedProductKey) {
+                $asmSelectedProduct = $product;
+                break;
+            }
+        }
+        $asmAssigningRows = [
+            ['Quezon City', 'North District', 'Cedric Daryl', 'Active', 42],
+            ['Caloocan', 'South District', 'Maria Santos', 'Active', 38],
+            ['Valenzuela', 'Central District', 'Ramon Cruz', 'Pending', 26],
+            ['Malabon', 'West District', 'Angel Reyes', 'Active', 21],
+        ];
+        $asmSubAgentReportType = strtolower(trim((string)($_GET['type'] ?? 'summary')));
+        if (!in_array($asmSubAgentReportType, ['summary', 'inhouse', 'partners'], true)) {
+            $asmSubAgentReportType = 'summary';
+        }
+        $asmSubAgentRows = [
+            ['HENRY DOLIENTE', 'PSM-225-2', 1, '0.05', '1.36', [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], false],
+            ['TEAM MARGA_MARICEL DOLETE', '', 1, '0.05', '1.36', [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], true],
+            ['COLE, ARNOLD', 'PSM-236-4', 23, '1.05', '31.36', [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 2, 2, 0, 3, 0, 1], false],
+            ['TEAM MARGA_JONNALYN COLE', '', 23, '1.05', '31.36', [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 2, 2, 0, 3, 0, 1], true],
+            ['PINCAS KIM', 'PSM-226-2', 336, '15.27', '458.18', [0, 8, 7, 21, 12, 7, 12, 13, 18, 18, 10, 12, 13, 8, 13, 17, 15], false],
+            ['TEAM MARGA_PINCAS KARRISA', '', 336, '15.27', '458.18', [0, 8, 7, 21, 12, 7, 12, 13, 18, 18, 10, 12, 13, 8, 13, 17, 15], true],
+            ['RENELYN CONTANTE', 'PSM-232-2', 91, '4.14', '124.09', [0, 4, 2, 2, 4, 0, 1, 3, 3, 1, 8, 2, 3, 4, 3, 0, 2], false],
+            ['TEAM MARGA_JESSICA REGACHUELO', '', 91, '4.14', '124.09', [0, 4, 2, 2, 4, 0, 1, 3, 3, 1, 8, 2, 3, 4, 3, 0, 2], true],
+            ['CRISELLE MEDIA', 'PSM-230-2', 32, '1.45', '43.64', [0, 4, 3, 2, 5, 1, 1, 1, 3, 0, 0, 1, 0, 1, 0, 0, 1], false],
+            ['TEAM MARGA_CHRISTOPHER NENA', '', 32, '1.45', '43.64', [0, 4, 3, 2, 5, 1, 1, 1, 3, 0, 0, 1, 0, 1, 0, 0, 1], true],
+            ['ALLEN DIAZ', 'PSM-216-8', 88, '4.00', '120.00', [0, 2, 2, 5, 6, 3, 1, 3, 4, 5, 5, 0, 0, 1, 1, 2, 0], false],
+            ['TEAM MARGA_JAMES DIAZ', '', 88, '4.00', '120.00', [0, 2, 2, 5, 6, 3, 1, 3, 4, 5, 5, 0, 0, 1, 1, 2, 0], true],
+        ];
+    ?>
+
+    <?php if (($activeRoute ?? 'dashboard') === 'assigning_area'): ?>
+        <div class="space-y-5">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <?php foreach ($asmProducts as $product): ?>
+                        <?php
+                            $isSelectedProduct = $asmSelectedProduct['key'] === $product['key'];
+                            $productUrl = '?section=assigning-area&product=' . rawurlencode((string)$product['key']);
+                        ?>
+                        <a href="<?= htmlspecialchars($productUrl) ?>"
+                           class="group rounded-xl border p-4 transition-all duration-200 <?= $isSelectedProduct ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                            <div class="flex h-24 items-center justify-center rounded-lg border bg-white p-5 <?= $isSelectedProduct ? 'border-primary-100' : 'border-slate-100' ?>">
+                                <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-200 bg-slate-50 px-5 py-4">
+                    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="flex h-14 w-28 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
+                                <img src="<?= App\Config\App::url($asmSelectedProduct['image']) ?>" alt="<?= htmlspecialchars($asmSelectedProduct['name']) ?>" class="max-h-full max-w-full object-contain <?= in_array($asmSelectedProduct['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Selected Product</p>
+                                <h2 class="text-lg font-bold text-slate-950"><?= htmlspecialchars($asmSelectedProduct['name']) ?> Assigning Area</h2>
+                            </div>
+                        </div>
+                        <div class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-right shadow-sm">
+                            <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Assigned Areas</p>
+                            <p class="text-xl font-bold text-slate-950"><?= count($asmAssigningRows) ?></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto p-4">
+                    <table class="min-w-[760px] w-full border-collapse text-sm">
+                        <thead class="bg-slate-50 text-left text-[11px] font-semibold uppercase text-slate-500">
+                            <tr>
+                                <th class="border border-slate-200 px-3 py-3">Municipality</th>
+                                <th class="border border-slate-200 px-3 py-3">Area</th>
+                                <th class="border border-slate-200 px-3 py-3">Area Sales Manager</th>
+                                <th class="border border-slate-200 px-3 py-3">Status</th>
+                                <th class="border border-slate-200 px-3 py-3 text-right">Activation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($asmAssigningRows as $row): ?>
+                                <tr class="bg-white text-slate-700 hover:bg-slate-50">
+                                    <td class="border border-slate-200 px-3 py-3 font-medium text-slate-900"><?= htmlspecialchars($row[0]) ?></td>
+                                    <td class="border border-slate-200 px-3 py-3"><?= htmlspecialchars($row[1]) ?></td>
+                                    <td class="border border-slate-200 px-3 py-3"><?= htmlspecialchars($row[2]) ?></td>
+                                    <td class="border border-slate-200 px-3 py-3">
+                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold <?= $row[3] === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' ?>"><?= htmlspecialchars($row[3]) ?></span>
+                                    </td>
+                                    <td class="border border-slate-200 px-3 py-3 text-right font-semibold text-slate-950"><?= (int)$row[4] ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php return; ?>
+    <?php endif; ?>
+
+    <?php if (($activeRoute ?? 'dashboard') === 'sub_agent_report'): ?>
+        <div class="space-y-5">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <?php foreach ($asmProducts as $product): ?>
+                        <?php
+                            $isSelectedProduct = $asmSelectedProduct['key'] === $product['key'];
+                            $productUrl = '?section=sub-agent-report&product=' . rawurlencode((string)$product['key']) . '&type=' . rawurlencode($asmSubAgentReportType);
+                        ?>
+                        <a href="<?= htmlspecialchars($productUrl) ?>"
+                           class="group rounded-xl border p-4 transition-all duration-200 <?= $isSelectedProduct ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                            <div class="flex h-24 items-center justify-center rounded-lg border bg-white p-5 <?= $isSelectedProduct ? 'border-primary-100' : 'border-slate-100' ?>">
+                                <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-200 bg-slate-50 px-5 py-4">
+                    <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="flex h-14 w-28 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
+                                <img src="<?= App\Config\App::url($asmSelectedProduct['image']) ?>" alt="<?= htmlspecialchars($asmSelectedProduct['name']) ?>" class="max-h-full max-w-full object-contain <?= in_array($asmSelectedProduct['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Selected Product</p>
+                                <h2 class="text-lg font-bold text-slate-950"><?= htmlspecialchars($asmSelectedProduct['name']) ?> Sub Agent Report</h2>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+                            <div class="flex flex-wrap items-center justify-start gap-2 lg:justify-end">
+                                <a href="?section=sub-agent-report&product=<?= htmlspecialchars(rawurlencode($asmSelectedProduct['key'])) ?>&type=inhouse" class="inline-flex h-9 items-center rounded-lg border px-3 text-xs font-semibold transition-colors <?= $asmSubAgentReportType === 'inhouse' ? 'border-primary-300 bg-cyan-50 text-primary-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' ?>">In house count</a>
+                                <a href="?section=sub-agent-report&product=<?= htmlspecialchars(rawurlencode($asmSelectedProduct['key'])) ?>&type=partners" class="inline-flex h-9 items-center rounded-lg border px-3 text-xs font-semibold transition-colors <?= $asmSubAgentReportType === 'partners' ? 'border-primary-300 bg-cyan-50 text-primary-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' ?>">Partners count</a>
+                                <a href="?section=sub-agent-report&product=<?= htmlspecialchars(rawurlencode($asmSelectedProduct['key'])) ?>&type=summary" class="inline-flex h-9 items-center rounded-lg border px-3 text-xs font-semibold transition-colors <?= $asmSubAgentReportType === 'summary' ? 'border-primary-300 bg-cyan-50 text-primary-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' ?>">Summary count</a>
+                            </div>
+
+                            <form method="GET" class="flex flex-wrap items-center justify-start gap-2 lg:justify-end">
+                                <input type="hidden" name="section" value="sub-agent-report">
+                                <input type="hidden" name="product" value="<?= htmlspecialchars($asmSelectedProduct['key']) ?>">
+                                <input type="hidden" name="type" value="<?= htmlspecialchars($asmSubAgentReportType) ?>">
+                                <select name="month" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:outline-none">
+                                    <?php foreach (['January', 'February', 'March', 'April', 'May', 'June'] as $month): ?>
+                                        <option value="<?= htmlspecialchars($month) ?>" <?= (($_GET['month'] ?? 'January') === $month) ? 'selected' : '' ?>><?= htmlspecialchars($month) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <select name="year" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:outline-none">
+                                    <?php foreach (['2026', '2025', '2024'] as $year): ?>
+                                        <option value="<?= htmlspecialchars($year) ?>" <?= (($_GET['year'] ?? '2026') === $year) ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button type="button" class="inline-flex h-9 items-center rounded-lg bg-green-600 px-4 text-xs font-bold text-white transition-colors hover:bg-green-700">Export</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto p-4">
+                    <table class="min-w-[1320px] w-full border-collapse text-[11px]">
+                        <thead class="bg-primary-700 text-white">
+                            <tr>
+                                <th class="border border-primary-600 px-3 py-3 text-left">Agent Name</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">Agent Code</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">Total Activation</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">Average</th>
+                                <th class="border border-primary-600 px-3 py-3 text-center">EOM Forecast</th>
+                                <?php for ($day = 1; $day <= 17; $day++): ?>
+                                    <th class="border border-primary-600 px-2 py-3 text-center"><?= $day ?></th>
+                                <?php endfor; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($asmSubAgentRows as $row): ?>
+                                <tr class="<?= $row[7] ? 'bg-blue-600 text-white font-bold' : 'bg-white text-slate-700 hover:bg-slate-50' ?>">
+                                    <td class="border border-slate-200 px-3 py-3 <?= $row[7] ? 'border-blue-500' : '' ?>"><?= htmlspecialchars($row[0]) ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center <?= $row[7] ? 'border-blue-500' : '' ?>"><?= htmlspecialchars($row[1]) ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center <?= $row[7] ? 'border-blue-500' : 'font-semibold text-slate-950' ?>"><?= htmlspecialchars((string)$row[2]) ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center <?= $row[7] ? 'border-blue-500' : '' ?>"><?= htmlspecialchars($row[3]) ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center <?= $row[7] ? 'border-blue-500' : '' ?>"><?= htmlspecialchars($row[4]) ?></td>
+                                    <?php foreach ($row[5] as $value): ?>
+                                        <td class="border border-slate-200 px-2 py-3 text-center <?= $row[7] ? 'border-blue-500' : '' ?>"><?= (int)$value ?></td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php return; ?>
+    <?php endif; ?>
+
+    <?php if (($activeRoute ?? 'dashboard') === 'sales_status'): ?>
+        <?php
+            $asmSalesStatusMode = strtolower(trim((string)($_GET['mode'] ?? 'tl')));
+            if (!in_array($asmSalesStatusMode, ['inhouse', 'partners', 'tl'], true)) {
+                $asmSalesStatusMode = 'tl';
+            }
+            $asmSalesStatusTables = [
+                'inhouse' => [
+                    ['TEAM MARGA_MARICEL DOLETE', 'Cedric Daryl', 'In House', 'Active'],
+                    ['TEAM MARGA_JONNALYN COLE', 'Cedric Daryl', 'In House', 'Active'],
+                    ['TEAM MARGA_PINCAS KARRISA', 'Cedric Daryl', 'In House', 'Active'],
+                    ['TEAM MARGA_JESSICA REGACHUELO', 'Cedric Daryl', 'In House', 'Active'],
+                    ['TEAM MARGA_JAMES DIAZ', 'Cedric Daryl', 'In House', 'Active'],
+                ],
+                'partners' => [
+                    ['MBCMGT Incorporated', 'Partner', 'Partner', 'Active'],
+                    ['5 JHMD Internet Installation Services', 'Partner', 'Partner', 'Active'],
+                    ['ALLY5 68 Corporation', 'Partner', 'Regional Partner', 'Active'],
+                    ['ARGIN Network Services Inc', 'Partner', 'Partner', 'Active'],
+                    ['MBCMGT Incorporated', 'Partner', 'Partner', 'Active'],
+                ],
+                'tl' => [
+                    ['MBCMGT Incorporated', 'Partner', 'Partner', 'Active'],
+                    ['MBCMGT Incorporated', 'Partner', 'Partner', 'Active'],
+                    ['MBCMGT Incorporated', 'Partner', 'Partner', 'Active'],
+                    ['MBCMGT Incorporated', 'Partner', 'Partner', 'Active'],
+                    ['MBCMGT Incorporated', 'Partner', 'Partner', 'Active'],
+                ],
+            ];
+            $asmSalesStatusRows = $asmSalesStatusTables[$asmSalesStatusMode];
+        ?>
+        <div class="space-y-5">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <?php foreach ($asmProducts as $product): ?>
+                    <?php
+                        $isSelectedProduct = $asmSelectedProduct['key'] === $product['key'];
+                        $productUrl = '?section=sales-status&product=' . rawurlencode((string)$product['key']) . '&mode=' . rawurlencode($asmSalesStatusMode);
+                    ?>
+                    <a href="<?= htmlspecialchars($productUrl) ?>"
+                       class="group rounded-xl border p-4 transition-all duration-200 <?= $isSelectedProduct ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="flex h-24 items-center justify-center rounded-lg border bg-white p-5 <?= $isSelectedProduct ? 'border-primary-100' : 'border-slate-100' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+                </div>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between px-5 py-4">
+                    <div class="inline-flex items-center gap-2 text-sm font-semibold text-slate-800">
+                        <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M7 12h10m-7 6h4"/>
+                        </svg>
+                        <span>Filters</span>
+                    </div>
+                    <a href="?section=sales-status&product=<?= htmlspecialchars(rawurlencode($asmSelectedProduct['key'])) ?>" class="text-xs font-medium text-slate-500 hover:text-slate-800">Clear all</a>
+                </div>
+                <form method="GET" class="sales-status-filter-row flex flex-col gap-3 border-t border-slate-100 px-5 py-4 lg:flex-row lg:items-center">
+                    <input type="hidden" name="section" value="sales-status">
+                    <input type="hidden" name="product" value="<?= htmlspecialchars($asmSelectedProduct['key']) ?>">
+                    <input type="hidden" name="mode" value="<?= htmlspecialchars($asmSalesStatusMode) ?>">
+                    <label class="sales-status-search-control relative w-full">
+                        <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="search" name="search" value="<?= htmlspecialchars((string)($_GET['search'] ?? '')) ?>" placeholder="Search..." class="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs text-slate-700 placeholder-slate-400 focus:outline-none">
+                    </label>
+                    <label class="sales-status-filter-control relative w-full">
+                        <input type="month" name="month" value="<?= htmlspecialchars((string)($_GET['month'] ?? '2026-01')) ?>" class="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:outline-none">
+                    </label>
+                    <select name="type" class="sales-status-filter-control h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-500 focus:outline-none">
+                        <option>All types</option>
+                        <option>Partner</option>
+                        <option>In House</option>
+                    </select>
+                    <select name="status" class="sales-status-filter-control h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-500 focus:outline-none">
+                        <option>All Status</option>
+                        <option>Active</option>
+                        <option>Inactive</option>
+                    </select>
+                </form>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 md:flex-row md:items-center md:justify-between">
+                    <h2 class="text-sm font-semibold text-slate-500">Manage TL Status</h2>
+                    <div class="flex flex-wrap items-center justify-end gap-2">
+                        <a href="?section=sales-status&product=<?= htmlspecialchars(rawurlencode($asmSelectedProduct['key'])) ?>&mode=inhouse"
+                           class="inline-flex h-9 items-center rounded-lg px-4 text-xs font-bold text-white transition-colors"
+                           style="background-color: <?= $asmSalesStatusMode === 'inhouse' ? '#00bf63' : '#cfcfcf' ?>;">In House</a>
+                        <a href="?section=sales-status&product=<?= htmlspecialchars(rawurlencode($asmSelectedProduct['key'])) ?>&mode=partners"
+                           class="inline-flex h-9 items-center rounded-lg px-4 text-xs font-bold text-white transition-colors"
+                           style="background-color: <?= $asmSalesStatusMode === 'partners' ? '#00bf63' : '#cfcfcf' ?>;">Partners/Regional</a>
+                        <a href="?section=sales-status&product=<?= htmlspecialchars(rawurlencode($asmSelectedProduct['key'])) ?>&mode=tl"
+                           class="inline-flex h-9 items-center rounded-lg px-4 text-xs font-bold text-white transition-colors"
+                           style="background-color: <?= $asmSalesStatusMode === 'tl' ? '#00bf63' : '#cfcfcf' ?>;">TL Status</a>
+                    </div>
+                </div>
+                <div class="overflow-x-auto p-4">
+                    <table class="min-w-[900px] w-full border-collapse text-[11px]">
+                        <thead class="bg-primary-700 text-left text-white">
+                            <tr>
+                                <th class="border border-primary-600 px-4 py-3">Sales Category</th>
+                                <th class="border border-primary-600 px-4 py-3">Sales Manager</th>
+                                <th class="border border-primary-600 px-4 py-3">Type of Sales</th>
+                                <th class="border border-primary-600 px-4 py-3 text-center">TL Status</th>
+                                <th class="border border-primary-600 px-4 py-3 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($asmSalesStatusRows as $row): ?>
+                                <tr class="bg-white text-slate-700 hover:bg-slate-50">
+                                    <td class="border border-slate-200 px-4 py-3"><?= htmlspecialchars($row[0]) ?></td>
+                                    <td class="border border-slate-200 px-4 py-3"><?= htmlspecialchars($row[1]) ?></td>
+                                    <td class="border border-slate-200 px-4 py-3"><?= htmlspecialchars($row[2]) ?></td>
+                                    <td class="border border-slate-200 px-4 py-3 text-center">
+                                        <span class="inline-flex rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700"><?= htmlspecialchars($row[3]) ?></span>
+                                    </td>
+                                    <td class="border border-slate-200 px-4 py-3 text-center">
+                                        <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800" aria-label="Open actions">
+                                            ...
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php return; ?>
+    <?php endif; ?>
+
+    <?php if (($activeRoute ?? 'dashboard') === 'sales_turn_ins'): ?>
+        <?php
+            $asmTurninsRows = [
+                ['5 JHMD INTERNET INSTALLATION SERVICES', 0, 1, 1, 0, 0, 0, 0, 0, 2],
+                ['ALLY5 68 CORPORATION', 0, 1, 2, 0, 3, 1, 0, 1, 8],
+                ['ARGIN NETWORK SERVICES INC', 0, 2, 2, 0, 0, 1, 0, 0, 5],
+                ['TEAM MARGA_CHRISTOPHER NEDIA', 0, 0, 0, 0, 1, 0, 1, 1, 3],
+                ['TEAM MARGA_ELEUTERIO MENDOZA', 0, 1, 1, 0, 3, 1, 0, 0, 6],
+                ['TEAM MARGA_JAMES DIAZ', 0, 1, 1, 0, 0, 0, 0, 0, 2],
+                ['TEAM MARGA_JESSICA REGACHUELO', 1, 1, 0, 0, 1, 0, 0, 0, 3],
+                ['TEAM MARGA_JIMMY GOMBAO', 0, 0, 0, 1, 2, 0, 0, 0, 3],
+                ['TEAM MARGA_KATRINA MAE DERUJE', 0, 2, 0, 1, 0, 0, 0, 0, 3],
+                ['TEAM MARGA_PINCAS KARRISA', 0, 1, 2, 0, 4, 0, 0, 2, 9],
+            ];
+            $asmTurninsTotals = array_fill(0, 9, 0);
+            foreach ($asmTurninsRows as $row) {
+                foreach (array_slice($row, 1) as $index => $value) {
+                    $asmTurninsTotals[$index] += (int)$value;
+                }
+            }
+        ?>
+        <div class="space-y-5">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <?php foreach ($asmProducts as $product): ?>
+                        <?php
+                            $isSelectedProduct = $asmSelectedProduct['key'] === $product['key'];
+                            $productUrl = '?section=sales-turn-ins&product=' . rawurlencode((string)$product['key']);
+                        ?>
+                        <a href="<?= htmlspecialchars($productUrl) ?>"
+                           class="group rounded-xl border p-4 transition-all duration-200 <?= $isSelectedProduct ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                            <div class="flex h-24 items-center justify-center rounded-lg border bg-white p-5 <?= $isSelectedProduct ? 'border-primary-100' : 'border-slate-100' ?>">
+                                <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-blue-300 bg-white shadow-sm">
+                <div class="flex items-center justify-end border-b border-blue-100 px-5 py-4">
+                    <form method="GET" class="flex flex-wrap items-center gap-2">
+                        <input type="hidden" name="section" value="sales-turn-ins">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmSelectedProduct['key']) ?>">
+                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                            Dispatch Date:
+                            <input type="date" name="dispatch_date" value="<?= htmlspecialchars((string)($_GET['dispatch_date'] ?? '2026-01-30')) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:outline-none">
+                        </label>
+                        <button type="button" class="inline-flex h-9 items-center rounded-lg bg-green-600 px-4 text-xs font-bold text-white transition-colors hover:bg-green-700">Export</button>
+                    </form>
+                </div>
+
+                <div class="overflow-x-auto p-4">
+                    <table class="sales-turnins-table min-w-[1180px] w-full border-collapse text-[11px]">
+                        <thead>
+                            <tr>
+                                <th>Sales Category</th>
+                                <th>For Schedule of Installation</th>
+                                <th>Activated</th>
+                                <th>Double Entry</th>
+                                <th>For Compliance</th>
+                                <th>For Installation</th>
+                                <th>For MSA Installation</th>
+                                <th>For Revalidation</th>
+                                <th>Re-schedule</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($asmTurninsRows as $row): ?>
+                                <tr>
+                                    <td class="sales-turnins-category"><?= htmlspecialchars($row[0]) ?></td>
+                                    <?php foreach (array_slice($row, 1, 8) as $value): ?>
+                                        <td><?= (int)$value ?></td>
+                                    <?php endforeach; ?>
+                                    <td class="sales-turnins-total"><?= (int)$row[9] ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            <tr class="sales-turnins-grand-total">
+                                <td>Grand Total</td>
+                                <?php foreach ($asmTurninsTotals as $value): ?>
+                                    <td><?= (int)$value ?></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php return; ?>
+    <?php endif; ?>
+
+    <?php if (($activeRoute ?? 'dashboard') === 'pending_job_order'): ?>
+        <?php
+            $asmPendingRows = [
+                ['ANTIPOLO', 1, 0, 5, 6],
+                ['BARAS', 0, 1, 0, 1],
+                ['BAY', 0, 0, 2, 2],
+                ['BINAN', 0, 0, 1, 1],
+                ['CABUYAO', 0, 0, 1, 1],
+                ['CAINTA', 1, 0, 6, 7],
+                ['CALAMBA', 0, 0, 2, 2],
+                ['CALAUAN', 0, 0, 1, 1],
+                ['RODRIGUEZ', 0, 0, 1, 1],
+                ['SAN MATEO', 0, 1, 0, 1],
+                ['SAN PEDRO', 0, 0, 1, 1],
+                ['SANTA ROSA', 0, 0, 2, 2],
+                ['TAGUIG', 0, 7, 344, 351],
+                ['TANAY', 1, 0, 0, 1],
+                ['TAYTAY', 0, 0, 1, 1],
+            ];
+            $asmPendingTotals = array_fill(0, 4, 0);
+            foreach ($asmPendingRows as $row) {
+                foreach (array_slice($row, 1) as $index => $value) {
+                    $asmPendingTotals[$index] += (int)$value;
+                }
+            }
+            $asmPendingDate = (string)($_GET['pending_date'] ?? '2026-01-30');
+            $asmPendingDateLabel = date('l, F j, Y', strtotime($asmPendingDate) ?: strtotime('2026-01-30'));
+        ?>
+        <div class="space-y-5">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <?php foreach ($asmProducts as $product): ?>
+                        <?php
+                            $isSelectedProduct = $asmSelectedProduct['key'] === $product['key'];
+                            $productUrl = '?section=pending-job-order&product=' . rawurlencode((string)$product['key']);
+                        ?>
+                        <a href="<?= htmlspecialchars($productUrl) ?>"
+                           class="group rounded-xl border p-4 transition-all duration-200 <?= $isSelectedProduct ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                            <div class="flex h-24 items-center justify-center rounded-lg border bg-white p-5 <?= $isSelectedProduct ? 'border-primary-100' : 'border-slate-100' ?>">
+                                <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <div class="mx-auto max-w-6xl rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="rounded-lg border border-blue-400 bg-white p-4">
+                    <form method="GET" class="mb-4 flex flex-wrap items-center justify-end gap-2">
+                        <input type="hidden" name="section" value="pending-job-order">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmSelectedProduct['key']) ?>">
+                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                            Date:
+                            <input type="date" name="pending_date" value="<?= htmlspecialchars($asmPendingDate) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:outline-none">
+                        </label>
+                        <button type="button" class="inline-flex h-9 items-center rounded-lg bg-green-600 px-4 text-xs font-bold text-white transition-colors hover:bg-green-700">Export</button>
+                    </form>
+                    <h2 class="mb-5 text-center text-base font-bold text-blue-900"><?= htmlspecialchars($asmPendingDateLabel) ?></h2>
+                    <div class="overflow-x-auto">
+                        <table class="pending-job-table min-w-[920px] w-full border-collapse text-[11px]">
+                            <thead>
+                                <tr>
+                                    <th>Municipality</th>
+                                    <th>Resched by MSA</th>
+                                    <th>For Installation</th>
+                                    <th>For MSA Installation</th>
+                                    <th>Grand Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($asmPendingRows as $row): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($row[0]) ?></td>
+                                        <td><?= (int)$row[1] ?></td>
+                                        <td><?= (int)$row[2] ?></td>
+                                        <td><?= (int)$row[3] ?></td>
+                                        <td><?= (int)$row[4] ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                <tr class="pending-job-total">
+                                    <td>Total</td>
+                                    <?php foreach ($asmPendingTotals as $value): ?>
+                                        <td><?= (int)$value ?></td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php return; ?>
+    <?php endif; ?>
+
+    <div class="space-y-5">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <?php foreach ($asmProducts as $product): ?>
+                <?php $detailsUrl = '?section=sales-status&product=' . rawurlencode((string)$product['key']); ?>
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+                    <div class="flex min-h-[118px] items-start justify-between gap-4 px-5 py-4">
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-medium text-slate-500"><?= htmlspecialchars($product['name']) ?></p>
+                            <p class="mt-1 text-2xl font-bold leading-tight text-slate-950"><?= htmlspecialchars($product['value']) ?></p>
+                            <p class="mt-3 text-sm text-slate-500">
+                                <span class="<?= $product['delta_positive'] ? 'text-emerald-600' : 'text-red-600' ?> font-semibold"><?= htmlspecialchars($product['delta']) ?></span>
+                                <span>vs last month</span>
+                            </p>
+                        </div>
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-white p-1.5 shadow-sm">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-h-full max-w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                        </div>
+                    </div>
+                    <a href="<?= htmlspecialchars($detailsUrl) ?>" class="group flex h-12 items-center justify-between border-t border-slate-100 px-5 text-sm font-medium text-slate-950 transition-colors hover:bg-slate-50" aria-label="View <?= htmlspecialchars($product['name']) ?> sales status details">
+                        <span>View Details</span>
+                        <svg class="h-5 w-5 text-slate-500 transition-transform group-hover:translate-x-1 group-hover:text-slate-800" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+    </div>
+    <?php return; ?>
+<?php endif; ?>
 
 <div class="space-y-6">
     <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">

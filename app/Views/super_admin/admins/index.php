@@ -434,18 +434,18 @@ $admins = $admins ?? [];
                             body: new FormData(form),
                         });
 
-                        const contentType = response.headers.get('content-type') || '';
-                        if (contentType.includes('application/json')) {
-                            const payload = await response.json();
-                            if (payload.success) {
-                                window.location.href = payload.redirect || '<?= App\Config\App::url('admins') ?>';
-                                return;
-                            }
+                        const payload = await response.json().catch(() => ({}));
+                        if (!response.ok || payload.success === false) {
+                            const firstError = payload.message
+                                || (payload.errors && Object.values(payload.errors).flat().find(Boolean))
+                                || 'Unable to update admin.';
+                            alert(firstError);
+                            return;
                         }
 
-                        window.location.reload();
+                        window.location.href = payload.redirect || '<?= App\Config\App::url('admins') ?>';
                     } catch (error) {
-                        window.location.reload();
+                        alert('Unable to update admin. Please try again.');
                     } finally {
                         if (submitButton) submitButton.disabled = false;
                     }

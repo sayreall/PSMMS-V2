@@ -13,6 +13,15 @@ $isAdminSidebar = (
     || strpos($sidebarDashboardSlug, 'admin-') === 0
 );
 $isAsmSidebar = in_array($sidebarDashboardSlug, ['asm-manager', 'asm-super-manager', 'asm-area-sales-manager', 'asm-head-manager'], true);
+$mainHeaderTitle = 'Dashboard';
+if ($sidebarDashboardSlug === 'asm-area-sales-manager') {
+    $asmHeaderSectionTitles = [
+        'assigning-area' => 'Assigning Area',
+        'sub-agent-report' => 'Sub Agent Report',
+    ];
+    $mainHeaderSection = strtolower(trim((string)($_GET['section'] ?? '')));
+    $mainHeaderTitle = $asmHeaderSectionTitles[$mainHeaderSection] ?? $mainHeaderTitle;
+}
 
 $menuItems = [];
 if ($isSuperAdminSidebar) {
@@ -72,10 +81,25 @@ if ($isSuperAdminSidebar) {
     ];
     $menuItems[] = ['key' => 'products', 'label' => 'Products', 'url' => App\Config\App::url('products'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>' ];
     $menuItems[] = ['key' => 'users', 'label' => 'User Management', 'url' => App\Config\App::url('users'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' ];
+} elseif (in_array($sidebarDashboardSlug, ['asm-manager', 'asm-area-sales-manager'], true)) {
+    $sidebarSectionTitle = 'Components';
+    $areaSalesManagerDashboardUrl = App\Config\App::url($sidebarDashboardPath);
+    $menuItems[] = ['key' => 'dashboard', 'label' => 'Overview', 'url' => $areaSalesManagerDashboardUrl, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 11.5L12 4l9 7.5M5 10v10h5v-6h4v6h5V10"/>'];
+    $menuItems[] = ['key' => 'assigning_area', 'label' => 'Assigning Area', 'url' => $areaSalesManagerDashboardUrl . '?section=assigning-area', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/><circle cx="12" cy="11" r="2" stroke-width="2"/>'];
+    $menuItems[] = ['key' => 'sub_agent_report', 'label' => 'Sub Agent Report', 'url' => $areaSalesManagerDashboardUrl . '?section=sub-agent-report', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v14l-3-2-3 2-3-2-3 2V6a2 2 0 012-2z"/>'];
+    $menuItems[] = ['key' => 'sales_status', 'label' => 'Sales Status', 'url' => $areaSalesManagerDashboardUrl . '?section=sales-status', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>'];
+    $menuItems[] = ['key' => 'productivity_per_area', 'label' => 'Productivity Per Area', 'url' => $areaSalesManagerDashboardUrl . '?section=productivity-per-area', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>'];
+    $menuItems[] = ['key' => 'eod_jo_area', 'label' => 'EOD JO Area', 'url' => $areaSalesManagerDashboardUrl . '?section=eod-jo-area', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17V9m4 8V5m4 12v-6M5 21h14"/>'];
+    $menuItems[] = ['key' => 'sales_turn_ins', 'label' => 'Sales Turn-ins', 'url' => $areaSalesManagerDashboardUrl . '?section=sales-turn-ins', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>'];
+    $menuItems[] = ['key' => 'pending_job_order', 'label' => 'Pending Job Order', 'url' => $areaSalesManagerDashboardUrl . '?section=pending-job-order', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>'];
+    $menuItems[] = ['key' => 'partners_report', 'label' => 'Partners Report', 'url' => $areaSalesManagerDashboardUrl . '?section=partners-report', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l2 13h11l2-9H7m3 13a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/>'];
+    $menuItems[] = ['key' => 'daily_sales_activation', 'label' => 'Daily Sales Activation', 'url' => $areaSalesManagerDashboardUrl . '?section=daily-sales-activation', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h11m0 0l-3-3m3 3l-3 3M20 17H9m0 0l3-3m-3 3l3 3"/>'];
+    $menuItems[] = ['key' => 'tat_activation', 'label' => 'TAT Activation', 'url' => $areaSalesManagerDashboardUrl . '?section=tat-activation', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h7m11-7l-4 4-2-2"/>'];
+    $menuItems[] = ['key' => 'faq', 'label' => 'FAQ', 'url' => $areaSalesManagerDashboardUrl . '?section=faq', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5M4 6h16M4 18h16"/>'];
 } elseif ($sidebarDashboardSlug === 'asm-head-manager') {
     $sidebarSectionTitle = 'Components';
     $headManagerDashboardUrl = App\Config\App::url($sidebarDashboardPath);
-    $menuItems[] = ['key' => 'dashboard', 'label' => 'Dashboard', 'url' => $headManagerDashboardUrl, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 11.5L12 4l9 7.5M5 10v10h5v-6h4v6h5V10"/>'];
+    $menuItems[] = ['key' => 'dashboard', 'label' => 'Overview', 'url' => $headManagerDashboardUrl, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 11.5L12 4l9 7.5M5 10v10h5v-6h4v6h5V10"/>'];
     $menuItems[] = ['key' => 'summary_report', 'label' => 'Summary Report', 'url' => $headManagerDashboardUrl . '?section=summary-report', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m4 6V7m4 10v-4M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/>'];
     $menuItems[] = ['key' => 'monthly_sales_report', 'label' => 'Monthly Sales Report', 'url' => $headManagerDashboardUrl . '?section=monthly-sales-report', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>'];
     $menuItems[] = [
@@ -121,7 +145,7 @@ if ($isSuperAdminSidebar) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap" rel="stylesheet">
 
     <!-- App CSS -->
     <link rel="stylesheet" href="<?= App\Config\App::url('css/app.css') ?>">
@@ -167,7 +191,7 @@ if ($isSuperAdminSidebar) {
         <!-- Logo -->
         <div class="sidebar-header h-20 border-b border-slate-200 px-4 flex items-center justify-between">
             <button type="button" class="sidebar-logo-button" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-                <img src="<?= App\Config\App::url('images/paragon.png') ?>" alt="Paragon Communications Corp." class="sidebar-logo h-16 w-auto max-w-[180px] object-contain" />
+                <img src="<?= App\Config\App::url('images/paragon.png') ?>" alt="Paragon Communications Corp." class="sidebar-logo h-14 w-auto max-w-[190px] object-contain" />
             </button>
             <button class="sidebar-collapse-button p-2 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors" onclick="toggleSidebar()" aria-label="Collapse sidebar">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -252,19 +276,14 @@ if ($isSuperAdminSidebar) {
 
         <!-- Top Navbar -->
         <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80">
-            <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex h-20 items-center justify-between px-4 md:px-6">
                 <!-- Mobile Menu Button -->
                 <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
 
-                <div class="flex-1 max-w-xl">
-                    <div class="relative group">
-                        <input type="text" id="global-search" placeholder="Search users, records..."
-                            class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-lg bg-white/80 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-shadow"
-                            autocomplete="off">
-                        <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-primary-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </div>
+                <div class="flex min-w-0 flex-1 items-center">
+                    <h1 class="truncate text-xl font-bold text-slate-950"><?= htmlspecialchars($mainHeaderTitle) ?></h1>
                 </div>
 
                 <div class="flex items-center gap-3">
@@ -312,12 +331,16 @@ if ($isSuperAdminSidebar) {
                             </form>
                         </div>
                     </div>
-
-                    <!-- Mobile Search -->
-                    <button class="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100" onclick="document.getElementById('global-search').focus()">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </button>
                 </div>
+            </div>
+            <div class="flex h-14 items-center border-t border-slate-200/80 px-4 md:px-6">
+                <a href="<?= App\Config\App::url($sidebarDashboardPath) ?>"
+                   class="inline-flex h-9 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-800 <?= ($activeRoute ?? '') === 'dashboard' ? 'border-slate-200 bg-slate-50 text-slate-700' : '' ?>">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 5h16M4 19h16M6 7v10m12-10v10"/>
+                    </svg>
+                    <span>Overview</span>
+                </a>
             </div>
         </header>
 
