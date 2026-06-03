@@ -289,7 +289,6 @@ $managers = $managers ?? [];
         </div>
         <form class="manager-modal-form" method="POST">
             <?= \App\Helpers\Csrf::field() ?>
-            <input type="hidden" name="_method" value="PUT">
             <div class="manager-modal-grid">
                 <label class="manager-modal-field">
                     <span>First Name</span>
@@ -403,7 +402,7 @@ $managers = $managers ?? [];
             if (form) {
                 const source = manager.source_type || 'manager';
                 const rowId = manager.row_id || manager.id || 0;
-                form.action = '<?= App\Config\App::url('managers') ?>/' + encodeURIComponent(source) + '/' + encodeURIComponent(rowId);
+                form.action = '<?= App\Config\App::url('managers') ?>/' + encodeURIComponent(source) + '/' + encodeURIComponent(rowId) + '/update';
                 form.method = 'POST';
                 form.addEventListener('submit', async (event) => {
                     event.preventDefault();

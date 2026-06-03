@@ -302,7 +302,6 @@ $admins = $admins ?? [];
         </div>
         <form class="manager-modal-form" method="POST">
             <?= \App\Helpers\Csrf::field() ?>
-            <input type="hidden" name="_method" value="PUT">
             <div class="manager-modal-grid">
                 <label class="manager-modal-field"><span>First Name</span><input type="text" name="first_name" data-ea="first_name"></label>
                 <label class="manager-modal-field"><span>Middle Name</span><input type="text" name="middle_name" data-ea="middle_name"></label>
@@ -415,7 +414,7 @@ $admins = $admins ?? [];
             content.classList.add('manager-modal-shell');
             const form = content.querySelector('form.manager-modal-form');
             if (form) {
-                form.action = '<?= App\Config\App::url('admins') ?>/' + encodeURIComponent(admin.id || 0);
+                form.action = '<?= App\Config\App::url('admins') ?>/' + encodeURIComponent(admin.id || 0) + '/update';
                 form.method = 'POST';
                 form.addEventListener('submit', async (event) => {
                     event.preventDefault();

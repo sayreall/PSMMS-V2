@@ -341,21 +341,76 @@ class InhouseController extends BaseController
             }
 
             $linkedUserId = $id;
-            $this->inhouseSalesModel->createInhouseSales([
-                'user_id' => $id,
-                'user_type' => 'inhouse_sales',
-                'sales_manager' => $sales_manager,
-                'first_name' => $first_name,
-                'middle_name' => $middle_name ?: null,
-                'last_name' => $last_name,
-                'contact' => $contact,
-                'email' => $email,
-                'password' => $hashedPassword ?? ($row['password'] ?? null),
-                'photos' => $photos,
-                'address' => $address ?: null,
-                'sales_category' => $sales_category,
-                'status' => $status,
-            ]);
+            $existing = $db->prepare("SELECT id FROM inhouse_sales WHERE user_id = :user_id OR email = :email LIMIT 1");
+            $existing->execute([':user_id' => $id, ':email' => $email]);
+            $existingRow = $existing->fetch(\PDO::FETCH_ASSOC) ?: null;
+
+            if ($existingRow) {
+                $source = 'inhouse';
+                $id = (int)$existingRow['id'];
+                $payload = [
+                    ':id' => $id,
+                    ':user_id' => $linkedUserId,
+                    ':sales_manager' => $sales_manager,
+                    ':sales_category' => $sales_category,
+                    ':first_name' => $first_name,
+                    ':middle_name' => $middle_name !== '' ? $middle_name : null,
+                    ':last_name' => $last_name,
+                    ':contact' => $contact,
+                    ':email' => $email,
+                    ':address' => $address !== '' ? $address : null,
+                    ':status' => $status,
+                    ':updated_at' => $now,
+                ];
+                $setPassword = '';
+                if ($hashedPassword !== null) {
+                    $setPassword = ', password = :password';
+                    $payload[':password'] = $hashedPassword;
+                }
+                $setPhotos = '';
+                if ($photos !== null) {
+                    $setPhotos = ', photos = :photos';
+                    $payload[':photos'] = $photos;
+                }
+
+                $stmt = $db->prepare("
+                    UPDATE inhouse_sales
+                    SET
+                        user_id = :user_id,
+                        user_type = 'inhouse_sales',
+                        sales_manager = :sales_manager,
+                        first_name = :first_name,
+                        middle_name = :middle_name,
+                        last_name = :last_name,
+                        contact = :contact,
+                        email = :email,
+                        address = :address,
+                        sales_category = :sales_category,
+                        status = :status,
+                        updated_at = :updated_at
+                        {$setPassword}
+                        {$setPhotos}
+                    WHERE id = :id
+                    LIMIT 1
+                ");
+                $stmt->execute($payload);
+            } else {
+                $this->inhouseSalesModel->createInhouseSales([
+                    'user_id' => $id,
+                    'user_type' => 'inhouse_sales',
+                    'sales_manager' => $sales_manager,
+                    'first_name' => $first_name,
+                    'middle_name' => $middle_name ?: null,
+                    'last_name' => $last_name,
+                    'contact' => $contact,
+                    'email' => $email,
+                    'password' => $hashedPassword ?? ($row['password'] ?? null),
+                    'photos' => $photos,
+                    'address' => $address ?: null,
+                    'sales_category' => $sales_category,
+                    'status' => $status,
+                ]);
+            }
         } else {
             $errors = ['source' => ['Invalid in-house source.']];
             if (App::isAjax() || App::isApiRequest()) {

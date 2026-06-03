@@ -319,23 +319,84 @@ class PartnersController extends BaseController
             }
 
             $linkedUserId = $id;
-            $this->msaPartnerModel->createMsaPartner([
-                'user_id' => $id,
-                'user_type' => 'msa_partners',
-                'sales_manager' => $sales_manager,
-                'company_name' => $company_name,
-                'first_name' => $first_name,
-                'middle_name' => $middle_name ?: null,
-                'last_name' => $last_name,
-                'contact' => $contact,
-                'email' => $email,
-                'password' => $hashedPassword ?? ($user['password'] ?? null),
-                'photos' => $photos,
-                'area_type' => $area_type,
-                'address' => $address,
-                'sales_category' => $sales_category,
-                'status' => $status,
-            ]);
+            $existing = $db->prepare("SELECT id FROM msa_partners WHERE user_id = :user_id OR email = :email LIMIT 1");
+            $existing->execute([':user_id' => $id, ':email' => $email]);
+            $existingPartner = $existing->fetch(\PDO::FETCH_ASSOC) ?: null;
+
+            if ($existingPartner) {
+                $source = 'partner';
+                $id = (int)$existingPartner['id'];
+                $payload = [
+                    ':id' => $id,
+                    ':user_id' => $linkedUserId,
+                    ':sales_manager' => $sales_manager,
+                    ':company_name' => $company_name,
+                    ':first_name' => $first_name,
+                    ':middle_name' => $middle_name !== '' ? $middle_name : null,
+                    ':last_name' => $last_name,
+                    ':contact' => $contact,
+                    ':email' => $email,
+                    ':area_type' => $area_type,
+                    ':address' => $address,
+                    ':sales_category' => $sales_category,
+                    ':status' => $status,
+                    ':updated_at' => $now,
+                ];
+
+                $setPassword = '';
+                if ($hashedPassword !== null) {
+                    $setPassword = ', password = :password';
+                    $payload[':password'] = $hashedPassword;
+                }
+
+                $setPhotos = '';
+                if ($photos !== null) {
+                    $setPhotos = ', photos = :photos';
+                    $payload[':photos'] = $photos;
+                }
+
+                $stmt = $db->prepare("
+                    UPDATE msa_partners
+                    SET
+                        user_id = :user_id,
+                        user_type = 'msa_partners',
+                        sales_manager = :sales_manager,
+                        company_name = :company_name,
+                        first_name = :first_name,
+                        middle_name = :middle_name,
+                        last_name = :last_name,
+                        contact = :contact,
+                        email = :email,
+                        area_type = :area_type,
+                        address = :address,
+                        sales_category = :sales_category,
+                        status = :status,
+                        updated_at = :updated_at
+                        {$setPassword}
+                        {$setPhotos}
+                    WHERE id = :id
+                    LIMIT 1
+                ");
+                $stmt->execute($payload);
+            } else {
+                $this->msaPartnerModel->createMsaPartner([
+                    'user_id' => $id,
+                    'user_type' => 'msa_partners',
+                    'sales_manager' => $sales_manager,
+                    'company_name' => $company_name,
+                    'first_name' => $first_name,
+                    'middle_name' => $middle_name ?: null,
+                    'last_name' => $last_name,
+                    'contact' => $contact,
+                    'email' => $email,
+                    'password' => $hashedPassword ?? ($user['password'] ?? null),
+                    'photos' => $photos,
+                    'area_type' => $area_type,
+                    'address' => $address,
+                    'sales_category' => $sales_category,
+                    'status' => $status,
+                ]);
+            }
         } else {
             $errors = ['source' => ['Invalid partner source.']];
             if (App::isAjax() || App::isApiRequest()) {

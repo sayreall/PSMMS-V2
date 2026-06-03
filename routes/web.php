@@ -38,6 +38,7 @@ $router->group('', function (Router $router): void {
     $router->get('/dashboard/{slug}', 'DashboardController@roleDashboard');
     $router->get('/managers', 'Users\\AsmManager\\ManagersController@index');
     $router->post('/managers', 'Users\\AsmManager\\ManagersController@store');
+    $router->post('/managers/{source}/{id}/update', 'Users\\AsmManager\\ManagersController@update');
     $router->put('/managers/{source}/{id}', 'Users\\AsmManager\\ManagersController@update');
     $router->delete('/managers/{source}/{id}', 'Users\\AsmManager\\ManagersController@delete');
     $router->post('/managers/{source}/{id}/approve', 'Users\\AsmManager\\ManagersController@approve');
@@ -53,6 +54,7 @@ $router->group('', function (Router $router): void {
     $router->post('/partners/{source}/{id}/delete', 'Users\\MsaPartners\\PartnersController@delete');
     $router->get('/admins', 'Users\\SuperAdmin\\AdminsController@index');
     $router->post('/admins', 'Users\\SuperAdmin\\AdminsController@store');
+    $router->post('/admins/{id}/update', 'Users\\SuperAdmin\\AdminsController@update');
     $router->put('/admins/{id}', 'Users\\SuperAdmin\\AdminsController@update');
     $router->delete('/admins/{id}', 'Users\\SuperAdmin\\AdminsController@delete');
     $router->post('/admins/{id}/approve', 'Users\\SuperAdmin\\AdminsController@approve');
