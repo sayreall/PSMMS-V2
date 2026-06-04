@@ -288,7 +288,7 @@ if ($isSuperAdminSidebar) {
                 </button>
 
                 <div class="flex min-w-0 flex-1 items-center">
-                    <h1 class="truncate text-xl font-bold text-slate-950"><?= htmlspecialchars($mainHeaderTitle) ?></h1>
+                    <h1 class="truncate text-2xl font-bold leading-none text-slate-950 md:text-[28px]"><?= htmlspecialchars($mainHeaderTitle) ?></h1>
                 </div>
 
                 <div class="flex items-center gap-3">
