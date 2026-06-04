@@ -19,6 +19,12 @@
 <body class="auth-shell auth-login">
     <main class="auth-wrap">
         <section class="auth-visual" aria-hidden="true">
+            <div class="auth-visual-slides">
+                <img src="<?= App\Config\App::url('images/loginbg.png') ?>" alt="">
+                <img src="<?= App\Config\App::url('images/BIDA.png') ?>" alt="">
+                <img src="<?= App\Config\App::url('images/CONVERGE%20SME.png') ?>" alt="">
+                <img src="<?= App\Config\App::url('images/s222s.jpg') ?>" alt="">
+            </div>
             <div class="visual-grid"></div>
             <div class="visual-glow"></div>
             <div class="visual-content">

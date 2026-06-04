@@ -40,14 +40,68 @@ body.auth-shell {
 }
 
 body.auth-login .auth-visual {
-    background:
-        linear-gradient(120deg, rgba(8, 47, 73, 0.72) 0%, rgba(15, 23, 42, 0.62) 45%, rgba(30, 58, 138, 0.68) 100%),
-        url('../images/loginbg.png') center center / cover no-repeat;
+    background: #0f172a;
+}
+
+.auth-visual-slides {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.auth-visual-slides::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(8, 47, 73, 0.72) 0%, rgba(15, 23, 42, 0.62) 45%, rgba(30, 58, 138, 0.68) 100%);
+}
+
+.auth-visual-slides img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    animation: authVisualFade 12s infinite;
+}
+
+.auth-visual-slides img:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.auth-visual-slides img:nth-child(2) {
+    animation-delay: 3s;
+}
+
+.auth-visual-slides img:nth-child(3) {
+    animation-delay: 6s;
+}
+
+.auth-visual-slides img:nth-child(4) {
+    animation-delay: 9s;
+}
+
+@keyframes authVisualFade {
+    0%,
+    22% {
+        opacity: 1;
+    }
+
+    28%,
+    96% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 .visual-grid {
     position: absolute;
     inset: 0;
+    z-index: 1;
     background-image: linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
     background-size: 34px 34px;
     opacity: 0.2;
@@ -59,6 +113,7 @@ body.auth-login .visual-grid {
 
 .visual-glow {
     position: absolute;
+    z-index: 2;
     width: 500px;
     height: 500px;
     border-radius: 999px;
@@ -77,6 +132,7 @@ body.auth-login .visual-glow {
 
 .visual-content {
     position: absolute;
+    z-index: 3;
     left: 56px;
     right: 56px;
     bottom: 72px;
