@@ -123,12 +123,13 @@ $selectedProvinceId = (int)($selectedProvinceId ?? 0);
                     <input type="hidden" name="province_id" data-modal-province-id-input>
                     <input type="hidden" name="province_code" data-modal-province-code-input>
                 </label>
-                <label class="manager-modal-field md:col-span-2">
+                <label class="manager-modal-field md:col-span-2" data-modal-municipality-field>
                     <span>Municipality</span>
                     <select name="municipality" data-modal-municipality-select required>
                         <option value="">Select Province First</option>
                     </select>
                     <input type="hidden" name="municipality_code" data-modal-municipality-code-input>
+                    <input type="hidden" name="municipality" data-modal-ncr-city-input disabled>
                 </label>
             </div>
 
@@ -369,6 +370,31 @@ $selectedProvinceId = (int)($selectedProvinceId ?? 0);
         if (provinceCodeInput) provinceCodeInput.value = option?.dataset.code || '';
     }
 
+    function syncNcrCityValue(provinceSelect, municipalitySelect, municipalityCodeInput, ncrCityInput) {
+        const option = provinceSelect ? provinceSelect.selectedOptions[0] : null;
+        if (ncrCityInput) ncrCityInput.value = option ? option.value : '';
+        if (municipalityCodeInput) municipalityCodeInput.value = option?.dataset.code || '';
+        if (municipalitySelect) municipalitySelect.value = '';
+    }
+
+    function updateMunicipalityFieldVisibility(regionSelect, field, municipalitySelect, municipalityCodeInput, ncrCityInput, provinceSelect) {
+        const isNcr = isMunicipalityNcrRegion(regionSelect);
+        if (field) field.style.display = isNcr ? 'none' : '';
+        if (municipalitySelect) {
+            municipalitySelect.disabled = isNcr;
+            municipalitySelect.required = !isNcr;
+        }
+        if (ncrCityInput) {
+            ncrCityInput.disabled = !isNcr;
+            ncrCityInput.required = isNcr;
+        }
+        if (isNcr) {
+            syncNcrCityValue(provinceSelect, municipalitySelect, municipalityCodeInput, ncrCityInput);
+        } else if (ncrCityInput) {
+            ncrCityInput.value = '';
+        }
+    }
+
     (function initMunicipalityFilters() {
         const form = document.querySelector('[data-location-filter-form]');
         const regionFilter = document.querySelector('[data-region-filter]');
@@ -397,19 +423,27 @@ $selectedProvinceId = (int)($selectedProvinceId ?? 0);
         const provinceCodeInput = content ? content.querySelector('[data-modal-province-code-input]') : null;
         const municipalityCodeInput = content ? content.querySelector('[data-modal-municipality-code-input]') : null;
         const provinceLabel = content ? content.querySelector('[data-modal-province-label]') : null;
+        const municipalityField = content ? content.querySelector('[data-modal-municipality-field]') : null;
+        const ncrCityInput = content ? content.querySelector('[data-modal-ncr-city-input]') : null;
 
         updateMunicipalityProvinceLabel(regionSelect, provinceLabel);
+        updateMunicipalityFieldVisibility(regionSelect, municipalityField, municipalitySelect, municipalityCodeInput, ncrCityInput, provinceSelect);
         fillProvinceSelect(provinceSelect, regionSelect, selectedMunicipalityProvinceId).then(() => {
             syncProvinceHiddenFields(provinceSelect, provinceIdInput, provinceCodeInput);
-            fillMunicipalitySelect(municipalitySelect, provinceSelect, regionSelect);
+            updateMunicipalityFieldVisibility(regionSelect, municipalityField, municipalitySelect, municipalityCodeInput, ncrCityInput, provinceSelect);
+            if (!isMunicipalityNcrRegion(regionSelect)) {
+                fillMunicipalitySelect(municipalitySelect, provinceSelect, regionSelect);
+            }
         });
         if (regionSelect) {
             regionSelect.addEventListener('change', () => {
                 updateMunicipalityProvinceLabel(regionSelect, provinceLabel);
                 if (municipalitySelect) municipalitySelect.innerHTML = '<option value="">Select Province First</option>';
                 if (municipalityCodeInput) municipalityCodeInput.value = '';
+                updateMunicipalityFieldVisibility(regionSelect, municipalityField, municipalitySelect, municipalityCodeInput, ncrCityInput, provinceSelect);
                 fillProvinceSelect(provinceSelect, regionSelect, 0).then(() => {
                     syncProvinceHiddenFields(provinceSelect, provinceIdInput, provinceCodeInput);
+                    updateMunicipalityFieldVisibility(regionSelect, municipalityField, municipalitySelect, municipalityCodeInput, ncrCityInput, provinceSelect);
                 });
             });
         }
@@ -417,7 +451,10 @@ $selectedProvinceId = (int)($selectedProvinceId ?? 0);
             provinceSelect.addEventListener('change', () => {
                 syncProvinceHiddenFields(provinceSelect, provinceIdInput, provinceCodeInput);
                 if (municipalityCodeInput) municipalityCodeInput.value = '';
-                fillMunicipalitySelect(municipalitySelect, provinceSelect, regionSelect);
+                updateMunicipalityFieldVisibility(regionSelect, municipalityField, municipalitySelect, municipalityCodeInput, ncrCityInput, provinceSelect);
+                if (!isMunicipalityNcrRegion(regionSelect)) {
+                    fillMunicipalitySelect(municipalitySelect, provinceSelect, regionSelect);
+                }
             });
         }
         if (municipalitySelect && municipalityCodeInput) {

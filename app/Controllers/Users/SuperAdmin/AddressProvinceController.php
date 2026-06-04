@@ -66,7 +66,7 @@ class AddressProvinceController extends BaseController
 
         if ($this->provinceModel->findByRegionAndName($regionId, $provinceName)) {
             $this->flash('Province already exists for this region.', 'error');
-            $this->redirect(App::url('address/province?region_id=' . $regionId));
+            $this->redirect(App::url('address/province'));
         }
 
         $this->provinceModel->create([
@@ -77,7 +77,7 @@ class AddressProvinceController extends BaseController
         ]);
 
         $this->flash('Province added successfully.');
-        $this->redirect(App::url('address/province?region_id=' . $regionId));
+        $this->redirect(App::url('address/province'));
     }
 
     public function update(int $id): void
@@ -114,7 +114,7 @@ class AddressProvinceController extends BaseController
         $duplicate = $this->provinceModel->findByRegionAndName($regionId, $provinceName);
         if ($duplicate && (int)$duplicate['id'] !== $id) {
             $this->flash('Province already exists for this region.', 'error');
-            $this->redirect(App::url('address/province?region_id=' . $regionId));
+            $this->redirect(App::url('address/province'));
         }
 
         try {
@@ -128,15 +128,12 @@ class AddressProvinceController extends BaseController
             $this->flash('Unable to update province. Please check for duplicate code values.', 'error');
         }
 
-        $this->redirect(App::url('address/province?region_id=' . $regionId));
+        $this->redirect(App::url('address/province'));
     }
 
     public function delete(int $id): void
     {
         Csrf::verify();
-
-        $data = $this->requestData();
-        $regionId = (int)($data['region_id'] ?? 0);
 
         try {
             if ($this->provinceModel->delete($id)) {
@@ -148,6 +145,6 @@ class AddressProvinceController extends BaseController
             $this->flash('Unable to delete province because it still has municipalities.', 'error');
         }
 
-        $this->redirect(App::url('address/province' . ($regionId > 0 ? '?region_id=' . $regionId : '')));
+        $this->redirect(App::url('address/province'));
     }
 }

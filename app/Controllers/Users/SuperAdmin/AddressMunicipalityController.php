@@ -113,7 +113,7 @@ class AddressMunicipalityController extends BaseController
         ]);
 
         $this->flash('Municipality added successfully.');
-        $this->redirect(App::url('address/municipalities?region_id=' . (int)$province['region_id'] . '&province_id=' . $provinceId));
+        $this->redirect(App::url('address/municipalities'));
     }
 
     public function update(int $id): void
