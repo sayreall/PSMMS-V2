@@ -35,7 +35,7 @@ class DashboardController extends BaseController
         $this->redirect(App::url($target));
     }
 
-    public function roleDashboard(string $slug): string
+    public function roleDashboard(string $slug, string $section = ''): string
     {
         $user = Auth::user();
         $targetPath = $this->dashboardRouteResolver->resolvePath($user ?? []);
@@ -43,6 +43,10 @@ class DashboardController extends BaseController
 
         if ($slug !== $targetSlug) {
             $this->redirect(App::url($targetPath));
+        }
+
+        if ($section !== '') {
+            $_GET['section'] = $section;
         }
 
         $stats = [

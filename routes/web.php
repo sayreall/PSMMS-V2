@@ -35,6 +35,7 @@ $router->group('', function (Router $router): void {
     $router->post('/dashboard/profile', 'DashboardController@updateProfile');
     $router->post('/dashboard/password', 'DashboardController@updatePassword');
     $router->get('/dashboard/stats', 'DashboardController@getStats');
+    $router->get('/dashboard/{slug}/{section}', 'DashboardController@roleDashboard');
     $router->get('/dashboard/{slug}', 'DashboardController@roleDashboard');
     $router->get('/managers', 'Users\\AsmManager\\ManagersController@index');
     $router->post('/managers', 'Users\\AsmManager\\ManagersController@store');

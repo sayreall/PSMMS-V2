@@ -81,6 +81,7 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager', 'asm-manag
         'pending-job-order' => 'pending_job_order',
         'sales-turn-ins' => 'sales_turn_ins',
         'daily-flow-thru' => 'daily_flow_thru',
+        'daily-sales-activation' => 'daily_sales_activation',
         'partners-report' => 'partners_report',
         'tat-activation' => 'tat_activation',
         'faq' => 'faq',
@@ -2743,6 +2744,15 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
     }
     ?>
 
+    <?php
+        $dashboardMonthlyProductKey = strtolower(trim((string)($_GET['product'] ?? 'fiberx')));
+        $dashboardMonthlyProductKeys = array_column($products, 'key');
+        if (!in_array($dashboardMonthlyProductKey, $dashboardMonthlyProductKeys, true)) {
+            $dashboardMonthlyProductKey = 'fiberx';
+        }
+        $dashboardMonthlyYear = (string)($_GET['year'] ?? '');
+    ?>
+
     <div class="space-y-5">
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <?php foreach ($products as $product): ?>
@@ -2772,28 +2782,34 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
         </div>
 
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 xl:col-span-2">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
-                    <div>
-                        <h2 class="text-sm font-semibold text-slate-900">Monthly Sales Activation</h2>
-                        <p class="text-xs text-slate-500">Product activation trend by month.</p>
-                    </div>
-                    <label class="flex items-center gap-2 text-xs text-slate-500">
-                        Filter
-                        <select class="px-2 py-1 rounded-md border border-slate-200 bg-white text-slate-600 focus:outline-none" aria-label="Filter monthly activation">
-                            <option>Please select year</option>
-                            <option>2026</option>
-                            <option>2025</option>
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm xl:col-span-2">
+                <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-3 sm:flex-row sm:items-center sm:justify-between" style="min-height: 74px;">
+                    <label class="relative w-full shrink-0 sm:w-auto" style="max-width: 100%; width: 278px;" aria-label="Select monthly activation product">
+                        <select id="head-manager-monthly-product" class="block h-12 w-full rounded-lg border border-slate-200 bg-white px-4 pr-10 text-sm font-medium text-slate-950 shadow-sm outline-none transition-colors focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background: #fff;">
+                            <?php foreach ($products as $product): ?>
+                                <option value="<?= htmlspecialchars($product['key']) ?>" <?= $dashboardMonthlyProductKey === $product['key'] ? 'selected' : '' ?>><?= htmlspecialchars($product['name']) ?> Monthly Activations</option>
+                            <?php endforeach; ?>
                         </select>
+                        <svg class="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-950" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </label>
+                    <label class="relative w-full shrink-0 sm:w-auto" style="max-width: calc(100% - 14px); width: 198px; margin-right: 14px;" aria-label="Select monthly activation year">
+                        <select id="head-manager-monthly-year" class="block h-12 w-full rounded-full border border-slate-200 bg-white px-5 pr-10 text-sm font-medium text-slate-950 shadow-sm outline-none transition-colors focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15" style="appearance: none; -webkit-appearance: none; -moz-appearance: none; background: #fff;">
+                            <option value="" <?= $dashboardMonthlyYear === '' ? 'selected' : '' ?>>Please select year</option>
+                            <?php foreach (['2026', '2025', '2024'] as $year): ?>
+                                <option value="<?= htmlspecialchars($year) ?>" <?= $dashboardMonthlyYear === $year ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <svg class="pointer-events-none absolute right-5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-950" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </label>
                 </div>
-                <div class="h-64 md:h-72">
-                    <canvas id="head-manager-monthly-chart"></canvas>
-                </div>
-                <div class="flex flex-wrap justify-center gap-2 mt-3">
-                    <?php foreach ($products as $product): ?>
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold <?= htmlspecialchars($product['badge']) ?>"><?= htmlspecialchars($product['short']) ?> Activation</span>
-                    <?php endforeach; ?>
+                <div class="px-5 py-6">
+                    <div style="height: 324px; position: relative;">
+                        <canvas id="head-manager-monthly-chart" style="display: block; height: 100%; width: 100%;"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -2837,29 +2853,48 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
 
             const monthlyCanvas = document.getElementById('head-manager-monthly-chart');
             if (monthlyCanvas) {
-                new Chart(monthlyCanvas, {
+                const monthlyProductSelect = document.getElementById('head-manager-monthly-product');
+                const monthlyYearSelect = document.getElementById('head-manager-monthly-year');
+                const monthlyProducts = {
+                    s2s: { label: 'Surf2Sawa Monthly Activations', color: '#ef4444', fill: 'rgba(239, 68, 68, .24)', data: [118, 127, 142, 154, 169, 181, 196, 210, 225, 242, 258, 276] },
+                    fiberx: { label: 'FiberX Monthly Activations', color: '#4f46e5', fill: 'rgba(79, 70, 229, .24)', data: [96, 98, 105, 118, 137, 163, 188, 209, 226, 241, 257, 274] },
+                    bida: { label: 'Bida Monthly Activations', color: '#f97316', fill: 'rgba(249, 115, 22, .24)', data: [82, 88, 94, 101, 113, 126, 139, 151, 164, 177, 189, 203] },
+                    sme: { label: 'SME Solutions Monthly Activations', color: '#10b981', fill: 'rgba(16, 185, 129, .24)', data: [64, 69, 75, 82, 91, 104, 116, 129, 141, 154, 168, 182] },
+                };
+                const buildMonthlyDataset = () => {
+                    const selectedKey = monthlyProductSelect?.value || 'fiberx';
+                    const source = monthlyProducts[selectedKey] || monthlyProducts.fiberx;
+                    const gradient = monthlyCanvas.getContext('2d').createLinearGradient(0, 0, 0, monthlyCanvas.height || 350);
+                    gradient.addColorStop(0, source.fill);
+                    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                    return {
+                        label: source.label,
+                        data: source.data,
+                        borderColor: source.color,
+                        backgroundColor: gradient,
+                        borderWidth: 2.5,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        tension: 0.42,
+                        fill: true,
+                    };
+                };
+
+                const monthlyChart = new Chart(monthlyCanvas, {
                     type: 'line',
                     data: {
                         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                        datasets: [
-                            { label: 'S2S', data: [200, 218, 190, 230, 205, 180, 188, 205, 232, 205, 190, 185], borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, .10)' },
-                            { label: 'FiberX', data: [165, 172, 154, 176, 160, 145, 152, 164, 181, 162, 151, 155], borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, .10)' },
-                            { label: 'Bida', data: [123, 132, 121, 136, 124, 113, 118, 126, 137, 121, 116, 123], borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, .10)' },
-                            { label: 'SME', data: [74, 82, 71, 83, 72, 67, 78, 70, 88, 73, 72, 76], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, .10)' },
-                        ].map((dataset) => ({
-                            ...dataset,
-                            borderWidth: 3,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            pointBackgroundColor: '#ffffff',
-                            pointBorderWidth: 2,
-                            tension: 0.38,
-                            fill: false,
-                        })),
+                        datasets: [buildMonthlyDataset()],
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        layout: {
+                            padding: { top: 0, right: 14, bottom: 4, left: 4 },
+                        },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
@@ -2871,10 +2906,29 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
                             },
                         },
                         scales: {
-                            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 11 } } },
-                            y: { beginAtZero: true, grid: { color: 'rgba(14, 116, 144, .12)' }, ticks: { color: '#64748b', font: { size: 11 } } },
+                            x: {
+                                grid: { display: false },
+                                border: { display: false },
+                                ticks: { color: '#737373', font: { size: 14 }, padding: 18 },
+                            },
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax: 300,
+                                border: { display: false },
+                                grid: { color: 'rgba(148, 163, 184, .28)', borderDash: [6, 8], drawTicks: false },
+                                ticks: { color: '#737373', font: { size: 14 }, stepSize: 50, padding: 14 },
+                            },
                         },
                     },
+                });
+
+                monthlyProductSelect?.addEventListener('change', () => {
+                    monthlyChart.data.datasets = [buildMonthlyDataset()];
+                    monthlyChart.update();
+                });
+
+                monthlyYearSelect?.addEventListener('change', () => {
+                    monthlyChart.update();
                 });
             }
 
@@ -2955,11 +3009,19 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
             }
         }
         $asmAssigningRows = [
-            ['Quezon City', 'North District', 'Cedric Daryl', 'Active', 42],
-            ['Caloocan', 'South District', 'Maria Santos', 'Active', 38],
-            ['Valenzuela', 'Central District', 'Ramon Cruz', 'Pending', 26],
-            ['Malabon', 'West District', 'Angel Reyes', 'Active', 21],
+            ['TEAM MARGA_PINCAS KARRISA', 'TAGUIG', 'PINAGSAMA'],
+            ['TEAM MARGA_PINCAS KARRISA', 'TAGUIG', 'LIGID TIPAS'],
+            ['TEAM MARGA_PINCAS KARRISA', 'TAGUIG', 'IBAYO TIPAS'],
+            ['TEAM MARGA_PINCAS KARRISA', 'TAGUIG', 'NAPINDAN'],
+            ['TEAM MARGA_MARICEL DOLETE', 'RODRIGUEZ', 'SAN JOSE'],
+            ['TEAM MARGA_JESSICA REGACHUELO', 'QUEZON CITY', 'COMMONWEALTH'],
         ];
+        $asmAssigningSearch = trim((string)($_GET['search'] ?? ''));
+        if ($asmAssigningSearch !== '') {
+            $asmAssigningRows = array_values(array_filter($asmAssigningRows, static function (array $row) use ($asmAssigningSearch): bool {
+                return stripos(implode(' ', $row), $asmAssigningSearch) !== false;
+            }));
+        }
         $asmSubAgentReportType = strtolower(trim((string)($_GET['type'] ?? 'summary')));
         if (!in_array($asmSubAgentReportType, ['summary', 'inhouse', 'partners'], true)) {
             $asmSubAgentReportType = 'summary';
@@ -2979,6 +3041,541 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
             ['TEAM MARGA_JAMES DIAZ', '', 88, '4.00', '120.00', [0, 2, 2, 5, 6, 3, 1, 3, 4, 5, 5, 0, 0, 1, 1, 2, 0], true],
         ];
     ?>
+
+    <?php if (($activeRoute ?? 'dashboard') === 'dashboard'): ?>
+        <div class="space-y-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <?php foreach ($asmProducts as $product): ?>
+                <?php $detailsUrl = '?section=sales-status&product=' . rawurlencode((string)$product['key']); ?>
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+                    <div class="flex min-h-[118px] items-start justify-between gap-4 px-5 py-4">
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-medium text-slate-500"><?= htmlspecialchars($product['name']) ?></p>
+                            <p class="mt-1 text-2xl font-extrabold leading-tight text-slate-950"><?= htmlspecialchars($product['value']) ?></p>
+                            <p class="mt-2 text-xs text-slate-500">
+                                <span class="<?= $product['delta_positive'] ? 'text-emerald-600' : 'text-red-600' ?> font-semibold"><?= htmlspecialchars($product['delta']) ?></span>
+                                this month
+                            </p>
+                        </div>
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-white p-1.5 shadow-sm">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-h-full max-w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                        </div>
+                    </div>
+                    <a href="<?= htmlspecialchars($detailsUrl) ?>" class="group flex h-12 items-center justify-between border-t border-slate-100 px-5 text-sm font-medium text-slate-950 transition-colors hover:bg-slate-50" aria-label="View <?= htmlspecialchars($product['name']) ?> sales status details">
+                        <span>View Details</span>
+                        <svg class="h-5 w-5 text-slate-500 transition-transform group-hover:translate-x-1 group-hover:text-slate-800" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            <div class="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm xl:col-span-2" style="min-height: clamp(440px, 52vh, 560px);">
+                <div class="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center">
+                    <h2 class="inline-block whitespace-nowrap text-base font-semibold text-slate-950">Team Leader Monitoring</h2>
+                    <div class="relative ml-auto flex w-full items-center justify-end gap-2 sm:w-auto">
+                        <button type="button" id="asm-team-date-toggle" class="inline-flex h-10 shrink-0 items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 shadow-sm" aria-expanded="false" aria-controls="asm-team-date-panel">
+                            <span id="asm-team-date-label">Jan 10, 2026 - Feb 10, 2026</span>
+                            <svg class="h-4 w-4 text-slate-950" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <button type="button" id="asm-team-menu-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-950 shadow-sm" aria-label="More team leader monitoring options" aria-expanded="false" aria-controls="asm-team-menu">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 12h.01M18 12h.01M6 12h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div id="asm-team-date-panel" class="absolute right-0 top-12 z-20 hidden max-w-full rounded-xl border border-slate-200 bg-white p-3 shadow-lg" style="width: min(22rem, calc(100vw - 2rem));">
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <label class="flex flex-col gap-1 text-xs font-semibold text-slate-500">
+                                    From
+                                    <input id="asm-team-date-from" type="date" value="2026-01-10" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                                </label>
+                                <label class="flex flex-col gap-1 text-xs font-semibold text-slate-500">
+                                    To
+                                    <input id="asm-team-date-to" type="date" value="2026-02-10" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                                </label>
+                            </div>
+                            <div class="mt-3 flex justify-end gap-2">
+                                <button type="button" id="asm-team-date-cancel" class="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+                                <button type="button" id="asm-team-date-apply" class="inline-flex h-9 items-center rounded-lg bg-primary-600 px-4 text-xs font-semibold text-white hover:bg-primary-700">Apply</button>
+                            </div>
+                        </div>
+                        <div id="asm-team-menu" class="absolute right-0 top-12 z-20 hidden w-44 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 shadow-lg">
+                            <button type="button" id="asm-team-reset" class="block w-full px-4 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50">Reset range</button>
+                            <button type="button" id="asm-team-export" class="block w-full px-4 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50">Download CSV</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 border-t border-slate-100 px-5 pb-6 pt-12 sm:pt-14">
+                    <div class="h-full" style="min-height: 330px;">
+                        <canvas id="asm-team-leader-monitoring-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm" style="min-height: clamp(440px, 52vh, 560px);">
+                <div class="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <h2 class="text-base font-semibold text-slate-950">Daily Sales Activation</h2>
+                    <div class="inline-flex h-10 w-fit items-center rounded-full border border-slate-200 bg-white px-5 text-sm font-medium text-slate-900 shadow-sm">
+                        Daily
+                    </div>
+                </div>
+                <div class="flex-1 border-t border-slate-100 px-5 py-6">
+                    <div class="mx-auto h-56 w-full max-w-[250px] sm:h-64 sm:max-w-[270px]">
+                        <canvas id="asm-manager-daily-sales-chart"></canvas>
+                    </div>
+                    <div class="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="inline-flex min-w-0 items-center gap-2 text-slate-500"><span class="h-2.5 w-2.5 shrink-0 rounded-full bg-[#5b5cf6]"></span><span class="truncate">S2S Activation</span></span>
+                            <strong class="shrink-0 font-semibold text-slate-950">35.2%</strong>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="inline-flex min-w-0 items-center gap-2 text-slate-500"><span class="h-2.5 w-2.5 shrink-0 rounded-full bg-[#08c956]"></span><span class="truncate">SME</span></span>
+                            <strong class="shrink-0 font-semibold text-slate-950">30%</strong>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="inline-flex min-w-0 items-center gap-2 text-slate-500"><span class="h-2.5 w-2.5 shrink-0 rounded-full bg-[#f4b000]"></span><span class="truncate">FiberX</span></span>
+                            <strong class="shrink-0 font-semibold text-slate-950">9.3%</strong>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="inline-flex min-w-0 items-center gap-2 text-slate-500"><span class="h-2.5 w-2.5 shrink-0 rounded-full bg-[#8b4cf6]"></span><span class="truncate">Bida</span></span>
+                            <strong class="shrink-0 font-semibold text-slate-950">7.2%</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                if (typeof Chart === 'undefined') return;
+
+                const teamLeaderCanvas = document.getElementById('asm-team-leader-monitoring-chart');
+                if (teamLeaderCanvas) {
+                    const teamLeaderLabels = ['Diaz', 'Mendoza', 'Olaco', 'Olaco', 'Mendoza', 'Mendoza', 'Mendoza', 'Mendoza', 'Manila'];
+                    const teamLeaderRanges = {
+                        default: {
+                            label: 'Jan 10, 2026 - Feb 10, 2026',
+                            from: '2026-01-10',
+                            to: '2026-02-10',
+                            data: [4.9, 4, 3.1, 2.75, 2.3, 1.65, 4.9, 4, 4.3],
+                        },
+                        january: {
+                            label: 'Jan 1, 2026 - Jan 31, 2026',
+                            from: '2026-01-01',
+                            to: '2026-01-31',
+                            data: [4.4, 3.7, 2.8, 3.2, 2.1, 1.9, 4.6, 3.6, 4.1],
+                        },
+                        february: {
+                            label: 'Feb 1, 2026 - Feb 28, 2026',
+                            from: '2026-02-01',
+                            to: '2026-02-28',
+                            data: [4.8, 4.2, 3.4, 2.5, 2.6, 1.7, 4.9, 4.4, 3.8],
+                        },
+                    };
+                    const teamDateToggle = document.getElementById('asm-team-date-toggle');
+                    const teamDatePanel = document.getElementById('asm-team-date-panel');
+                    const teamDateLabel = document.getElementById('asm-team-date-label');
+                    const teamDateFrom = document.getElementById('asm-team-date-from');
+                    const teamDateTo = document.getElementById('asm-team-date-to');
+                    const teamDateApply = document.getElementById('asm-team-date-apply');
+                    const teamDateCancel = document.getElementById('asm-team-date-cancel');
+                    const teamMenuToggle = document.getElementById('asm-team-menu-toggle');
+                    const teamMenu = document.getElementById('asm-team-menu');
+                    const teamReset = document.getElementById('asm-team-reset');
+                    const teamExport = document.getElementById('asm-team-export');
+                    const formatRangeLabel = (from, to) => {
+                        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+                        const fromDate = new Date(`${from}T00:00:00`);
+                        const toDate = new Date(`${to}T00:00:00`);
+                        if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+                            return teamLeaderRanges.default.label;
+                        }
+                        return `${fromDate.toLocaleDateString('en-US', options)} - ${toDate.toLocaleDateString('en-US', options)}`;
+                    };
+                    const pickRangeData = (from, to) => {
+                        if (from === teamLeaderRanges.january.from && to === teamLeaderRanges.january.to) return teamLeaderRanges.january.data;
+                        if (from === teamLeaderRanges.february.from && to === teamLeaderRanges.february.to) return teamLeaderRanges.february.data;
+                        return teamLeaderRanges.default.data;
+                    };
+                    const closeTeamPanels = () => {
+                        teamDatePanel?.classList.add('hidden');
+                        teamMenu?.classList.add('hidden');
+                        teamDateToggle?.setAttribute('aria-expanded', 'false');
+                        teamMenuToggle?.setAttribute('aria-expanded', 'false');
+                    };
+
+                    const teamLeaderChart = new Chart(teamLeaderCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: teamLeaderLabels,
+                            datasets: [{
+                                data: teamLeaderRanges.default.data,
+                                backgroundColor: ['#1f5cf5', '#6f7cff', '#1f5cf5', '#6f7cff', '#1f5cf5', '#6f7cff', '#1f5cf5', '#6f7cff', '#6f7cff'],
+                                borderRadius: 10,
+                                borderSkipped: false,
+                                maxBarThickness: 52,
+                            }],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: '#ffffff',
+                                    titleColor: '#737373',
+                                    bodyColor: '#020617',
+                                    borderColor: '#e5e7eb',
+                                    borderWidth: 1,
+                                    padding: 12,
+                                    cornerRadius: 12,
+                                    displayColors: true,
+                                },
+                            },
+                            scales: {
+                                x: {
+                                    grid: { display: false },
+                                    border: { display: false },
+                                    ticks: { color: '#737373', font: { size: 12 }, padding: 14, maxRotation: 0 },
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    suggestedMax: 5,
+                                    border: { display: false },
+                                    grid: { color: 'rgba(148, 163, 184, .28)', borderDash: [6, 8], drawTicks: false },
+                                    ticks: { color: '#737373', font: { size: 12 }, stepSize: 1, padding: 10 },
+                                },
+                            },
+                        },
+                    });
+
+                    teamDateToggle?.addEventListener('click', () => {
+                        const willOpen = teamDatePanel?.classList.contains('hidden');
+                        closeTeamPanels();
+                        if (willOpen) {
+                            teamDatePanel?.classList.remove('hidden');
+                            teamDateToggle.setAttribute('aria-expanded', 'true');
+                        }
+                    });
+
+                    teamMenuToggle?.addEventListener('click', () => {
+                        const willOpen = teamMenu?.classList.contains('hidden');
+                        closeTeamPanels();
+                        if (willOpen) {
+                            teamMenu?.classList.remove('hidden');
+                            teamMenuToggle.setAttribute('aria-expanded', 'true');
+                        }
+                    });
+
+                    teamDateCancel?.addEventListener('click', closeTeamPanels);
+
+                    teamDateApply?.addEventListener('click', () => {
+                        const from = teamDateFrom?.value || teamLeaderRanges.default.from;
+                        const to = teamDateTo?.value || teamLeaderRanges.default.to;
+                        teamLeaderChart.data.datasets[0].data = pickRangeData(from, to);
+                        if (teamDateLabel) teamDateLabel.textContent = formatRangeLabel(from, to);
+                        teamLeaderChart.update();
+                        closeTeamPanels();
+                    });
+
+                    teamReset?.addEventListener('click', () => {
+                        if (teamDateFrom) teamDateFrom.value = teamLeaderRanges.default.from;
+                        if (teamDateTo) teamDateTo.value = teamLeaderRanges.default.to;
+                        if (teamDateLabel) teamDateLabel.textContent = teamLeaderRanges.default.label;
+                        teamLeaderChart.data.datasets[0].data = teamLeaderRanges.default.data;
+                        teamLeaderChart.update();
+                        closeTeamPanels();
+                    });
+
+                    teamExport?.addEventListener('click', () => {
+                        const rows = [['Team Leader', 'Activation'], ...teamLeaderLabels.map((label, index) => [label, teamLeaderChart.data.datasets[0].data[index]])];
+                        const csv = rows.map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'team-leader-monitoring.csv';
+                        link.click();
+                        URL.revokeObjectURL(link.href);
+                        closeTeamPanels();
+                    });
+
+                    document.addEventListener('click', (event) => {
+                        const target = event.target;
+                        if (!(target instanceof Node)) return;
+                        if (!teamDatePanel?.contains(target) && !teamDateToggle?.contains(target) && !teamMenu?.contains(target) && !teamMenuToggle?.contains(target)) {
+                            closeTeamPanels();
+                        }
+                    });
+                }
+
+                const dailyCanvas = document.getElementById('asm-manager-daily-sales-chart');
+                if (!dailyCanvas) return;
+
+                const centerTextPlugin = {
+                    id: 'asmManagerDailyCenterText',
+                    afterDraw(chart) {
+                        const { ctx, chartArea } = chart;
+                        const x = (chartArea.left + chartArea.right) / 2;
+                        const y = (chartArea.top + chartArea.bottom) / 2;
+
+                        ctx.save();
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle = '#020617';
+                        ctx.font = '700 34px Onest, sans-serif';
+                        ctx.fillText('3.5K', x, y - 8);
+                        ctx.fillStyle = '#737373';
+                        ctx.font = '400 14px Onest, sans-serif';
+                        ctx.fillText('This month', x, y + 28);
+                        ctx.restore();
+                    },
+                };
+
+                new Chart(dailyCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['S2S Activation', 'SME', 'FiberX', 'Bida', 'Unassigned'],
+                        datasets: [{
+                            data: [35.2, 30, 9.3, 7.2, 18.3],
+                            backgroundColor: ['#5b5cf6', '#08c956', '#f4b000', '#8b4cf6', '#e5e5e5'],
+                            borderColor: '#ffffff',
+                            borderWidth: 5,
+                            hoverOffset: 5,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '58%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#0f172a',
+                                titleColor: '#ffffff',
+                                bodyColor: '#f8fafc',
+                                padding: 12,
+                                cornerRadius: 8,
+                                displayColors: true,
+                            },
+                        },
+                    },
+                    plugins: [centerTextPlugin],
+                });
+            });
+        </script>
+        </div>
+        <?php return; ?>
+    <?php endif; ?>
+
+    <?php if (($activeRoute ?? 'dashboard') === 'productivity_per_area'): ?>
+        <?php
+            $asmAreaProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+            $asmAreaProductKeys = array_column($asmProducts, 'key');
+            if (!in_array($asmAreaProductKey, $asmAreaProductKeys, true)) {
+                $asmAreaProductKey = 's2s';
+            }
+            $asmAreaMonth = (string)($_GET['month'] ?? 'January');
+            $asmAreaYear = (string)($_GET['year'] ?? '2026');
+            $asmAreaRegion = strtolower(trim((string)($_GET['region'] ?? 'ncrr')));
+            $asmAreaMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            $asmAreaYears = ['2026', '2025', '2024'];
+            $asmAreaRegions = [
+                'nclz' => 'NCLZ',
+                'ncrr' => 'NCRR',
+                'region-iv-a' => 'REGION IV-A',
+                'slb' => 'SLB',
+            ];
+            if (!in_array($asmAreaMonth, $asmAreaMonths, true)) {
+                $asmAreaMonth = 'January';
+            }
+            if (!in_array($asmAreaYear, $asmAreaYears, true)) {
+                $asmAreaYear = '2026';
+            }
+            if (!isset($asmAreaRegions[$asmAreaRegion])) {
+                $asmAreaRegion = 'ncrr';
+            }
+            $asmAreaProduct = $asmProducts[0];
+            foreach ($asmProducts as $product) {
+                if ($product['key'] === $asmAreaProductKey) {
+                    $asmAreaProduct = $product;
+                    break;
+                }
+            }
+            $asmAreaChartRows = [
+                ['TAGUIG', 484],
+                ['PANGASINAN', 121],
+                ['MUNTINLUPA', 113],
+                ['LAS PINAS', 50],
+                ['PASIG', 38],
+                ['MANILA', 36],
+                ['QUEZON CITY', 29],
+                ['PASAY', 27],
+                ['NORTH CALOOCAN', 14],
+                ['ANTIPOLO', 12],
+                ['OTHERS', 54],
+            ];
+            $asmAreaProductOffset = [
+                's2s' => 0,
+                'fiberx' => -42,
+                'bida' => -68,
+                'sme' => -84,
+            ][$asmAreaProductKey] ?? 0;
+            $asmAreaRegionOffset = [
+                'nclz' => -26,
+                'ncrr' => 0,
+                'region-iv-a' => -58,
+                'slb' => -74,
+            ][$asmAreaRegion] ?? 0;
+            foreach ($asmAreaChartRows as &$asmAreaChartRow) {
+                $asmAreaChartRow[1] = max(6, (int)$asmAreaChartRow[1] + $asmAreaProductOffset + $asmAreaRegionOffset);
+            }
+            unset($asmAreaChartRow);
+            $asmAreaTotal = array_sum(array_column($asmAreaChartRows, 1));
+            $asmAreaMunicipalityCount = 18;
+            $asmAreaAverage = (int)round($asmAreaTotal / $asmAreaMunicipalityCount);
+        ?>
+
+        <div class="space-y-6">
+            <div class="grid grid-cols-2 gap-6 px-2 sm:grid-cols-4 sm:px-6 lg:px-20">
+                <?php foreach ($asmProducts as $product): ?>
+                    <?php
+                        $isAreaProductActive = $asmAreaProductKey === $product['key'];
+                        $areaProductUrl = '?section=productivity-per-area&product=' . rawurlencode((string)$product['key'])
+                            . '&month=' . rawurlencode($asmAreaMonth)
+                            . '&year=' . rawurlencode($asmAreaYear)
+                            . '&region=' . rawurlencode($asmAreaRegion);
+                    ?>
+                    <a href="<?= htmlspecialchars($areaProductUrl) ?>"
+                       class="group rounded-xl border p-3 transition-all duration-200 <?= $isAreaProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="flex h-20 items-center justify-center rounded-lg border bg-white p-3 <?= $isAreaProductActive ? 'border-primary-100' : 'border-slate-100' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-h-full max-w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-5 py-4 text-center">
+                    <h2 class="text-base font-extrabold text-primary-700"><?= htmlspecialchars($asmAreaRegions[$asmAreaRegion]) ?> - <?= htmlspecialchars($asmAreaMonth) ?> <?= htmlspecialchars($asmAreaYear) ?> (<?= (int)$asmAreaMunicipalityCount ?> municipalities)</h2>
+                    <form method="GET" class="mt-3 flex flex-wrap items-end justify-center gap-3">
+                        <input type="hidden" name="section" value="productivity-per-area">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmAreaProductKey) ?>">
+                        <input type="hidden" name="region" value="<?= htmlspecialchars($asmAreaRegion) ?>">
+                        <label class="flex flex-col gap-1 text-left text-[11px] font-semibold text-slate-500">
+                            Month
+                            <select name="month" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                                <?php foreach ($asmAreaMonths as $month): ?>
+                                    <option value="<?= htmlspecialchars($month) ?>" <?= $asmAreaMonth === $month ? 'selected' : '' ?>><?= htmlspecialchars($month) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <label class="flex flex-col gap-1 text-left text-[11px] font-semibold text-slate-500">
+                            Year
+                            <select name="year" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                                <?php foreach ($asmAreaYears as $year): ?>
+                                    <option value="<?= htmlspecialchars($year) ?>" <?= $asmAreaYear === $year ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <button type="submit" class="inline-flex h-10 items-center justify-center rounded-lg bg-primary-600 px-5 text-xs font-bold text-white transition-colors hover:bg-primary-700">Go</button>
+                    </form>
+                    <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+                        <?php foreach ($asmAreaRegions as $regionKey => $regionLabel): ?>
+                            <?php
+                                $regionUrl = '?section=productivity-per-area&product=' . rawurlencode($asmAreaProductKey)
+                                    . '&month=' . rawurlencode($asmAreaMonth)
+                                    . '&year=' . rawurlencode($asmAreaYear)
+                                    . '&region=' . rawurlencode($regionKey);
+                            ?>
+                            <a href="<?= htmlspecialchars($regionUrl) ?>"
+                               class="inline-flex h-9 items-center justify-center rounded-lg border px-4 text-xs font-extrabold transition-colors <?= $asmAreaRegion === $regionKey ? 'border-primary-500 bg-primary-600 text-white shadow-sm' : 'border-primary-200 bg-white text-primary-700 hover:bg-cyan-50' ?>">
+                                <?= htmlspecialchars($regionLabel) ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="px-5 py-6">
+                    <div style="height: 420px;">
+                        <canvas id="asm-productivity-area-chart"></canvas>
+                    </div>
+                    <div class="mt-6 rounded-xl border-l-4 border-primary-500 bg-slate-50 px-5 py-4">
+                        <p class="text-sm font-extrabold text-primary-700">Total Activated Job Orders Summary</p>
+                        <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <div>
+                                <p class="text-2xl font-extrabold text-primary-600"><?= number_format($asmAreaTotal) ?></p>
+                                <p class="text-[10px] font-semibold uppercase text-slate-500">Total Orders</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-extrabold text-primary-600"><?= (int)$asmAreaMunicipalityCount ?></p>
+                                <p class="text-[10px] font-semibold uppercase text-slate-500">Municipalities</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-extrabold text-primary-600"><?= number_format($asmAreaAverage) ?></p>
+                                <p class="text-[10px] font-semibold uppercase text-slate-500">Avg Per Municipality</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                if (typeof Chart === 'undefined') return;
+                const areaCanvas = document.getElementById('asm-productivity-area-chart');
+                if (!areaCanvas) return;
+                new Chart(areaCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: <?= json_encode(array_column($asmAreaChartRows, 0)) ?>,
+                        datasets: [{
+                            label: 'Activated Job Orders',
+                            data: <?= json_encode(array_column($asmAreaChartRows, 1)) ?>,
+                            backgroundColor: '#2b7af4',
+                            borderRadius: 3,
+                            maxBarThickness: 56,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { color: '#64748b', boxWidth: 24, font: { size: 11 } },
+                            },
+                            tooltip: {
+                                backgroundColor: '#0f172a',
+                                titleColor: '#ffffff',
+                                bodyColor: '#f8fafc',
+                                padding: 12,
+                                cornerRadius: 8,
+                            },
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Municipality', color: '#64748b', font: { size: 11 } },
+                                grid: { color: 'rgba(148, 163, 184, .16)' },
+                                ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 55, minRotation: 55 },
+                            },
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Number of Activated Job Orders', color: '#64748b', font: { size: 11 } },
+                                grid: { color: 'rgba(148, 163, 184, .25)' },
+                                ticks: { color: '#64748b', font: { size: 10 } },
+                            },
+                        },
+                    },
+                });
+            });
+        </script>
+        <?php return; ?>
+    <?php endif; ?>
 
     <?php if (($activeRoute ?? 'dashboard') === 'assigning_area'): ?>
         <div class="space-y-5">
@@ -3017,31 +3614,66 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
                         </div>
                     </div>
                 </div>
-                <div class="overflow-x-auto p-4">
-                    <table class="min-w-[760px] w-full border-collapse text-sm">
-                        <thead class="bg-slate-50 text-left text-[11px] font-semibold uppercase text-slate-500">
-                            <tr>
-                                <th class="border border-slate-200 px-3 py-3">Municipality</th>
-                                <th class="border border-slate-200 px-3 py-3">Area</th>
-                                <th class="border border-slate-200 px-3 py-3">Area Sales Manager</th>
-                                <th class="border border-slate-200 px-3 py-3">Status</th>
-                                <th class="border border-slate-200 px-3 py-3 text-right">Activation</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($asmAssigningRows as $row): ?>
-                                <tr class="bg-white text-slate-700 hover:bg-slate-50">
-                                    <td class="border border-slate-200 px-3 py-3 font-medium text-slate-900"><?= htmlspecialchars($row[0]) ?></td>
-                                    <td class="border border-slate-200 px-3 py-3"><?= htmlspecialchars($row[1]) ?></td>
-                                    <td class="border border-slate-200 px-3 py-3"><?= htmlspecialchars($row[2]) ?></td>
-                                    <td class="border border-slate-200 px-3 py-3">
-                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold <?= $row[3] === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' ?>"><?= htmlspecialchars($row[3]) ?></span>
-                                    </td>
-                                    <td class="border border-slate-200 px-3 py-3 text-right font-semibold text-slate-950"><?= (int)$row[4] ?></td>
+                <div class="p-4">
+                    <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <form method="GET" class="flex items-center gap-2 text-xs font-medium text-slate-600" style="width: min(360px, 100%);">
+                            <input type="hidden" name="section" value="assigning-area">
+                            <input type="hidden" name="product" value="<?= htmlspecialchars($asmSelectedProduct['key']) ?>">
+                            <label for="asm-assigning-search" class="shrink-0">Search:</label>
+                            <input id="asm-assigning-search" type="search" name="search" value="<?= htmlspecialchars($asmAssigningSearch) ?>" class="h-9 min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                        </form>
+                        <button type="button" class="inline-flex h-9 w-fit shrink-0 items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 text-xs font-bold text-white shadow-sm transition-colors hover:bg-primary-700">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path>
+                            </svg>
+                            Assign Area
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+                        <table class="min-w-[900px] w-full border-collapse text-[11px]">
+                            <thead class="bg-slate-50 text-left text-[10px] font-extrabold uppercase tracking-wide text-slate-500">
+                                <tr>
+                                    <?php foreach (['Sales Category', 'Municipality', 'Barangay', 'Action'] as $heading): ?>
+                                        <th class="border-b border-slate-200 px-4 py-3">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <span><?= htmlspecialchars($heading) ?></span>
+                                                <span class="text-[10px] font-bold text-slate-400">↑↓</span>
+                                            </div>
+                                        </th>
+                                    <?php endforeach; ?>
                                 </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($asmAssigningRows)): ?>
+                                    <tr>
+                                        <td colspan="4" class="px-4 py-10 text-center text-sm font-semibold text-slate-500">No assigned areas found.</td>
+                                    </tr>
+                                <?php endif; ?>
+                                <?php foreach ($asmAssigningRows as $rowIndex => $row): ?>
+                                    <tr class="<?= $rowIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50' ?> text-slate-700 transition-colors hover:bg-cyan-50/50">
+                                        <td class="border-b border-slate-100 px-4 py-3 font-bold uppercase text-slate-800"><?= htmlspecialchars($row[0]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3 font-semibold uppercase"><?= htmlspecialchars($row[1]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3 font-semibold uppercase"><?= htmlspecialchars($row[2]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3">
+                                            <div class="flex items-center gap-3">
+                                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-md text-primary-600 transition-colors hover:bg-primary-50" aria-label="Edit assigned area">
+                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                        <path d="M13.5 6.5 17.5 10.5M4 20h4.5L19 9.5a2.12 2.12 0 0 0-3-3L5.5 17V20Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    </svg>
+                                                </button>
+                                                <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-md text-red-500 transition-colors hover:bg-red-50" aria-label="Delete assigned area">
+                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                        <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"></path>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3274,6 +3906,335 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
                 </div>
             </div>
         </div>
+        <?php return; ?>
+    <?php endif; ?>
+
+    <?php if (($activeRoute ?? 'dashboard') === 'daily_sales_activation'): ?>
+        <?php
+            $asmDailyProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+            $asmDailyProductKeys = array_column($asmProducts, 'key');
+            if (!in_array($asmDailyProductKey, $asmDailyProductKeys, true)) {
+                $asmDailyProductKey = 's2s';
+            }
+            $asmDailyFrom = trim((string)($_GET['from'] ?? '2026-01-30'));
+            $asmDailyTo = trim((string)($_GET['to'] ?? '2026-01-30'));
+            $asmDailyShow = max(5, min(50, (int)($_GET['show'] ?? 10)));
+            $asmDailySearch = trim((string)($_GET['search'] ?? ''));
+            $asmDailyRows = [
+                ['PCC-5JHMD-001', 'DOLETE, MARICEL', '5 JHMD INTERNET INSTALLATION SERVICES', 'SUB-JHMD', 'RACHEL ANN MACALANDA CAMANGIAN', 'IP1997839', 'January 30, 2026', 'BLOCK 9 LOT 6A, PHASE 1B KASIGLAHAN VILLAGE, SAN JOSE, RODRIGUEZ, RIZAL SLB', 'RODRIGUEZ', 'ACTIVATED'],
+                ['PCC-5JHMD-001', 'DOLETE, MARICEL', '5 JHMD INTERNET INSTALLATION SERVICES', 'SUB-JHMD', 'DANIEL JR OLERMO CICAT', 'IP1989290', 'January 30, 2026', '17C, MT APO, PINAGSAMA, TAGUIG, METRO MANILA NCRR', 'TAGUIG', 'ACTIVATED'],
+                ['PCC-5JHMD-001', 'DOLETE, MARICEL', '5 JHMD INTERNET INSTALLATION SERVICES', 'SUB-JHMD', 'RAQUEL CAMANGIAN DELGADO', 'IP1998250', 'January 30, 2026', 'BLOCK 6 LOT 76, PHASE 1D KASIGLAHAN VILLAGE, SAN JOSE, RODRIGUEZ, RIZAL SLB', 'RODRIGUEZ', 'ACTIVATED'],
+                ['PCC-5JHMD-001', 'DOLETE, MARICEL', '5 JHMD INTERNET INSTALLATION SERVICES', 'SUB-JHMD', 'LILIBETH ALMONTE GRASPARIL', 'IP1998608', 'January 30, 2026', '31, KADAYUNAN ST SITIO MAISLAP, SAN ISIDRO, RODRIGUEZ, RIZAL SLB', 'RODRIGUEZ', 'ACTIVATED'],
+                ['PCC-ALLYS88-234', 'ROZEL PANTO', 'ALLYS 88 CORPORATION', 'TRADIO/DE GUZMAN/BUCO', 'GEMMA ALINSUNURIN CANGCOO', 'IP1997617', 'January 30, 2026', '3801, CUENCA ST., PALANAN, MAKATI', 'MAKATI', 'ACTIVATED'],
+                ['PCC-ARGIN-117', 'SANTOS, MARIA', 'ARGIN NETWORK SERVICES INC', 'SUB-ARGIN', 'JONATHAN REYES DELA CRUZ', 'IP1997442', 'January 30, 2026', 'LOT 18 BLOCK 4, BAGONG SILANG, CALOOCAN CITY NCRR', 'CALOOCAN', 'ACTIVATED'],
+                ['PCC-DIGI-086', 'CRUZ, RAMON', 'DIGITECH', 'SUB-DIGITECH', 'PATRICIA MANALO SORIANO', 'IP1997188', 'January 30, 2026', '142 KATIPUNAN AVE, PROJECT 4, QUEZON CITY NCRR', 'QUEZON CITY', 'ACTIVATED'],
+                ['PCC-VITA-240', 'REYES, ANGEL', 'VITA-LIZE DISTRIBUTIONS INC', 'SUB-VITA', 'MELANIE DACANAY FLORES', 'IP1997045', 'January 30, 2026', '52 DONA SOLEDAD AVE, BETTER LIVING, PARANAQUE NCRR', 'PARANAQUE', 'ACTIVATED'],
+            ];
+            if ($asmDailySearch !== '') {
+                $asmDailyRows = array_values(array_filter($asmDailyRows, static function ($row) use ($asmDailySearch) {
+                    return stripos(implode(' ', $row), $asmDailySearch) !== false;
+                }));
+            }
+            $asmDailyRows = array_slice($asmDailyRows, 0, $asmDailyShow);
+        ?>
+
+        <div class="space-y-5">
+            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <?php foreach ($asmProducts as $product): ?>
+                    <?php
+                        $isDailyProductActive = $asmDailyProductKey === $product['key'];
+                        $dailyProductUrl = '?section=daily-sales-activation&product=' . rawurlencode((string)$product['key'])
+                            . '&from=' . rawurlencode($asmDailyFrom)
+                            . '&to=' . rawurlencode($asmDailyTo)
+                            . '&show=' . rawurlencode((string)$asmDailyShow)
+                            . '&search=' . rawurlencode($asmDailySearch);
+                    ?>
+                    <a href="<?= htmlspecialchars($dailyProductUrl) ?>"
+                       class="group mx-auto inline-flex h-14 w-full max-w-[150px] items-center justify-center rounded-lg border bg-white px-3 py-2 transition-all duration-200 <?= $isDailyProductActive ? 'border-primary-500 shadow-[0_0_0_2px_rgba(43,122,244,.14),0_8px_18px_rgba(43,122,244,.16)]' : 'border-slate-200 shadow-sm hover:border-primary-200 hover:shadow-md' ?>">
+                        <div class="flex h-full w-full items-center justify-center overflow-hidden">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-h-full max-w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3 shadow-sm">
+                <form method="GET" class="mb-3 flex flex-wrap items-end gap-2">
+                    <input type="hidden" name="section" value="daily-sales-activation">
+                    <input type="hidden" name="product" value="<?= htmlspecialchars($asmDailyProductKey) ?>">
+                    <input type="hidden" name="show" value="<?= (int)$asmDailyShow ?>">
+                    <input type="hidden" name="search" value="<?= htmlspecialchars($asmDailySearch) ?>">
+                    <label class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500" aria-hidden="true">
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                                <path d="M7 3v3m10-3v3M4.5 9h15M6 5h12a1.5 1.5 0 0 1 1.5 1.5v12A1.5 1.5 0 0 1 18 20H6a1.5 1.5 0 0 1-1.5-1.5v-12A1.5 1.5 0 0 1 6 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </span>
+                        <input type="date" name="from" value="<?= htmlspecialchars($asmDailyFrom) ?>" class="h-9 rounded-md border border-slate-200 bg-white px-3 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                        <span>to</span>
+                        <input type="date" name="to" value="<?= htmlspecialchars($asmDailyTo) ?>" class="h-9 rounded-md border border-slate-200 bg-white px-3 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                    </label>
+                    <button type="submit" class="inline-flex h-9 items-center justify-center rounded-md bg-primary-600 px-4 text-xs font-bold text-white transition-colors hover:bg-primary-700">Go</button>
+                    <button type="button" id="asm-daily-sales-export" class="inline-flex h-9 w-10 items-center justify-center rounded-md bg-green-600 text-white transition-colors hover:bg-green-700" aria-label="Download Daily Sales Activation CSV">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                </form>
+
+                <div class="mb-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <form method="GET" class="flex items-center gap-1.5 text-xs text-slate-600">
+                        <input type="hidden" name="section" value="daily-sales-activation">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmDailyProductKey) ?>">
+                        <input type="hidden" name="from" value="<?= htmlspecialchars($asmDailyFrom) ?>">
+                        <input type="hidden" name="to" value="<?= htmlspecialchars($asmDailyTo) ?>">
+                        <input type="hidden" name="search" value="<?= htmlspecialchars($asmDailySearch) ?>">
+                        <span>Show</span>
+                        <select name="show" class="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15" onchange="this.form.submit()">
+                            <?php foreach ([10, 25, 50] as $showOption): ?>
+                                <option value="<?= (int)$showOption ?>" <?= $asmDailyShow === $showOption ? 'selected' : '' ?>><?= (int)$showOption ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span>entries</span>
+                    </form>
+
+                    <form method="GET" class="flex items-center justify-end gap-2 text-xs text-slate-600">
+                        <input type="hidden" name="section" value="daily-sales-activation">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmDailyProductKey) ?>">
+                        <input type="hidden" name="from" value="<?= htmlspecialchars($asmDailyFrom) ?>">
+                        <input type="hidden" name="to" value="<?= htmlspecialchars($asmDailyTo) ?>">
+                        <input type="hidden" name="show" value="<?= (int)$asmDailyShow ?>">
+                        <label for="asm-daily-sales-search" class="font-medium">Search:</label>
+                        <input id="asm-daily-sales-search" type="search" name="search" value="<?= htmlspecialchars($asmDailySearch) ?>" class="h-8 w-full rounded-none border border-slate-300 bg-white px-2 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15 md:w-40">
+                    </form>
+                </div>
+
+                <div class="overflow-auto bg-white" style="max-height: 620px;">
+                    <table id="asm-daily-sales-table" class="min-w-[1320px] w-full border-collapse text-[9px]">
+                        <thead class="bg-slate-100 text-[7px] uppercase tracking-[.18em] text-slate-400">
+                            <tr>
+                                <?php foreach (['Agent Code', 'Agent Name', 'Sales Category', 'Installer', 'Account Name', 'Job Order', 'Date Activated', 'Address', 'Municipality', 'Status'] as $heading): ?>
+                                    <th class="border border-slate-100 px-3 py-2 text-left font-extrabold"><?= htmlspecialchars($heading) ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($asmDailyRows)): ?>
+                                <tr>
+                                    <td colspan="10" class="border border-slate-100 px-4 py-10 text-center text-xs font-semibold text-slate-500">No activations found.</td>
+                                </tr>
+                            <?php endif; ?>
+                            <?php foreach ($asmDailyRows as $rowIndex => $row): ?>
+                                <tr class="bg-white text-slate-900 transition-colors hover:bg-cyan-50/40">
+                                    <td class="border-b border-slate-100 px-3 py-4 font-extrabold"><?= htmlspecialchars($row[0]) ?></td>
+                                    <td class="border-b border-slate-100 px-3 py-4 font-bold leading-snug"><?= htmlspecialchars($row[1]) ?></td>
+                                    <td class="border-b border-slate-100 px-3 py-4 font-extrabold uppercase leading-snug"><?= htmlspecialchars($row[2]) ?></td>
+                                    <td class="border-b border-slate-100 px-3 py-4 font-bold"><?= htmlspecialchars($row[3]) ?></td>
+                                    <td class="border-b border-slate-100 px-3 py-4 font-extrabold uppercase leading-snug"><?= htmlspecialchars($row[4]) ?></td>
+                                    <td class="border-b border-slate-100 px-3 py-4 font-bold"><?= htmlspecialchars($row[5]) ?></td>
+                                    <td class="border-b border-slate-100 px-3 py-4 font-semibold"><?= htmlspecialchars($row[6]) ?></td>
+                                    <td class="border-b border-slate-100 px-3 py-4 font-bold uppercase leading-snug"><?= htmlspecialchars($row[7]) ?></td>
+                                    <td class="border-b border-slate-100 px-3 py-4 font-extrabold uppercase"><?= htmlspecialchars($row[8]) ?></td>
+                                    <td class="border-b border-slate-100 px-3 py-4">
+                                        <span class="inline-flex rounded bg-green-500 px-2 py-0.5 text-[8px] font-extrabold uppercase text-white shadow-sm"><?= htmlspecialchars($row[9]) ?></span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const exportButton = document.getElementById('asm-daily-sales-export');
+                const table = document.getElementById('asm-daily-sales-table');
+                exportButton?.addEventListener('click', () => {
+                    if (!table) return;
+                    const csvRows = Array.from(table.querySelectorAll('tr')).map((row) => (
+                        Array.from(row.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim())
+                    ));
+                    const csv = csvRows.map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'daily-sales-activation-<?= htmlspecialchars(strtolower($asmDailyProductKey . '-' . $asmDailyFrom . '-' . $asmDailyTo)) ?>.csv';
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                });
+            });
+        </script>
+        <?php return; ?>
+    <?php endif; ?>
+
+    <?php if (($activeRoute ?? 'dashboard') === 'partners_report'): ?>
+        <?php
+            $asmPartnersProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+            $asmPartnersProductKeys = array_column($asmProducts, 'key');
+            if (!in_array($asmPartnersProductKey, $asmPartnersProductKeys, true)) {
+                $asmPartnersProductKey = 's2s';
+            }
+            $asmPartnersYear = (string)($_GET['year'] ?? '2026');
+            $asmPartnersYears = ['2026', '2025', '2024'];
+            if (!in_array($asmPartnersYear, $asmPartnersYears, true)) {
+                $asmPartnersYear = '2026';
+            }
+            $asmPartnersScope = strtolower(trim((string)($_GET['scope'] ?? 'all')));
+            if (!in_array($asmPartnersScope, ['all', 'ncr', 'regional'], true)) {
+                $asmPartnersScope = 'all';
+            }
+            $asmPartnersShift = [
+                's2s' => 0,
+                'fiberx' => 7,
+                'bida' => 11,
+                'sme' => 15,
+            ][$asmPartnersProductKey] ?? 0;
+            $asmPartnerRows = [
+                ['partner' => 'ALLYS 88 CORPORATION', 'ncr' => 143, 'regional' => 15],
+                ['partner' => 'ARGIN NETWORK SERVICES INC', 'ncr' => 167, 'regional' => 61],
+                ['partner' => 'AYM2 INTERNET INSTALLATION SERVICES', 'ncr' => 0, 'regional' => 12],
+                ['partner' => 'DIGITECH', 'ncr' => 0, 'regional' => 86],
+                ['partner' => 'FERNANDO ROGER INTERNET INSTALLATION SERVICES', 'ncr' => 0, 'regional' => 21],
+                ['partner' => 'VITA-LIZE DISTRIBUTIONS INC', 'ncr' => 1, 'regional' => 239],
+            ];
+            foreach ($asmPartnerRows as &$asmPartnerRow) {
+                $asmPartnerRow['ncr'] = max(0, (int)$asmPartnerRow['ncr'] + $asmPartnersShift);
+                $asmPartnerRow['regional'] = max(0, (int)$asmPartnerRow['regional'] + (int)round($asmPartnersShift / 2));
+                $asmPartnerRow['total'] = (int)$asmPartnerRow['ncr'] + (int)$asmPartnerRow['regional'];
+            }
+            unset($asmPartnerRow);
+            if ($asmPartnersScope === 'ncr') {
+                $asmPartnerRows = array_values(array_filter($asmPartnerRows, static fn(array $row): bool => (int)$row['ncr'] > 0));
+            } elseif ($asmPartnersScope === 'regional') {
+                $asmPartnerRows = array_values(array_filter($asmPartnerRows, static fn(array $row): bool => (int)$row['regional'] > 0));
+            }
+            $asmPartnerMonths = ['January', 'February', 'March'];
+            $asmPartnerTotals = [
+                'total' => array_sum(array_column($asmPartnerRows, 'total')),
+                'ncr' => array_sum(array_column($asmPartnerRows, 'ncr')),
+                'regional' => array_sum(array_column($asmPartnerRows, 'regional')),
+            ];
+        ?>
+
+        <div class="space-y-5">
+            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <?php foreach ($asmProducts as $product): ?>
+                    <?php
+                        $isPartnersProductActive = $asmPartnersProductKey === $product['key'];
+                        $partnersProductUrl = '?section=partners-report&product=' . rawurlencode((string)$product['key'])
+                            . '&year=' . rawurlencode($asmPartnersYear)
+                            . '&scope=' . rawurlencode($asmPartnersScope);
+                    ?>
+                    <a href="<?= htmlspecialchars($partnersProductUrl) ?>"
+                       class="group rounded-xl border p-3 transition-all duration-200 <?= $isPartnersProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                        <div class="flex h-20 items-center justify-center rounded-lg border bg-white p-3 <?= $isPartnersProductActive ? 'border-primary-100' : 'border-slate-100' ?>">
+                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-h-full max-w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                    <form method="GET" class="flex flex-wrap items-end gap-2">
+                        <input type="hidden" name="section" value="partners-report">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmPartnersProductKey) ?>">
+                        <input type="hidden" name="year" value="<?= htmlspecialchars($asmPartnersYear) ?>">
+                        <?php foreach (['all' => 'ALL', 'ncr' => 'NCR', 'regional' => 'REGIONAL'] as $scopeKey => $scopeLabel): ?>
+                            <button type="submit" name="scope" value="<?= htmlspecialchars($scopeKey) ?>" class="inline-flex h-10 items-center justify-center rounded-lg border px-5 text-xs font-extrabold transition-colors <?= $asmPartnersScope === $scopeKey ? 'border-primary-500 bg-primary-600 text-white shadow-sm' : 'border-primary-200 bg-white text-primary-700 hover:bg-cyan-50' ?>">
+                                <?= htmlspecialchars($scopeLabel) ?>
+                            </button>
+                        <?php endforeach; ?>
+                    </form>
+
+                    <form method="GET" class="flex flex-wrap items-end justify-end gap-2">
+                        <input type="hidden" name="section" value="partners-report">
+                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmPartnersProductKey) ?>">
+                        <input type="hidden" name="scope" value="<?= htmlspecialchars($asmPartnersScope) ?>">
+                        <label class="flex flex-col gap-1 text-xs font-semibold text-slate-500">
+                            Select Year
+                            <select name="year" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15" onchange="this.form.submit()">
+                                <?php foreach ($asmPartnersYears as $year): ?>
+                                    <option value="<?= htmlspecialchars($year) ?>" <?= $asmPartnersYear === $year ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <button type="button" id="asm-partners-report-export" class="inline-flex h-10 items-center justify-center rounded-lg bg-green-600 px-5 text-xs font-bold text-white transition-colors hover:bg-green-700">Export</button>
+                    </form>
+                </div>
+
+                <div class="overflow-auto rounded-xl border border-slate-200 shadow-sm" style="max-height: 620px;">
+                    <table id="asm-partners-report-table" class="min-w-[1280px] w-full border-collapse text-[11px]">
+                        <thead class="text-white">
+                            <tr class="bg-primary-700">
+                                <th rowspan="2" class="sticky left-0 z-20 border border-primary-600 bg-primary-700 px-3 py-3 text-center">PARTNER</th>
+                                <th rowspan="2" class="border border-primary-600 px-3 py-3 text-center">TOTAL</th>
+                                <th rowspan="2" class="border border-primary-600 px-3 py-3 text-center">TOTAL NCR</th>
+                                <th rowspan="2" class="border border-primary-600 px-3 py-3 text-center">TOTAL REGIONAL</th>
+                                <?php foreach ($asmPartnerMonths as $month): ?>
+                                    <th colspan="2" class="border border-primary-600 px-3 py-3 text-center uppercase"><?= htmlspecialchars($month) ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                            <tr class="bg-primary-600">
+                                <?php foreach ($asmPartnerMonths as $month): ?>
+                                    <th class="border border-primary-500 px-3 py-2.5 text-center">NCR</th>
+                                    <th class="border border-primary-500 px-3 py-2.5 text-center">REGIONAL</th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($asmPartnerRows as $rowIndex => $row): ?>
+                                <tr class="<?= $rowIndex % 2 === 0 ? 'bg-slate-100' : 'bg-white' ?> text-slate-700 hover:bg-cyan-50/50 transition-colors">
+                                    <td class="sticky left-0 z-10 border border-slate-200 <?= $rowIndex % 2 === 0 ? 'bg-slate-100' : 'bg-white' ?> px-3 py-3 text-center font-bold uppercase text-slate-800"><?= htmlspecialchars($row['partner']) ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center font-extrabold text-slate-950"><?= (int)$row['total'] ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center font-extrabold text-slate-950"><?= (int)$row['ncr'] ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center font-extrabold text-slate-950"><?= (int)$row['regional'] ?></td>
+                                    <?php foreach ($asmPartnerMonths as $monthIndex => $month): ?>
+                                        <td class="border border-slate-200 px-3 py-3 text-center"><?= $monthIndex === 0 ? (int)$row['ncr'] : 0 ?></td>
+                                        <td class="border border-slate-200 px-3 py-3 text-center"><?= $monthIndex === 0 ? (int)$row['regional'] : 0 ?></td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-slate-100 font-extrabold text-slate-950">
+                                <td class="sticky left-0 z-20 border border-slate-200 bg-slate-100 px-3 py-3 text-center uppercase">Grand Total</td>
+                                <td class="border border-slate-200 px-3 py-3 text-center"><?= (int)$asmPartnerTotals['total'] ?></td>
+                                <td class="border border-slate-200 px-3 py-3 text-center"><?= (int)$asmPartnerTotals['ncr'] ?></td>
+                                <td class="border border-slate-200 px-3 py-3 text-center"><?= (int)$asmPartnerTotals['regional'] ?></td>
+                                <?php foreach ($asmPartnerMonths as $monthIndex => $month): ?>
+                                    <td class="border border-slate-200 px-3 py-3 text-center"><?= $monthIndex === 0 ? (int)$asmPartnerTotals['ncr'] : 0 ?></td>
+                                    <td class="border border-slate-200 px-3 py-3 text-center"><?= $monthIndex === 0 ? (int)$asmPartnerTotals['regional'] : 0 ?></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const exportButton = document.getElementById('asm-partners-report-export');
+                const table = document.getElementById('asm-partners-report-table');
+                exportButton?.addEventListener('click', () => {
+                    if (!table) return;
+                    const csvRows = Array.from(table.querySelectorAll('tr')).map((row) => (
+                        Array.from(row.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim())
+                    ));
+                    const csv = csvRows.map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'partners-report-<?= htmlspecialchars(strtolower($asmPartnersProductKey . '-' . $asmPartnersYear . '-' . $asmPartnersScope)) ?>.csv';
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                });
+            });
+        </script>
         <?php return; ?>
     <?php endif; ?>
 

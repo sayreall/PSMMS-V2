@@ -47,22 +47,22 @@ $activeRoute = 'dashboard';
         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
             <?php
             $badges = [
-                ['ASM', '5', 'bg-cyan-100 text-cyan-600'],
-                ['Inhouse', '56', 'bg-violet-100 text-violet-600'],
-                ['Partners', '29', 'bg-orange-100 text-orange-600'],
-                ['Sales Agent', '429', 'bg-emerald-100 text-emerald-600'],
-                ['Admin Users', (string)($stats['admins'] ?? 0), 'bg-blue-100 text-blue-600'],
-                ['Managers', '4', 'bg-slate-100 text-slate-600'],
-                ['Municipality', '210', 'bg-teal-100 text-teal-600'],
-                ['Installer', '137', 'bg-indigo-100 text-indigo-600'],
-                ['Plan', '5', 'bg-rose-100 text-rose-600'],
-                ['Products', '4', 'bg-amber-100 text-amber-600'],
+                ['ASM', '5', 'bg-cyan-100 text-cyan-600', '<path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm-8 8.25C4.7 16.35 7.9 14 12 14s7.3 2.35 8 6.25c.08.44-.27.75-.72.75H4.72c-.45 0-.8-.31-.72-.75Z"/>'],
+                ['Inhouse', '56', 'bg-violet-100 text-violet-600', '<path d="M4 20.5h16v-10L12 4 4 10.5v10Zm5-1v-6h6v6H9Zm2-8h2v-2h-2v2Z"/>'],
+                ['Partners', '29', 'bg-orange-100 text-orange-600', '<path d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8.5 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM2.5 21c.5-4 2.8-7 5.5-7s5 3 5.5 7h-11Zm11.2 0c-.2-2.4-1.05-4.45-2.35-5.9 1.28-.7 2.97-1.1 5.15-1.1 3.2 0 5 2.8 5 7h-7.8Z"/>'],
+                ['Sales Agent', '429', 'bg-emerald-100 text-emerald-600', '<path d="M12 11.5a4.25 4.25 0 1 0 0-8.5 4.25 4.25 0 0 0 0 8.5Zm-7 9.5c.65-4.15 3.35-7 7-7s6.35 2.85 7 7H5Zm11.7-17.4 1.05 1.05L20.3 2.1l1.2 1.2-3.75 3.75-2.25-2.25 1.2-1.2Z"/>'],
+                ['Admin Users', (string)($stats['admins'] ?? 0), 'bg-blue-100 text-blue-600', '<path d="M12 2.5 5 5.4v5.4c0 4.7 2.95 8.2 7 10.7 4.05-2.5 7-6 7-10.7V5.4l-7-2.9Zm-1 11.85-2.35-2.3 1.25-1.25L11 11.9l3.1-3.15 1.25 1.25L11 14.35Z"/>'],
+                ['Managers', '4', 'bg-slate-100 text-slate-600', '<path d="M8 8a4 4 0 0 1 8 0v2h2.5c.6 0 1 .4 1 1v9c0 .6-.4 1-1 1h-13c-.6 0-1-.4-1-1v-9c0-.6.4-1 1-1H8V8Zm2 2h4V8a2 2 0 1 0-4 0v2Zm1 5v3h2v-3h-2Z"/>'],
+                ['Municipality', '210', 'bg-teal-100 text-teal-600', '<path d="M12 2.5A7.5 7.5 0 0 0 4.5 10c0 5.35 7.5 11.5 7.5 11.5S19.5 15.35 19.5 10A7.5 7.5 0 0 0 12 2.5Zm0 10.25A2.75 2.75 0 1 1 12 7a2.75 2.75 0 0 1 0 5.75Z"/>'],
+                ['Installer', '137', 'bg-indigo-100 text-indigo-600', '<path d="m17.7 3.1 3.2 3.2-2.25 2.25-3.2-3.2 2.25-2.25ZM4 16.8 14.4 6.4l3.2 3.2L7.2 20H4v-3.2Zm2 1.2h.45l8.3-8.3-.45-.45L6 17.55V18Z"/>'],
+                ['Plan', '5', 'bg-rose-100 text-rose-600', '<path d="M6 3h8l4 4v14H6V3Zm7 1.5V8h3.5L13 4.5ZM8 12h8v-1.7H8V12Zm0 4h8v-1.7H8V16Zm0 4h5v-1.7H8V20Z"/>'],
+                ['Products', '4', 'bg-amber-100 text-amber-600', '<path d="m12 2.5 8 4.4v10.2l-8 4.4-8-4.4V6.9l8-4.4Zm0 2.3L6.35 7.9 12 11l5.65-3.1L12 4.8Zm-6 5v6.15l5 2.75v-6.15L6 9.8Zm7 8.9 5-2.75V9.8l-5 2.75v6.15Z"/>'],
             ];
             ?>
-            <?php foreach ($badges as [$label, $count, $tone]): ?>
+            <?php foreach ($badges as [$label, $count, $tone, $iconPath]): ?>
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 flex items-center gap-3 hover:shadow-md transition-shadow">
                 <div class="w-8 h-8 rounded-lg <?= $tone ?> flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2M12 22a10 10 0 100-20 10 10 0 000 20z"/></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><?= $iconPath ?></svg>
                 </div>
                 <div><p class="text-[11px] text-slate-500"><?= htmlspecialchars($label) ?></p><p class="text-xl font-bold text-slate-800"><?= htmlspecialchars($count) ?></p></div>
             </div>
