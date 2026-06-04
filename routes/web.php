@@ -80,9 +80,16 @@ $router->group('', function (Router $router): void {
     $router->post('/agent-code', 'Users\\SmeSales\\AgentCodeController@store');
     $router->get('/address/region', 'Users\\SuperAdmin\\AddressRegionController@index');
     $router->post('/address/region', 'Users\\SuperAdmin\\AddressRegionController@store');
+    $router->post('/address/region/{id}/update', 'Users\\SuperAdmin\\AddressRegionController@update');
+    $router->post('/address/region/{id}/delete', 'Users\\SuperAdmin\\AddressRegionController@delete');
     $router->get('/address/province', 'Users\\SuperAdmin\\AddressProvinceController@index');
+    $router->post('/address/province', 'Users\\SuperAdmin\\AddressProvinceController@store');
+    $router->post('/address/province/{id}/update', 'Users\\SuperAdmin\\AddressProvinceController@update');
+    $router->post('/address/province/{id}/delete', 'Users\\SuperAdmin\\AddressProvinceController@delete');
     $router->get('/address/municipalities', 'Users\\SuperAdmin\\AddressMunicipalityController@index');
     $router->post('/address/municipalities', 'Users\\SuperAdmin\\AddressMunicipalityController@store');
+    $router->post('/address/municipalities/{id}/update', 'Users\\SuperAdmin\\AddressMunicipalityController@update');
+    $router->post('/address/municipalities/{id}/delete', 'Users\\SuperAdmin\\AddressMunicipalityController@delete');
 }, [AuthMiddleware::class]);
 
 $router->group('/users', function (Router $router): void {

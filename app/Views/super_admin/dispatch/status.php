@@ -2,20 +2,23 @@
 $activeRoute = 'dispatch_status';
 $rows = $rows ?? [];
 
-$styles = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@melloware/coloris@0.24.0/dist/coloris.min.css">';
+$styles = '<style>'
+    . '.dispatch-color-picker-wrap{display:grid;grid-template-columns:54px 1fr;gap:10px;align-items:center}'
+    . '.dispatch-color-wheel{width:54px;height:42px;padding:0;border:1px solid #cbd5e1;border-radius:10px;background:#fff;cursor:pointer}'
+    . '.dispatch-color-wheel::-webkit-color-swatch-wrapper{padding:4px}'
+    . '.dispatch-color-wheel::-webkit-color-swatch{border:0;border-radius:7px}'
+    . '.dispatch-color-wheel::-moz-color-swatch{border:0;border-radius:7px}'
+    . '.dispatch-color-input{height:42px;text-transform:uppercase;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}'
+    . '.dispatch-preview{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;background:#f8fafc}'
+    . '.dispatch-preview-label{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.04em}'
+    . '.dispatch-preview-chip{display:inline-flex;min-height:32px;align-items:center;justify-content:center;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:800;box-shadow:inset 0 0 0 1px rgba(15,23,42,.08)}'
+    . '.dispatch-color-cell{display:inline-flex;align-items:center;gap:9px}'
+    . '.dispatch-color-swatch{width:24px;height:24px;border-radius:999px;background:var(--swatch-color);border:1px solid rgba(15,23,42,.14);box-shadow:0 1px 2px rgba(15,23,42,.12)}'
+    . '.dispatch-color-value{font-size:12px;font-weight:700;color:#475569;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}'
+    . '</style>';
 
-$scripts = '<script src="https://cdn.jsdelivr.net/npm/@melloware/coloris@0.24.0/dist/coloris.min.js"></script>'
-    . '<script>'
+$scripts = '<script>'
     . 'document.addEventListener("DOMContentLoaded", () => {'
-    . '  if (window.Coloris) {'
-    . '    Coloris({'
-    . '      el: ".coloris",'
-    . '      theme: "large",'
-    . '      format: "hex",'
-    . '      alpha: false,'
-    . '      swatches: ["#27d5e1", "#b71c1c", "#4a148c", "#beb5b0", "#ef6c00", "#ec407a", "#00bcd4", "#ffeb3b", "#6fe6fc", "#1565c0"]'
-    . '    });'
-    . '  }'
     . '});'
     . 'function openAddDispatchStatusModal() {'
     . '  const template = document.getElementById("add-dispatch-status-modal-template");'
@@ -34,12 +37,19 @@ $scripts = '<script src="https://cdn.jsdelivr.net/npm/@melloware/coloris@0.24.0/
     . '}'
     . 'function initDispatchStatusPreview(content) {'
     . '  const nameInput = content.querySelector("[name=\"dispatch_status\"]");'
-    . '  const colorInput = content.querySelector("[name=\"color\"]");'
+    . '  const colorWheel = content.querySelector("[data-dispatch-color-wheel]");'
+    . '  const colorInput = content.querySelector("[data-dispatch-color-hex]");'
     . '  const chip = content.querySelector("[data-dispatch-preview]");'
     . '  if (!chip) return;'
+    . '  const normalizeHex = (value) => {'
+    . '    const clean = String(value || "").trim().replace(/[^0-9a-fA-F]/g, "").slice(0, 6);'
+    . '    return clean.length === 6 ? "#" + clean.toUpperCase() : "";'
+    . '  };'
     . '  const update = () => {'
     . '    const label = (nameInput && nameInput.value.trim()) || "Status";'
-    . '    const color = (colorInput && colorInput.value.trim()) || "#e2e8f0";'
+    . '    const color = normalizeHex(colorInput && colorInput.value) || "#FFFFFF";'
+    . '    if (colorInput && colorInput.value !== color) colorInput.value = color;'
+    . '    if (colorWheel && colorWheel.value.toUpperCase() !== color) colorWheel.value = color;'
     . '    chip.textContent = label.toUpperCase();'
     . '    chip.style.backgroundColor = color;'
     . '    const hex = color.replace("#", "");'
@@ -53,6 +63,8 @@ $scripts = '<script src="https://cdn.jsdelivr.net/npm/@melloware/coloris@0.24.0/
     . '  };'
     . '  if (nameInput) nameInput.addEventListener("input", update);'
     . '  if (colorInput) colorInput.addEventListener("input", update);'
+    . '  if (colorInput) colorInput.addEventListener("blur", update);'
+    . '  if (colorWheel) colorWheel.addEventListener("input", () => { if (colorInput) colorInput.value = colorWheel.value.toUpperCase(); update(); });'
     . '  update();'
     . '}'
     . '</script>';
@@ -141,7 +153,10 @@ $scripts = '<script src="https://cdn.jsdelivr.net/npm/@melloware/coloris@0.24.0/
 
                 <label class="manager-modal-field dispatch-color-field">
                     <span>Color</span>
-                    <input type="text" name="color" class="coloris dispatch-color-input" data-coloris value="#ffffff" placeholder="#ffffff" required>
+                    <div class="dispatch-color-picker-wrap">
+                        <input type="color" class="dispatch-color-wheel" data-dispatch-color-wheel value="#27d5e1" aria-label="Choose dispatch status color">
+                        <input type="text" name="color" class="dispatch-color-input" data-dispatch-color-hex value="#27D5E1" placeholder="#27D5E1" pattern="^#[0-9A-Fa-f]{6}$" maxlength="7" required>
+                    </div>
                 </label>
             </div>
 

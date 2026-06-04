@@ -10,6 +10,7 @@ use App\Helpers\Upload;
 use App\Helpers\Validation;
 use App\Models\ActivityLogModel;
 use App\Models\DashboardRouteResolver;
+use App\Models\Users\SuperAdmin\DispatchStatusModel;
 use App\Models\UserModel;
 
 class DashboardController extends BaseController
@@ -17,12 +18,14 @@ class DashboardController extends BaseController
     private UserModel $userModel;
     private ActivityLogModel $activityLogModel;
     private DashboardRouteResolver $dashboardRouteResolver;
+    private DispatchStatusModel $dispatchStatusModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
         $this->activityLogModel = new ActivityLogModel();
         $this->dashboardRouteResolver = new DashboardRouteResolver();
+        $this->dispatchStatusModel = new DispatchStatusModel();
     }
 
     public function index(): string
@@ -51,6 +54,16 @@ class DashboardController extends BaseController
 
         $recentActivities = $this->activityLogModel->getRecentActivities(10);
         $monthlyRegistrations = $this->userModel->getMonthlyRegistrations();
+        try {
+            $dispatchStatuses = $this->dispatchStatusModel->all(
+                ['id', 'dispatch_status', 'color'],
+                [],
+                ['id' => 'ASC']
+            );
+        } catch (\Throwable $e) {
+            error_log('Dashboard dispatch status load failed: ' . $e->getMessage());
+            $dispatchStatuses = [];
+        }
 
         if ($slug === 'super-admin') {
             return $this->render('dashboard.index', [
@@ -69,6 +82,7 @@ class DashboardController extends BaseController
             'recentActivities' => $recentActivities,
             'monthlyRegistrations' => $monthlyRegistrations,
             'dashboardSlug' => $slug,
+            'dispatchStatuses' => $dispatchStatuses,
         ]);
     }
 

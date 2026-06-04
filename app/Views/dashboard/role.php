@@ -2,8 +2,70 @@
 $stats = $stats ?? [];
 $dashboardSlug = $dashboardSlug ?? 'general';
 $activeRoute = 'dashboard';
+$dispatchStatuses = $dispatchStatuses ?? [];
 
-if (in_array($dashboardSlug, ['asm-head-manager', 'asm-manager', 'asm-area-sales-manager'], true)) {
+$fallbackDispatchStatuses = [
+    ['dispatch_status' => 'ACTIVATED', 'color' => '#27d5e1'],
+    ['dispatch_status' => 'CANCELLED', 'color' => '#b71c1c'],
+    ['dispatch_status' => 'FOR INSTALLATION', 'color' => '#4a148c'],
+    ['dispatch_status' => 'RE-SCHEDULE', 'color' => '#beb5b0'],
+    ['dispatch_status' => 'ON-HOLD INSTALLATION', 'color' => '#ef6c00'],
+    ['dispatch_status' => 'FOR MSA INSTALLATION', 'color' => '#ec407a'],
+    ['dispatch_status' => 'FOR ACTIVATION', 'color' => '#00bcd4'],
+    ['dispatch_status' => 'RESCHED BY MSA', 'color' => '#ffeb3b'],
+    ['dispatch_status' => 'JRU UNINSTALLABLE', 'color' => '#6fe6fc'],
+    ['dispatch_status' => 'DOUBLE ENTRY', 'color' => '#1565c0'],
+];
+$dispatchStatusRows = !empty($dispatchStatuses) ? $dispatchStatuses : $fallbackDispatchStatuses;
+$normalizeDispatchStatus = static function (string $status): string {
+    return strtoupper(trim(preg_replace('/\s+/', ' ', str_replace('-', ' ', $status)) ?? $status));
+};
+$dispatchStatusTextColor = static function (string $color): string {
+    $hex = ltrim($color, '#');
+    if (strlen($hex) !== 6) {
+        return '#0f172a';
+    }
+    $r = hexdec(substr($hex, 0, 2));
+    $g = hexdec(substr($hex, 2, 2));
+    $b = hexdec(substr($hex, 4, 2));
+    $luminance = (0.299 * $r + 0.587 * $g + 0.114 * $b) / 255;
+    return $luminance > 0.65 ? '#0f172a' : '#f8fafc';
+};
+$dispatchStatusLookup = [];
+foreach ($dispatchStatusRows as $statusRow) {
+    $label = strtoupper(trim((string)($statusRow['dispatch_status'] ?? '')));
+    if ($label === '') {
+        continue;
+    }
+    $color = (string)($statusRow['color'] ?? '#e2e8f0');
+    $dispatchStatusLookup[$normalizeDispatchStatus($label)] = [
+        'label' => $label,
+        'color' => $color,
+        'text_color' => $dispatchStatusTextColor($color),
+    ];
+}
+$dispatchStatusKeyMap = [
+    'ACTIVATED' => 'activated',
+    'CANCELLED' => 'cancelled',
+    'DOUBLE ENTRY' => 'double_entry',
+    'FOR ACTIVATION' => 'for_activation',
+    'FOR INSTALLATION' => 'for_installation',
+    'FOR MSA INSTALLATION' => 'msa',
+    'FOR REVALIDATION' => 'revalidation',
+    'FOR SCHEDULE OF INSTALLATION' => 'schedule',
+    'FOR VALIDATION' => 'validation',
+    'JRU UNINSTALLABLE' => 'rjo',
+    'JRU UNISTALLABLE' => 'rjo',
+    'RJO UNINSTALLABLE' => 'rjo',
+    'RJO UNISTALLABLE' => 'rjo',
+    'ON HOLD INSTALLATION' => 'on_hold',
+    'ON-HOLD INSTALLATION' => 'on_hold',
+    'RE SCHEDULE' => 'reschedule',
+    'RE-SCHEDULE' => 'reschedule',
+    'RESCHED BY MSA' => 'resched_by_msa',
+];
+
+if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager', 'asm-manager', 'asm-area-sales-manager'], true)) {
     $headManagerSectionRoutes = [
         'assigning-area' => 'assigning_area',
         'sub-agent-report' => 'sub_agent_report',
@@ -51,7 +113,7 @@ $roleHighlights = [
     'general' => 'General dashboard overview.',
 ];
 
-if ($dashboardSlug === 'asm-head-manager') {
+if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
     $products = [
         ['key' => 's2s', 'name' => 'Surf2Sawa', 'short' => 'S2S', 'value' => '123,452', 'delta' => '+2343', 'delta_positive' => true, 'image' => 'images/s2s.jpg', 'tone' => 'text-rose-600', 'badge' => 'bg-rose-100 text-rose-600', 'color' => '#ef4444'],
         ['key' => 'fiberx', 'name' => 'FiberX', 'short' => 'FIBERX', 'value' => '20,535', 'delta' => '+1,340', 'delta_positive' => true, 'image' => 'images/fiberx.png', 'tone' => 'text-indigo-600', 'badge' => 'bg-indigo-100 text-indigo-600', 'color' => '#4f46e5'],
@@ -547,6 +609,33 @@ if ($dashboardSlug === 'asm-head-manager') {
             }
         }
         unset($dailyTechRow);
+        $dailyTechStatuses = [];
+        foreach ($dispatchStatusRows as $statusRow) {
+            $statusLabel = strtoupper(trim((string)($statusRow['dispatch_status'] ?? '')));
+            $statusMapKey = $normalizeDispatchStatus($statusLabel);
+            $statusDataKey = $dispatchStatusKeyMap[$statusMapKey] ?? null;
+            if ($statusDataKey === null) {
+                continue;
+            }
+
+            $dailyTechStatuses[$statusDataKey] = [
+                'key' => $statusDataKey,
+                'label' => $statusLabel,
+                'color' => (string)($statusRow['color'] ?? '#e2e8f0'),
+                'text_color' => $dispatchStatusTextColor((string)($statusRow['color'] ?? '#e2e8f0')),
+            ];
+        }
+        if (empty($dailyTechStatuses)) {
+            $dailyTechStatuses = [
+                'activated' => ['key' => 'activated', 'label' => 'ACTIVATED', 'color' => '#27d5e1', 'text_color' => '#0f172a'],
+                'reschedule' => ['key' => 'reschedule', 'label' => 'RE-SCHEDULE', 'color' => '#beb5b0', 'text_color' => '#0f172a'],
+                'rjo' => ['key' => 'rjo', 'label' => 'JRU UNINSTALLABLE', 'color' => '#6fe6fc', 'text_color' => '#0f172a'],
+                'for_activation' => ['key' => 'for_activation', 'label' => 'FOR ACTIVATION', 'color' => '#00bcd4', 'text_color' => '#0f172a'],
+                'for_installation' => ['key' => 'for_installation', 'label' => 'FOR INSTALLATION', 'color' => '#4a148c', 'text_color' => '#f8fafc'],
+                'cancelled' => ['key' => 'cancelled', 'label' => 'CANCELLED', 'color' => '#b71c1c', 'text_color' => '#f8fafc'],
+                'on_hold' => ['key' => 'on_hold', 'label' => 'ON-HOLD INSTALLATION', 'color' => '#ef6c00', 'text_color' => '#f8fafc'],
+            ];
+        }
         ?>
 
         <div class="space-y-5">
@@ -609,28 +698,29 @@ if ($dashboardSlug === 'asm-head-manager') {
                         <thead class="text-white">
                             <tr class="bg-primary-700">
                                 <th class="border border-primary-600 px-3 py-3 text-center">INSTALLER</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">ACTIVATED</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">RE-SCHEDULE</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">RJO UNISTALLABLE</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">FOR ACTIVATION</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">FOR INSTALLATION</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">CANCELLED</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">ON-HOLD<br>INSTALLATION</th>
+                                <?php foreach ($dailyTechStatuses as $status): ?>
+                                    <th class="border border-primary-600 px-3 py-3 text-center" style="background-color: <?= htmlspecialchars($status['color']) ?>; color: <?= htmlspecialchars($status['text_color']) ?>;">
+                                        <?= htmlspecialchars($status['label']) ?>
+                                    </th>
+                                <?php endforeach; ?>
                                 <th class="border border-primary-600 px-3 py-3 text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($dailyTechRows as $row): ?>
-                                <?php $rowTotal = $row['activated'] + $row['reschedule'] + $row['rjo'] + $row['for_activation'] + $row['for_installation'] + $row['cancelled'] + $row['on_hold']; ?>
+                                <?php
+                                    $rowTotal = 0;
+                                    foreach ($dailyTechStatuses as $status) {
+                                        $rowTotal += (int)($row[$status['key']] ?? 0);
+                                    }
+                                ?>
                                 <tr class="daily-tech-row bg-white text-slate-700 hover:bg-cyan-50/50 transition-colors" data-area="<?= htmlspecialchars($row['area']) ?>">
                                     <td class="border border-slate-200 px-3 py-2.5 text-center text-[10px] font-bold uppercase leading-tight text-slate-800"><?= htmlspecialchars($row['installer']) ?></td>
-                                    <td class="daily-tech-count border border-slate-200 bg-emerald-50 px-3 py-2.5 text-center font-extrabold text-emerald-700" data-key="activated"><?= (int)$row['activated'] ?></td>
-                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="reschedule"><?= (int)$row['reschedule'] ?></td>
-                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="rjo"><?= (int)$row['rjo'] ?></td>
-                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="for_activation"><?= (int)$row['for_activation'] ?></td>
-                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="for_installation"><?= (int)$row['for_installation'] ?></td>
-                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="cancelled"><?= (int)$row['cancelled'] ?></td>
-                                    <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="on_hold"><?= (int)$row['on_hold'] ?></td>
+                                    <?php foreach ($dailyTechStatuses as $status): ?>
+                                        <td class="daily-tech-count border border-slate-200 px-3 py-2.5 text-center font-semibold" data-key="<?= htmlspecialchars($status['key']) ?>">
+                                            <?= (int)($row[$status['key']] ?? 0) ?>
+                                        </td>
+                                    <?php endforeach; ?>
                                     <td class="daily-tech-total border border-slate-200 bg-primary-50 px-3 py-2.5 text-center font-extrabold text-primary-700"><?= (int)$rowTotal ?></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -638,13 +728,9 @@ if ($dashboardSlug === 'asm-head-manager') {
                         <tfoot>
                             <tr class="bg-primary-700 text-white font-extrabold">
                                 <td class="border border-primary-600 px-3 py-3 text-center">Grand Total</td>
-                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="activated">0</td>
-                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="reschedule">0</td>
-                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="rjo">0</td>
-                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="for_activation">0</td>
-                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="for_installation">0</td>
-                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="cancelled">0</td>
-                                <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="on_hold">0</td>
+                                <?php foreach ($dailyTechStatuses as $status): ?>
+                                    <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="<?= htmlspecialchars($status['key']) ?>">0</td>
+                                <?php endforeach; ?>
                                 <td class="border border-primary-600 px-3 py-3 text-center" data-total-key="row_total">0</td>
                             </tr>
                         </tfoot>
@@ -660,7 +746,7 @@ if ($dashboardSlug === 'asm-head-manager') {
                 const tabs = Array.from(document.querySelectorAll('.daily-tech-area-tab'));
                 const exportButton = document.getElementById('daily-tech-export');
                 const dispatchDate = <?= json_encode($dailyTechDate) ?>;
-                const keys = ['activated', 'reschedule', 'rjo', 'for_activation', 'for_installation', 'cancelled', 'on_hold'];
+                const keys = <?= json_encode(array_values(array_column($dailyTechStatuses, 'key'))) ?>;
 
                 const updateTotals = () => {
                     const visibleRows = rows.filter((row) => !row.classList.contains('hidden'));
@@ -1781,6 +1867,15 @@ if ($dashboardSlug === 'asm-head-manager') {
             ['name' => 'FOR COMPLIANCE', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 0, 'max' => 5],
             ['name' => 'OMD VALIDATED', 'tone' => 'bg-white text-slate-700 font-semibold', 'seed' => 0, 'max' => 0],
         ];
+        foreach ($flowStatuses as &$flowStatus) {
+            $configuredStatus = $dispatchStatusLookup[$normalizeDispatchStatus((string)$flowStatus['name'])] ?? null;
+            if ($configuredStatus !== null) {
+                $flowStatus['color'] = $configuredStatus['color'];
+                $flowStatus['text_color'] = $configuredStatus['text_color'];
+                $flowStatus['tone'] = 'font-extrabold';
+            }
+        }
+        unset($flowStatus);
         foreach ($flowStatuses as $statusIndex => &$flowStatus) {
             $values = [];
             foreach ($flowDays as $day) {
@@ -1876,7 +1971,7 @@ if ($dashboardSlug === 'asm-head-manager') {
                         <tbody>
                             <?php foreach ($flowStatuses as $status): ?>
                                 <tr>
-                                    <td class="sticky left-0 z-10 border <?= htmlspecialchars($flowTheme['border']) ?> px-3 py-2.5 text-left uppercase shadow-[1px_0_0_#e5e7eb] <?= htmlspecialchars($status['tone']) ?>"><?= htmlspecialchars($status['name']) ?></td>
+                                    <td class="sticky left-0 z-10 border <?= htmlspecialchars($flowTheme['border']) ?> px-3 py-2.5 text-left uppercase shadow-[1px_0_0_#e5e7eb] <?= htmlspecialchars($status['tone']) ?>" <?php if (!empty($status['color'])): ?>style="background-color: <?= htmlspecialchars($status['color']) ?>; color: <?= htmlspecialchars($status['text_color']) ?>;"<?php endif; ?>><?= htmlspecialchars($status['name']) ?></td>
                                     <?php foreach ($status['values'] as $value): ?>
                                         <td class="border <?= htmlspecialchars($flowTheme['border']) ?> bg-white/85 px-2 py-2.5 text-center font-semibold text-slate-700 <?= htmlspecialchars($flowTheme['value_hover']) ?>"><?= (int)$value ?></td>
                                     <?php endforeach; ?>
@@ -1949,6 +2044,44 @@ if ($dashboardSlug === 'asm-head-manager') {
                 }
             }
             unset($turninsRow);
+        }
+        $turninsStatusColumns = [];
+        foreach ($dispatchStatusRows as $statusRow) {
+            $statusLabel = strtoupper(trim((string)($statusRow['dispatch_status'] ?? '')));
+            $statusMapKey = $normalizeDispatchStatus($statusLabel);
+            $statusDataKey = $dispatchStatusKeyMap[$statusMapKey] ?? null;
+            if ($statusDataKey === null || !array_key_exists($statusDataKey, $turninsRows[0] ?? [])) {
+                continue;
+            }
+
+            $turninsStatusColumns[$statusDataKey] = [
+                'key' => $statusDataKey,
+                'label' => $statusLabel,
+                'color' => (string)($statusRow['color'] ?? '#e2e8f0'),
+                'text_color' => $dispatchStatusTextColor((string)($statusRow['color'] ?? '#e2e8f0')),
+            ];
+        }
+        foreach ([
+            'activated' => 'ACTIVATED',
+            'schedule' => 'FOR SCHEDULE OF INSTALLATION',
+            'installation' => 'FOR INSTALLATION',
+            'msa' => 'FOR MSA INSTALLATION',
+            'double_entry' => 'DOUBLE ENTRY',
+            'reschedule' => 'RE-SCHEDULE',
+            'on_hold' => 'ON-HOLD INSTALLATION',
+            'validation' => 'FOR VALIDATION',
+            'revalidation' => 'FOR REVALIDATION',
+        ] as $fallbackKey => $fallbackLabel) {
+            if (!isset($turninsStatusColumns[$fallbackKey])) {
+                $configuredStatus = $dispatchStatusLookup[$normalizeDispatchStatus($fallbackLabel)] ?? null;
+                $fallbackColor = $configuredStatus['color'] ?? '#e2e8f0';
+                $turninsStatusColumns[$fallbackKey] = [
+                    'key' => $fallbackKey,
+                    'label' => $configuredStatus['label'] ?? $fallbackLabel,
+                    'color' => $fallbackColor,
+                    'text_color' => $configuredStatus['text_color'] ?? $dispatchStatusTextColor($fallbackColor),
+                ];
+            }
         }
         ?>
 
@@ -2048,22 +2181,20 @@ if ($dashboardSlug === 'asm-head-manager') {
                             <tr class="bg-primary-700">
                                 <th class="sticky left-0 z-20 border border-primary-600 bg-primary-700 px-3 py-3 text-center">SALES CATEGORY</th>
                                 <th class="border border-primary-600 px-3 py-3 text-center">TOTAL</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">ACTIVATED</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">FOR SCHEDULE OF INSTALLATION</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">FOR INSTALLATION</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">FOR MSA INSTALLATION</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">DOUBLE ENTRY</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">RE-SCHEDULE</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">ON-HOLD INSTALLATION</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">FOR VALIDATION</th>
-                                <th class="border border-primary-600 px-3 py-3 text-center">FOR REVALIDATION</th>
+                                <?php foreach ($turninsStatusColumns as $status): ?>
+                                    <th class="border border-primary-600 px-3 py-3 text-center" style="background-color: <?= htmlspecialchars($status['color']) ?>; color: <?= htmlspecialchars($status['text_color']) ?>;">
+                                        <?= htmlspecialchars($status['label']) ?>
+                                    </th>
+                                <?php endforeach; ?>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($turninsRows as $row): ?>
                                 <tr class="bg-white text-slate-700 hover:bg-cyan-50/50 transition-colors">
                                     <td class="sticky left-0 z-10 border border-slate-200 bg-white px-3 py-3 text-left text-[10px] font-extrabold uppercase leading-tight text-primary-700"><?= htmlspecialchars($row['category']) ?></td>
-                                    <?php foreach (['total', 'activated', 'schedule', 'installation', 'msa', 'double_entry', 'reschedule', 'on_hold', 'validation', 'revalidation'] as $turninsKey): ?>
+                                    <td class="border border-slate-200 px-3 py-3 text-center font-extrabold bg-primary-50 text-primary-700"><?= (int)$row['total'] ?></td>
+                                    <?php foreach ($turninsStatusColumns as $status): ?>
+                                        <?php $turninsKey = $status['key']; ?>
                                         <td class="border border-slate-200 px-3 py-3 text-center font-semibold <?= $turninsKey === 'total' ? 'bg-primary-50 text-primary-700 font-extrabold' : '' ?>"><?= (int)$row[$turninsKey] ?></td>
                                     <?php endforeach; ?>
                                 </tr>
@@ -2072,7 +2203,9 @@ if ($dashboardSlug === 'asm-head-manager') {
                         <tfoot>
                             <tr class="bg-blue-100 text-slate-900 font-extrabold">
                                 <td class="sticky left-0 z-20 border border-blue-200 bg-blue-100 px-3 py-3 text-center text-[10px] uppercase">Over All Total</td>
-                                <?php foreach (['total', 'activated', 'schedule', 'installation', 'msa', 'double_entry', 'reschedule', 'on_hold', 'validation', 'revalidation'] as $turninsKey): ?>
+                                <td class="border border-blue-200 px-3 py-3 text-center"><?= array_sum(array_column($turninsRows, 'total')) ?></td>
+                                <?php foreach ($turninsStatusColumns as $status): ?>
+                                    <?php $turninsKey = $status['key']; ?>
                                     <td class="border border-blue-200 px-3 py-3 text-center"><?= array_sum(array_column($turninsRows, $turninsKey)) ?></td>
                                 <?php endforeach; ?>
                             </tr>

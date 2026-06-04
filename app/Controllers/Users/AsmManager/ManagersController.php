@@ -299,6 +299,49 @@ class ManagersController extends BaseController
     {
         Csrf::verify();
 
+        $db = Database::getInstance();
+
+        $existingManager = null;
+        $linkedUserId = 0;
+        if ($source === 'manager') {
+            $existingStmt = $db->prepare("SELECT id, user_id, email, company_email FROM managers WHERE id = :id LIMIT 1");
+            $existingStmt->execute([':id' => $id]);
+            $existingManager = $existingStmt->fetch(\PDO::FETCH_ASSOC) ?: null;
+
+            if (!$existingManager) {
+                Session::flash('message', 'Manager record not found.');
+                Session::flash('message_type', 'error');
+                if (App::isAjax() || App::isApiRequest()) {
+                    $this->json(['success' => false, 'message' => 'Manager record not found.'], 404);
+                }
+                $this->redirect(App::url('managers'));
+            }
+
+            $linkedUserId = (int)($existingManager['user_id'] ?? 0);
+        } elseif ($source === 'user') {
+            $existingStmt = $db->prepare("SELECT id FROM users WHERE id = :id AND role = 'asm_manager' LIMIT 1");
+            $existingStmt->execute([':id' => $id]);
+            $existingUser = $existingStmt->fetch(\PDO::FETCH_ASSOC) ?: null;
+
+            if (!$existingUser) {
+                Session::flash('message', 'Manager user not found.');
+                Session::flash('message_type', 'error');
+                if (App::isAjax() || App::isApiRequest()) {
+                    $this->json(['success' => false, 'message' => 'Manager user not found.'], 404);
+                }
+                $this->redirect(App::url('managers'));
+            }
+
+            $linkedUserId = $id;
+        } else {
+            Session::flash('message', 'Invalid manager source.');
+            Session::flash('message_type', 'error');
+            if (App::isAjax() || App::isApiRequest()) {
+                $this->json(['success' => false, 'message' => 'Invalid manager source.'], 422);
+            }
+            $this->redirect(App::url('managers'));
+        }
+
         $data = $this->requestData();
         $firstName = trim($data['first_name'] ?? '');
         $middleName = trim($data['middle_name'] ?? '');
@@ -326,62 +369,109 @@ class ManagersController extends BaseController
             'updated_at' => date('Y-m-d H:i:s'),
         ];
 
-        $db = Database::getInstance();
-
         if ($source === 'manager') {
-            $existingStmt = $db->prepare("SELECT id, user_id FROM managers WHERE id = :id LIMIT 1");
-            $existingStmt->execute([':id' => $id]);
-            $existing = $existingStmt->fetch(\PDO::FETCH_ASSOC) ?: null;
+            $linkedUserId = $this->resolveManagerUserId($linkedUserId, $payload['email'], $payload['company_email']);
+        }
 
-            if (!$existing) {
-                Session::flash('message', 'Manager record not found.');
-                Session::flash('message_type', 'error');
-                $this->redirect(App::url('managers'));
+        $validator = (new Validation())->validate($payload, [
+            'manager_name' => 'required|min:2|max:150',
+            'first_name' => 'max:100',
+            'middle_name' => 'max:100',
+            'last_name' => 'max:100',
+            'sales_manager' => 'max:150',
+            'position' => 'required|max:100',
+            'contact' => 'required|max:30',
+            'company_email' => 'required|email',
+            'email' => 'required|email',
+            'status' => 'required|in:pending,active,inactive',
+        ]);
+
+        $errors = $validator->errors();
+        foreach (['company_email', 'email'] as $column) {
+            if ($payload[$column] !== ''
+                && $this->managerColumnExistsForAnotherRow($column, $payload[$column], $source === 'manager' ? $id : null)
+            ) {
+                $errors[$column][] = ucfirst(str_replace('_', ' ', $column)) . ' already exists in managers.';
             }
 
-            $stmt = $db->prepare("
-                UPDATE managers
-                SET manager_name = :manager_name,
-                    first_name = :first_name,
-                    middle_name = :middle_name,
-                    last_name = :last_name,
-                    sales_manager = :sales_manager,
-                    position = :position,
-                    contact_no = :contact,
-                    contact = :contact,
-                    email = :email,
-                    company_email = :company_email,
-                    user_type = COALESCE(user_type, 'asm_manager'),
-                    status = :status,
-                    updated_at = :updated_at
-                WHERE id = :id
-                LIMIT 1
-            ");
-            $stmt->execute([
-                ':id' => $id,
-                ':manager_name' => $payload['manager_name'],
-                ':first_name' => $payload['first_name'] !== '' ? $payload['first_name'] : null,
-                ':middle_name' => $payload['middle_name'] !== '' ? $payload['middle_name'] : null,
-                ':last_name' => $payload['last_name'] !== '' ? $payload['last_name'] : null,
-                ':sales_manager' => $payload['sales_manager'] !== '' ? $payload['sales_manager'] : null,
-                ':position' => $payload['position'],
-                ':contact' => $payload['contact'] !== '' ? $payload['contact'] : null,
-                ':email' => $payload['email'],
-                ':company_email' => $payload['company_email'],
-                ':status' => $payload['status'],
-                ':updated_at' => $payload['updated_at'],
-            ]);
-
-            $linkedUserId = (int)($existing['user_id'] ?? 0);
-            if ($linkedUserId > 0) {
-                $this->syncLinkedUserProfile($linkedUserId, $payload);
+            if ($payload[$column] !== ''
+                && $this->userColumnExistsForAnotherAsm($column, $payload[$column], $linkedUserId)
+            ) {
+                $errors[$column][] = ucfirst(str_replace('_', ' ', $column)) . ' already exists in users.';
             }
-        } elseif ($source === 'user') {
-            $this->syncLinkedUserProfile($id, $payload);
-        } else {
-            Session::flash('message', 'Invalid manager source.');
+        }
+
+        if (!empty($errors)) {
+            Session::flash('message', 'Unable to update manager. Please check the form values.');
             Session::flash('message_type', 'error');
-            $this->redirect(App::url('managers'));
+            if (App::isAjax() || App::isApiRequest()) {
+                $this->json([
+                    'success' => false,
+                    'message' => $this->firstValidationError($errors) ?? 'Unable to update manager.',
+                    'errors' => $errors,
+                ], 422);
+            }
+
+            $this->redirectBack();
+        }
+
+        try {
+            if ($source === 'manager') {
+                $stmt = $db->prepare("
+                    UPDATE managers
+                    SET manager_name = :manager_name,
+                        first_name = :first_name,
+                        middle_name = :middle_name,
+                        last_name = :last_name,
+                        sales_manager = :sales_manager,
+                        position = :position,
+                        contact_no = :contact_no,
+                        contact = :contact,
+                        email = :email,
+                        company_email = :company_email,
+                        user_id = :user_id,
+                        user_type = COALESCE(user_type, 'asm_manager'),
+                        status = :status,
+                        updated_at = :updated_at
+                    WHERE id = :id
+                    LIMIT 1
+                ");
+                $stmt->execute([
+                    ':id' => $id,
+                    ':manager_name' => $payload['manager_name'],
+                    ':first_name' => $payload['first_name'] !== '' ? $payload['first_name'] : null,
+                    ':middle_name' => $payload['middle_name'] !== '' ? $payload['middle_name'] : null,
+                    ':last_name' => $payload['last_name'] !== '' ? $payload['last_name'] : null,
+                    ':sales_manager' => $payload['sales_manager'] !== '' ? $payload['sales_manager'] : null,
+                    ':position' => $payload['position'],
+                    ':contact_no' => $payload['contact'] !== '' ? $payload['contact'] : null,
+                    ':contact' => $payload['contact'] !== '' ? $payload['contact'] : null,
+                    ':email' => $payload['email'],
+                    ':company_email' => $payload['company_email'],
+                    ':user_id' => $linkedUserId > 0 ? $linkedUserId : null,
+                    ':status' => $payload['status'],
+                    ':updated_at' => $payload['updated_at'],
+                ]);
+
+                if ($linkedUserId > 0) {
+                    $this->syncLinkedUserProfile($linkedUserId, $payload);
+                }
+            } elseif ($source === 'user') {
+                $this->syncLinkedUserProfile($id, $payload);
+            }
+        } catch (\PDOException $exception) {
+            error_log('Manager update failed for ' . $source . ' ID ' . $id . ': ' . $exception->getMessage());
+            Session::flash('message', 'Unable to update manager. Please check for duplicate email values.');
+            Session::flash('message_type', 'error');
+
+            if (App::isAjax() || App::isApiRequest()) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Unable to update manager. Please check for duplicate email values.',
+                ], 422);
+            }
+
+            $this->redirectBack();
         }
 
         Session::flash('message', 'Manager updated successfully.');
@@ -392,6 +482,84 @@ class ManagersController extends BaseController
         }
 
         $this->redirect(App::url('managers'));
+    }
+
+    private function managerColumnExistsForAnotherRow(string $column, string $value, ?int $id): bool
+    {
+        $allowed = ['company_email', 'email'];
+        if (!in_array($column, $allowed, true)) {
+            return false;
+        }
+
+        $db = Database::getInstance();
+        $sql = "SELECT COUNT(*) FROM managers WHERE `$column` = :value";
+        $params = [':value' => $value];
+
+        if ($id !== null) {
+            $sql .= " AND id <> :id";
+            $params[':id'] = $id;
+        }
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
+    private function userColumnExistsForAnotherAsm(string $column, string $value, int $userId): bool
+    {
+        $allowed = ['company_email', 'email'];
+        if (!in_array($column, $allowed, true)) {
+            return false;
+        }
+
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE `$column` = :value AND id <> :id");
+        $stmt->execute([
+            ':value' => $value,
+            ':id' => $userId,
+        ]);
+
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
+    private function resolveManagerUserId(int $userId, string $email, string $companyEmail): int
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("
+            SELECT id
+            FROM users
+            WHERE role = 'asm_manager'
+              AND (
+                  (:id_filter > 0 AND id = :id_value)
+                  OR (:email_filter <> '' AND email = :email_value)
+                  OR (:company_email_filter <> '' AND company_email = :company_email_value)
+              )
+            ORDER BY CASE WHEN id = :id_order THEN 0 ELSE 1 END
+            LIMIT 1
+        ");
+        $stmt->execute([
+            ':id_filter' => $userId,
+            ':id_value' => $userId,
+            ':id_order' => $userId,
+            ':email_filter' => $email,
+            ':email_value' => $email,
+            ':company_email_filter' => $companyEmail,
+            ':company_email_value' => $companyEmail,
+        ]);
+
+        return (int)($stmt->fetchColumn() ?: $userId);
+    }
+
+    private function firstValidationError(array $errors): ?string
+    {
+        foreach ($errors as $fieldErrors) {
+            if (is_array($fieldErrors) && isset($fieldErrors[0])) {
+                return (string)$fieldErrors[0];
+            }
+        }
+
+        return null;
     }
 
     private function syncLinkedUserProfile(int $userId, array $payload): void

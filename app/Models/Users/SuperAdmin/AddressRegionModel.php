@@ -15,12 +15,11 @@ class AddressRegionModel extends Model
 
     public function getForTable(): array
     {
-        return $this->all(['id', 'region_name'], [], ['region_name' => 'ASC']);
+        return $this->all(['id', 'region_name', 'region_code'], [], ['region_name' => 'ASC']);
     }
 
     public function findByName(string $name): ?array
     {
-        return $this->findBy('region_name', $name, ['id', 'region_name']);
+        return $this->findBy('region_name', $name, ['id', 'region_name', 'region_code']);
     }
 }
-

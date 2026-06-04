@@ -123,6 +123,11 @@ if ($isSuperAdminSidebar) {
     $menuItems[] = ['key' => 'faq', 'label' => 'FAQ', 'url' => $headManagerDashboardUrl . '?section=faq', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5M4 6h16M4 18h16"/>'];
 } elseif ($isAdminSidebar) {
     $menuItems[] = ['key' => 'dashboard', 'label' => 'Operations Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
+    if ($sidebarDashboardSlug === 'admin-dispatcher') {
+        $menuItems[] = ['key' => 'daily_tech_productivity', 'label' => 'Daily Tech Productivity', 'url' => App\Config\App::url($sidebarDashboardPath . '?section=daily-tech-productivity'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/>'];
+        $menuItems[] = ['key' => 'sales_turn_ins', 'label' => 'Sales Turn-ins', 'url' => App\Config\App::url($sidebarDashboardPath . '?section=sales-turn-ins'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l2 13h11l2-9H7m3 13a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/>'];
+        $menuItems[] = ['key' => 'daily_flow_thru', 'label' => 'Daily Flow Thru', 'url' => App\Config\App::url($sidebarDashboardPath . '?section=daily-flow-thru'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h11m0 0l-3-3m3 3l-3 3M20 17H9m0 0l3-3m-3 3l3 3"/>'];
+    }
 } elseif ($isAsmSidebar) {
     $menuItems[] = ['key' => 'dashboard', 'label' => $sidebarDisplayRole . ' Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
 } else {
