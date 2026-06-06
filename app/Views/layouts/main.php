@@ -19,8 +19,18 @@ $isAsmSidebar = in_array($sidebarDashboardSlug, ['asm-manager', 'asm-super-manag
 $mainHeaderTitle = 'Dashboard';
 if ($sidebarDashboardSlug === 'asm-area-sales-manager') {
     $asmHeaderSectionTitles = [
+        '' => 'Overview',
         'assigning-area' => 'Assigning Area',
         'sub-agent-report' => 'Sub Agent Report',
+        'sales-status' => 'Sales Status',
+        'productivity-per-area' => 'Productivity Per Area',
+        'eod-jo-area' => 'EOD JO Area',
+        'sales-turn-ins' => 'Sales Turn-ins',
+        'pending-job-order' => 'Pending Job Order',
+        'partners-report' => 'Partners Report',
+        'daily-sales-activation' => 'Daily Sales Activation',
+        'tat-activation' => 'TAT Activation',
+        'faq' => 'FAQ',
     ];
     $mainHeaderSection = strtolower(trim((string)($_GET['section'] ?? '')));
     $mainHeaderTitle = $asmHeaderSectionTitles[$mainHeaderSection] ?? $mainHeaderTitle;
@@ -169,7 +179,8 @@ if ($isSuperAdminSidebar) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-dt@1.13.8/css/jquery.dataTables.min.css">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="<?= App\Config\App::url('images/paragon.png') ?>">
+    <link rel="icon" type="image/png" href="<?= App\Config\App::url('images/small%20icon%201.png') ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= App\Config\App::url('images/small%20icon%201.png') ?>">
 
     <?= $styles ?? '' ?>
 </head>
@@ -292,7 +303,7 @@ if ($isSuperAdminSidebar) {
 
                 <div class="flex min-w-0 flex-1 items-center">
                     <?php if (!$isSuperAdminSidebar): ?>
-                        <h1 class="truncate text-2xl font-bold leading-none text-slate-950 md:text-[28px]"><?= htmlspecialchars($mainHeaderTitle) ?></h1>
+                        <h1 class="truncate text-2xl font-semibold leading-none text-slate-950 md:text-[28px]"><?= htmlspecialchars($mainHeaderTitle) ?></h1>
                     <?php endif; ?>
                 </div>
 
@@ -318,11 +329,7 @@ if ($isSuperAdminSidebar) {
                     <div class="profile-menu" data-profile-menu>
                         <button type="button" class="profile-trigger" data-profile-trigger aria-haspopup="true" aria-expanded="false">
                             <span class="profile-avatar">
-                                <?php if (!empty($authUser['avatar'])): ?>
-                                    <img src="<?= App\Config\App::url('uploads/' . $authUser['avatar']) ?>" alt="Profile" class="w-full h-full object-cover">
-                                <?php else: ?>
-                                    <span class="profile-initial"><?= htmlspecialchars($profileInitial) ?></span>
-                                <?php endif; ?>
+                                <img src="<?= App\Config\App::url('images/profile%20pic.png') ?>" alt="Profile" class="w-full h-full object-cover">
                             </span>
                             <span class="profile-summary">
                                 <span class="profile-name"><?= htmlspecialchars($profileName !== '' ? $profileName : 'User') ?></span>

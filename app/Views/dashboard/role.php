@@ -3439,85 +3439,85 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
             $asmAreaAverage = (int)round($asmAreaTotal / $asmAreaMunicipalityCount);
         ?>
 
-        <div class="space-y-6">
-            <div class="grid grid-cols-2 gap-6 px-2 sm:grid-cols-4 sm:px-6 lg:px-20">
-                <?php foreach ($asmProducts as $product): ?>
-                    <?php
-                        $isAreaProductActive = $asmAreaProductKey === $product['key'];
-                        $areaProductUrl = '?section=productivity-per-area&product=' . rawurlencode((string)$product['key'])
-                            . '&month=' . rawurlencode($asmAreaMonth)
-                            . '&year=' . rawurlencode($asmAreaYear)
-                            . '&region=' . rawurlencode($asmAreaRegion);
-                    ?>
-                    <a href="<?= htmlspecialchars($areaProductUrl) ?>"
-                       class="group rounded-xl border p-3 transition-all duration-200 <?= $isAreaProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
-                        <div class="flex h-20 items-center justify-center rounded-lg border bg-white p-3 <?= $isAreaProductActive ? 'border-primary-100' : 'border-slate-100' ?>">
-                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-h-full max-w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
-                        </div>
-                    </a>
-                <?php endforeach; ?>
+        <div class="space-y-5">
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="grid gap-3" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+                    <?php foreach ($asmProducts as $product): ?>
+                        <?php
+                            $isAreaProductActive = $asmAreaProductKey === $product['key'];
+                            $areaProductUrl = '?section=productivity-per-area&product=' . rawurlencode((string)$product['key'])
+                                . '&month=' . rawurlencode($asmAreaMonth)
+                                . '&year=' . rawurlencode($asmAreaYear)
+                                . '&region=' . rawurlencode($asmAreaRegion);
+                        ?>
+                        <a href="<?= htmlspecialchars($areaProductUrl) ?>"
+                           class="group rounded-xl border p-4 transition-all duration-200 <?= $isAreaProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                            <div class="flex h-24 items-center justify-center rounded-lg border bg-white p-5 <?= $isAreaProductActive ? 'border-primary-100' : 'border-slate-100' ?>">
+                                <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
             </div>
 
             <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                <div class="border-b border-slate-100 px-5 py-4 text-center">
-                    <h2 class="text-base font-extrabold text-primary-700"><?= htmlspecialchars($asmAreaRegions[$asmAreaRegion]) ?> - <?= htmlspecialchars($asmAreaMonth) ?> <?= htmlspecialchars($asmAreaYear) ?> (<?= (int)$asmAreaMunicipalityCount ?> municipalities)</h2>
-                    <form method="GET" class="mt-3 flex flex-wrap items-end justify-center gap-3">
-                        <input type="hidden" name="section" value="productivity-per-area">
-                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmAreaProductKey) ?>">
-                        <input type="hidden" name="region" value="<?= htmlspecialchars($asmAreaRegion) ?>">
-                        <label class="flex flex-col gap-1 text-left text-[11px] font-semibold text-slate-500">
-                            Month
-                            <select name="month" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                <div class="border-b border-slate-100 px-5 py-4">
+                    <h2 class="text-base font-medium text-primary-700"><?= htmlspecialchars($asmAreaRegions[$asmAreaRegion]) ?> - <?= htmlspecialchars($asmAreaMonth) ?> <?= htmlspecialchars($asmAreaYear) ?> (<?= (int)$asmAreaMunicipalityCount ?> municipalities)</h2>
+                    <div class="mt-4 flex flex-wrap items-center gap-3" style="justify-content: space-between;">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <?php foreach ($asmAreaRegions as $regionKey => $regionLabel): ?>
+                                <?php
+                                    $regionUrl = '?section=productivity-per-area&product=' . rawurlencode($asmAreaProductKey)
+                                        . '&month=' . rawurlencode($asmAreaMonth)
+                                        . '&year=' . rawurlencode($asmAreaYear)
+                                        . '&region=' . rawurlencode($regionKey);
+                                ?>
+                                <a href="<?= htmlspecialchars($regionUrl) ?>"
+                                   class="inline-flex h-9 items-center justify-center rounded-lg border px-4 text-xs font-medium transition-colors <?= $asmAreaRegion === $regionKey ? 'border-primary-500 bg-primary-600 text-white shadow-sm' : 'border-primary-200 bg-white text-primary-700 hover:bg-cyan-50' ?>">
+                                    <?= htmlspecialchars($regionLabel) ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                        <form method="GET" class="flex flex-wrap items-center gap-2">
+                            <input type="hidden" name="section" value="productivity-per-area">
+                            <input type="hidden" name="product" value="<?= htmlspecialchars($asmAreaProductKey) ?>">
+                            <input type="hidden" name="region" value="<?= htmlspecialchars($asmAreaRegion) ?>">
+                            <select name="month" class="h-9 w-40 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select month">
                                 <?php foreach ($asmAreaMonths as $month): ?>
                                     <option value="<?= htmlspecialchars($month) ?>" <?= $asmAreaMonth === $month ? 'selected' : '' ?>><?= htmlspecialchars($month) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                        </label>
-                        <label class="flex flex-col gap-1 text-left text-[11px] font-semibold text-slate-500">
-                            Year
-                            <select name="year" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                            <select name="year" class="h-9 w-28 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select year">
                                 <?php foreach ($asmAreaYears as $year): ?>
                                     <option value="<?= htmlspecialchars($year) ?>" <?= $asmAreaYear === $year ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                        </label>
-                        <button type="submit" class="inline-flex h-10 items-center justify-center rounded-lg bg-primary-600 px-5 text-xs font-bold text-white transition-colors hover:bg-primary-700">Go</button>
-                    </form>
-                    <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
-                        <?php foreach ($asmAreaRegions as $regionKey => $regionLabel): ?>
-                            <?php
-                                $regionUrl = '?section=productivity-per-area&product=' . rawurlencode($asmAreaProductKey)
-                                    . '&month=' . rawurlencode($asmAreaMonth)
-                                    . '&year=' . rawurlencode($asmAreaYear)
-                                    . '&region=' . rawurlencode($regionKey);
-                            ?>
-                            <a href="<?= htmlspecialchars($regionUrl) ?>"
-                               class="inline-flex h-9 items-center justify-center rounded-lg border px-4 text-xs font-extrabold transition-colors <?= $asmAreaRegion === $regionKey ? 'border-primary-500 bg-primary-600 text-white shadow-sm' : 'border-primary-200 bg-white text-primary-700 hover:bg-cyan-50' ?>">
-                                <?= htmlspecialchars($regionLabel) ?>
-                            </a>
-                        <?php endforeach; ?>
+                            <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-medium text-white transition-colors hover:bg-primary-700">Go</button>
+                        </form>
                     </div>
                 </div>
 
-                <div class="px-5 py-6">
-                    <div style="height: 420px;">
-                        <canvas id="asm-productivity-area-chart"></canvas>
+                <div class="space-y-4 px-5 py-6">
+                    <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3 md:p-4">
+                        <div style="height: 420px;">
+                            <canvas id="asm-productivity-area-chart"></canvas>
+                        </div>
                     </div>
-                    <div class="mt-6 rounded-xl border-l-4 border-primary-500 bg-slate-50 px-5 py-4">
-                        <p class="text-sm font-extrabold text-primary-700">Total Activated Job Orders Summary</p>
-                        <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                            <div>
-                                <p class="text-2xl font-extrabold text-primary-600"><?= number_format($asmAreaTotal) ?></p>
-                                <p class="text-[10px] font-semibold uppercase text-slate-500">Total Orders</p>
-                            </div>
-                            <div>
-                                <p class="text-2xl font-extrabold text-primary-600"><?= (int)$asmAreaMunicipalityCount ?></p>
-                                <p class="text-[10px] font-semibold uppercase text-slate-500">Municipalities</p>
-                            </div>
-                            <div>
-                                <p class="text-2xl font-extrabold text-primary-600"><?= number_format($asmAreaAverage) ?></p>
-                                <p class="text-[10px] font-semibold uppercase text-slate-500">Avg Per Municipality</p>
-                            </div>
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <p class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">Total Orders</p>
+                            <p class="mt-2 text-2xl font-medium text-blue-600"><?= number_format($asmAreaTotal) ?></p>
+                            <p class="text-xs text-slate-500">Activated job orders</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <p class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">Municipalities</p>
+                            <p class="mt-2 text-2xl font-medium text-slate-900"><?= (int)$asmAreaMunicipalityCount ?></p>
+                            <p class="text-xs text-slate-500">Tracked areas</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <p class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">Average Per Municipality</p>
+                            <p class="mt-2 text-2xl font-medium text-emerald-600"><?= number_format($asmAreaAverage) ?></p>
+                            <p class="text-xs text-slate-500">Activated orders</p>
                         </div>
                     </div>
                 </div>
@@ -3529,6 +3529,10 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
                 if (typeof Chart === 'undefined') return;
                 const areaCanvas = document.getElementById('asm-productivity-area-chart');
                 if (!areaCanvas) return;
+                const asmAreaAccent = '#2b7af4';
+                const asmAreaGradient = areaCanvas.getContext('2d').createLinearGradient(0, 0, 0, 420);
+                asmAreaGradient.addColorStop(0, asmAreaAccent);
+                asmAreaGradient.addColorStop(1, 'rgba(14, 116, 144, 0.45)');
                 new Chart(areaCanvas, {
                     type: 'bar',
                     data: {
@@ -3536,9 +3540,11 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
                         datasets: [{
                             label: 'Activated Job Orders',
                             data: <?= json_encode(array_column($asmAreaChartRows, 1)) ?>,
-                            backgroundColor: '#2b7af4',
-                            borderRadius: 3,
-                            maxBarThickness: 56,
+                            backgroundColor: asmAreaGradient,
+                            borderColor: asmAreaAccent,
+                            borderWidth: 1,
+                            borderRadius: 8,
+                            maxBarThickness: 46,
                         }],
                     },
                     options: {
@@ -3546,28 +3552,29 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                display: true,
-                                labels: { color: '#64748b', boxWidth: 24, font: { size: 11 } },
+                                labels: { color: '#475569', boxWidth: 14, font: { size: 11, weight: '600' } },
                             },
                             tooltip: {
                                 backgroundColor: '#0f172a',
                                 titleColor: '#ffffff',
-                                bodyColor: '#f8fafc',
+                                bodyColor: '#dbeafe',
                                 padding: 12,
-                                cornerRadius: 8,
+                                cornerRadius: 10,
+                                callbacks: {
+                                    label: (context) => `${context.dataset.label}: ${Number(context.raw).toLocaleString()}`,
+                                },
                             },
                         },
                         scales: {
                             x: {
-                                title: { display: true, text: 'Municipality', color: '#64748b', font: { size: 11 } },
-                                grid: { color: 'rgba(148, 163, 184, .16)' },
-                                ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 55, minRotation: 55 },
+                                grid: { display: false },
+                                ticks: { color: '#64748b', font: { size: 10, weight: '600' }, maxRotation: 0, autoSkip: false },
                             },
                             y: {
                                 beginAtZero: true,
-                                title: { display: true, text: 'Number of Activated Job Orders', color: '#64748b', font: { size: 11 } },
-                                grid: { color: 'rgba(148, 163, 184, .25)' },
-                                ticks: { color: '#64748b', font: { size: 10 } },
+                                grid: { color: 'rgba(14, 116, 144, .10)' },
+                                ticks: { color: '#64748b', font: { size: 11 } },
+                                title: { display: true, text: 'Number of Activated Job Orders', color: '#64748b', font: { size: 11, weight: '600' } },
                             },
                         },
                     },
@@ -3939,111 +3946,117 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
         ?>
 
         <div class="space-y-5">
-            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <?php foreach ($asmProducts as $product): ?>
-                    <?php
-                        $isDailyProductActive = $asmDailyProductKey === $product['key'];
-                        $dailyProductUrl = '?section=daily-sales-activation&product=' . rawurlencode((string)$product['key'])
-                            . '&from=' . rawurlencode($asmDailyFrom)
-                            . '&to=' . rawurlencode($asmDailyTo)
-                            . '&show=' . rawurlencode((string)$asmDailyShow)
-                            . '&search=' . rawurlencode($asmDailySearch);
-                    ?>
-                    <a href="<?= htmlspecialchars($dailyProductUrl) ?>"
-                       class="group mx-auto inline-flex h-14 w-full max-w-[150px] items-center justify-center rounded-lg border bg-white px-3 py-2 transition-all duration-200 <?= $isDailyProductActive ? 'border-primary-500 shadow-[0_0_0_2px_rgba(43,122,244,.14),0_8px_18px_rgba(43,122,244,.16)]' : 'border-slate-200 shadow-sm hover:border-primary-200 hover:shadow-md' ?>">
-                        <div class="flex h-full w-full items-center justify-center overflow-hidden">
-                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-h-full max-w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
-                        </div>
-                    </a>
-                <?php endforeach; ?>
+            <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div class="grid gap-3" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+                    <?php foreach ($asmProducts as $product): ?>
+                        <?php
+                            $isDailyProductActive = $asmDailyProductKey === $product['key'];
+                            $dailyProductUrl = '?section=daily-sales-activation&product=' . rawurlencode((string)$product['key'])
+                                . '&from=' . rawurlencode($asmDailyFrom)
+                                . '&to=' . rawurlencode($asmDailyTo)
+                                . '&show=' . rawurlencode((string)$asmDailyShow)
+                                . '&search=' . rawurlencode($asmDailySearch);
+                        ?>
+                        <a href="<?= htmlspecialchars($dailyProductUrl) ?>"
+                           class="group rounded-xl border p-4 transition-all duration-200 <?= $isDailyProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
+                            <div class="flex h-24 items-center justify-center rounded-lg border bg-white p-5 <?= $isDailyProductActive ? 'border-primary-100' : 'border-slate-100' ?>">
+                                <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="h-full w-full object-contain <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo' : '' ?>">
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
             </div>
 
-            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-3 shadow-sm">
-                <form method="GET" class="mb-3 flex flex-wrap items-end gap-2">
-                    <input type="hidden" name="section" value="daily-sales-activation">
-                    <input type="hidden" name="product" value="<?= htmlspecialchars($asmDailyProductKey) ?>">
-                    <input type="hidden" name="show" value="<?= (int)$asmDailyShow ?>">
-                    <input type="hidden" name="search" value="<?= htmlspecialchars($asmDailySearch) ?>">
-                    <label class="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500" aria-hidden="true">
-                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-                                <path d="M7 3v3m10-3v3M4.5 9h15M6 5h12a1.5 1.5 0 0 1 1.5 1.5v12A1.5 1.5 0 0 1 18 20H6a1.5 1.5 0 0 1-1.5-1.5v-12A1.5 1.5 0 0 1 6 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
-                        </span>
-                        <input type="date" name="from" value="<?= htmlspecialchars($asmDailyFrom) ?>" class="h-9 rounded-md border border-slate-200 bg-white px-3 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
-                    </label>
-                    <label class="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                        <span>to</span>
-                        <input type="date" name="to" value="<?= htmlspecialchars($asmDailyTo) ?>" class="h-9 rounded-md border border-slate-200 bg-white px-3 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
-                    </label>
-                    <button type="submit" class="inline-flex h-9 items-center justify-center rounded-md bg-primary-600 px-4 text-xs font-bold text-white transition-colors hover:bg-primary-700">Go</button>
-                    <button type="button" id="asm-daily-sales-export" class="inline-flex h-9 w-10 items-center justify-center rounded-md bg-green-600 text-white transition-colors hover:bg-green-700" aria-label="Download Daily Sales Activation CSV">
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                    </button>
-                </form>
-
-                <div class="mb-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <form method="GET" class="flex items-center gap-1.5 text-xs text-slate-600">
-                        <input type="hidden" name="section" value="daily-sales-activation">
-                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmDailyProductKey) ?>">
-                        <input type="hidden" name="from" value="<?= htmlspecialchars($asmDailyFrom) ?>">
-                        <input type="hidden" name="to" value="<?= htmlspecialchars($asmDailyTo) ?>">
-                        <input type="hidden" name="search" value="<?= htmlspecialchars($asmDailySearch) ?>">
-                        <span>Show</span>
-                        <select name="show" class="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15" onchange="this.form.submit()">
-                            <?php foreach ([10, 25, 50] as $showOption): ?>
-                                <option value="<?= (int)$showOption ?>" <?= $asmDailyShow === $showOption ? 'selected' : '' ?>><?= (int)$showOption ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <span>entries</span>
-                    </form>
-
-                    <form method="GET" class="flex items-center justify-end gap-2 text-xs text-slate-600">
-                        <input type="hidden" name="section" value="daily-sales-activation">
-                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmDailyProductKey) ?>">
-                        <input type="hidden" name="from" value="<?= htmlspecialchars($asmDailyFrom) ?>">
-                        <input type="hidden" name="to" value="<?= htmlspecialchars($asmDailyTo) ?>">
-                        <input type="hidden" name="show" value="<?= (int)$asmDailyShow ?>">
-                        <label for="asm-daily-sales-search" class="font-medium">Search:</label>
-                        <input id="asm-daily-sales-search" type="search" name="search" value="<?= htmlspecialchars($asmDailySearch) ?>" class="h-8 w-full rounded-none border border-slate-300 bg-white px-2 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15 md:w-40">
-                    </form>
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-5 py-4">
+                    <h2 class="text-base font-medium text-primary-700">Daily Sales Activation</h2>
+                    <div class="mt-4 flex flex-wrap items-center gap-3" style="justify-content: flex-end;">
+                        <form method="GET" class="flex flex-wrap items-center gap-2">
+                            <input type="hidden" name="section" value="daily-sales-activation">
+                            <input type="hidden" name="product" value="<?= htmlspecialchars($asmDailyProductKey) ?>">
+                            <input type="hidden" name="show" value="<?= (int)$asmDailyShow ?>">
+                            <input type="hidden" name="search" value="<?= htmlspecialchars($asmDailySearch) ?>">
+                            <label class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                                From
+                                <input type="date" name="from" value="<?= htmlspecialchars($asmDailyFrom) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                            </label>
+                            <label class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                                To
+                                <input type="date" name="to" value="<?= htmlspecialchars($asmDailyTo) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                            </label>
+                            <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-medium text-white transition-colors hover:bg-primary-700">Go</button>
+                            <button type="button" id="asm-daily-sales-export" class="inline-flex h-9 items-center justify-center rounded-lg bg-green-600 px-4 text-xs font-medium text-white transition-colors hover:bg-green-700">Export</button>
+                        </form>
+                    </div>
                 </div>
 
-                <div class="overflow-auto bg-white" style="max-height: 620px;">
-                    <table id="asm-daily-sales-table" class="min-w-[1320px] w-full border-collapse text-[9px]">
-                        <thead class="bg-slate-100 text-[7px] uppercase tracking-[.18em] text-slate-400">
-                            <tr>
-                                <?php foreach (['Agent Code', 'Agent Name', 'Sales Category', 'Installer', 'Account Name', 'Job Order', 'Date Activated', 'Address', 'Municipality', 'Status'] as $heading): ?>
-                                    <th class="border border-slate-100 px-3 py-2 text-left font-extrabold"><?= htmlspecialchars($heading) ?></th>
+                <div class="px-5 py-6">
+                    <div class="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <form method="GET" class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                            <input type="hidden" name="section" value="daily-sales-activation">
+                            <input type="hidden" name="product" value="<?= htmlspecialchars($asmDailyProductKey) ?>">
+                            <input type="hidden" name="from" value="<?= htmlspecialchars($asmDailyFrom) ?>">
+                            <input type="hidden" name="to" value="<?= htmlspecialchars($asmDailyTo) ?>">
+                            <input type="hidden" name="search" value="<?= htmlspecialchars($asmDailySearch) ?>">
+                            <span>Show</span>
+                            <select name="show" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15" onchange="this.form.submit()">
+                                <?php foreach ([10, 25, 50] as $showOption): ?>
+                                    <option value="<?= (int)$showOption ?>" <?= $asmDailyShow === $showOption ? 'selected' : '' ?>><?= (int)$showOption ?></option>
                                 <?php endforeach; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($asmDailyRows)): ?>
+                            </select>
+                            <span>entries</span>
+                        </form>
+
+                        <form method="GET" class="flex items-center justify-end gap-2 text-xs font-medium text-slate-600">
+                            <input type="hidden" name="section" value="daily-sales-activation">
+                            <input type="hidden" name="product" value="<?= htmlspecialchars($asmDailyProductKey) ?>">
+                            <input type="hidden" name="from" value="<?= htmlspecialchars($asmDailyFrom) ?>">
+                            <input type="hidden" name="to" value="<?= htmlspecialchars($asmDailyTo) ?>">
+                            <input type="hidden" name="show" value="<?= (int)$asmDailyShow ?>">
+                            <label for="asm-daily-sales-search">Search:</label>
+                            <input id="asm-daily-sales-search" type="search" name="search" value="<?= htmlspecialchars($asmDailySearch) ?>" class="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15 md:w-56">
+                        </form>
+                    </div>
+
+                    <div class="overflow-auto rounded-xl border border-slate-200 bg-white shadow-sm" style="max-height: 620px;">
+                        <table id="asm-daily-sales-table" class="min-w-[1320px] w-full border-collapse text-[11px]">
+                            <thead class="bg-slate-50 text-left text-[10px] font-medium uppercase tracking-wide text-slate-500">
                                 <tr>
-                                    <td colspan="10" class="border border-slate-100 px-4 py-10 text-center text-xs font-semibold text-slate-500">No activations found.</td>
+                                    <?php foreach (['Agent Code', 'Agent Name', 'Sales Category', 'Installer', 'Account Name', 'Job Order', 'Date Activated', 'Address', 'Municipality', 'Status'] as $heading): ?>
+                                        <th class="border-b border-slate-200 px-4 py-3">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <span><?= htmlspecialchars($heading) ?></span>
+                                                <span class="text-[10px] font-medium text-slate-400">↑↓</span>
+                                            </div>
+                                        </th>
+                                    <?php endforeach; ?>
                                 </tr>
-                            <?php endif; ?>
-                            <?php foreach ($asmDailyRows as $rowIndex => $row): ?>
-                                <tr class="bg-white text-slate-900 transition-colors hover:bg-cyan-50/40">
-                                    <td class="border-b border-slate-100 px-3 py-4 font-extrabold"><?= htmlspecialchars($row[0]) ?></td>
-                                    <td class="border-b border-slate-100 px-3 py-4 font-bold leading-snug"><?= htmlspecialchars($row[1]) ?></td>
-                                    <td class="border-b border-slate-100 px-3 py-4 font-extrabold uppercase leading-snug"><?= htmlspecialchars($row[2]) ?></td>
-                                    <td class="border-b border-slate-100 px-3 py-4 font-bold"><?= htmlspecialchars($row[3]) ?></td>
-                                    <td class="border-b border-slate-100 px-3 py-4 font-extrabold uppercase leading-snug"><?= htmlspecialchars($row[4]) ?></td>
-                                    <td class="border-b border-slate-100 px-3 py-4 font-bold"><?= htmlspecialchars($row[5]) ?></td>
-                                    <td class="border-b border-slate-100 px-3 py-4 font-semibold"><?= htmlspecialchars($row[6]) ?></td>
-                                    <td class="border-b border-slate-100 px-3 py-4 font-bold uppercase leading-snug"><?= htmlspecialchars($row[7]) ?></td>
-                                    <td class="border-b border-slate-100 px-3 py-4 font-extrabold uppercase"><?= htmlspecialchars($row[8]) ?></td>
-                                    <td class="border-b border-slate-100 px-3 py-4">
-                                        <span class="inline-flex rounded bg-green-500 px-2 py-0.5 text-[8px] font-extrabold uppercase text-white shadow-sm"><?= htmlspecialchars($row[9]) ?></span>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($asmDailyRows)): ?>
+                                    <tr>
+                                        <td colspan="10" class="px-4 py-10 text-center text-sm font-semibold text-slate-500">No activations found.</td>
+                                    </tr>
+                                <?php endif; ?>
+                                <?php foreach ($asmDailyRows as $rowIndex => $row): ?>
+                                    <tr class="<?= $rowIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50' ?> text-slate-700 transition-colors hover:bg-cyan-50/50">
+                                        <td class="border-b border-slate-100 px-4 py-3 font-medium text-slate-800"><?= htmlspecialchars($row[0]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3 font-semibold uppercase"><?= htmlspecialchars($row[1]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3 font-semibold uppercase"><?= htmlspecialchars($row[2]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3 font-semibold uppercase"><?= htmlspecialchars($row[3]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3 font-semibold uppercase"><?= htmlspecialchars($row[4]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3 font-semibold"><?= htmlspecialchars($row[5]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3 font-semibold"><?= htmlspecialchars($row[6]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3 font-semibold uppercase leading-snug"><?= htmlspecialchars($row[7]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3 font-medium uppercase text-slate-800"><?= htmlspecialchars($row[8]) ?></td>
+                                        <td class="border-b border-slate-100 px-4 py-3">
+                                            <span class="inline-flex rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-semibold uppercase text-emerald-700"><?= htmlspecialchars($row[9]) ?></span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4376,19 +4389,23 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
                 </div>
             </div>
 
-            <div class="mx-auto max-w-6xl rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div class="rounded-lg border border-blue-400 bg-white p-4">
-                    <form method="GET" class="mb-4 flex flex-wrap items-center justify-end gap-2">
-                        <input type="hidden" name="section" value="pending-job-order">
-                        <input type="hidden" name="product" value="<?= htmlspecialchars($asmSelectedProduct['key']) ?>">
-                        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                            Date:
-                            <input type="date" name="pending_date" value="<?= htmlspecialchars($asmPendingDate) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:outline-none">
-                        </label>
-                        <button type="button" class="inline-flex h-9 items-center rounded-lg bg-green-600 px-4 text-xs font-bold text-white transition-colors hover:bg-green-700">Export</button>
-                    </form>
-                    <h2 class="mb-5 text-center text-base font-bold text-blue-900"><?= htmlspecialchars($asmPendingDateLabel) ?></h2>
-                    <div class="overflow-x-auto">
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-5 py-4">
+                    <h2 class="text-base font-medium text-primary-700"><?= htmlspecialchars($asmPendingDateLabel) ?></h2>
+                    <div class="mt-4 flex flex-wrap items-center gap-3" style="justify-content: flex-end;">
+                        <form method="GET" class="flex flex-wrap items-center gap-2">
+                            <input type="hidden" name="section" value="pending-job-order">
+                            <input type="hidden" name="product" value="<?= htmlspecialchars($asmSelectedProduct['key']) ?>">
+                            <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                Date:
+                                <input type="date" name="pending_date" value="<?= htmlspecialchars($asmPendingDate) ?>" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:outline-none">
+                            </label>
+                            <button type="button" class="inline-flex h-9 items-center rounded-lg bg-green-600 px-4 text-xs font-medium text-white transition-colors hover:bg-green-700">Export</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="px-5 py-6">
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
                         <table class="pending-job-table min-w-[920px] w-full border-collapse text-[11px]">
                             <thead>
                                 <tr>
@@ -4421,6 +4438,88 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
                 </div>
             </div>
         </div>
+        <?php return; ?>
+    <?php endif; ?>
+
+    <?php if (($activeRoute ?? 'dashboard') === 'faq'): ?>
+        <?php
+            $asmFaqItems = [
+                [
+                    'question' => 'How do I switch between product reports?',
+                    'answer' => 'Use the product cards at the top of each report section. Selecting S2S, FiberX, BIDA, or SME reloads the current tab with data and filters preserved for that product whenever possible.',
+                ],
+                [
+                    'question' => 'What does Productivity Per Area show?',
+                    'answer' => 'Productivity Per Area summarizes activated job orders by municipality and region. Area Sales Managers can compare total activations, tracked municipalities, and average activation performance for the selected month and product.',
+                ],
+                [
+                    'question' => 'How should I use Pending Job Order?',
+                    'answer' => 'Pending Job Order helps monitor municipalities with orders still waiting for reschedule, installation, or MSA installation. Use the date filter to check the current queue for a specific day, then export the table if you need a report copy.',
+                ],
+                [
+                    'question' => 'What is Daily Sales Activation for?',
+                    'answer' => 'Daily Sales Activation lists activated accounts within the selected date range, including agent code, agent name, sales category, installer, job order, address, municipality, and activation status.',
+                ],
+                [
+                    'question' => 'Can I search and export table records?',
+                    'answer' => 'Yes. Sections with tables include search, date, show-entry, or export controls depending on the report. Use search for quick filtering and Export when you need a CSV copy of the visible report data.',
+                ],
+                [
+                    'question' => 'Why do some reports change when I select a date, month, or region?',
+                    'answer' => 'The dashboard reads the selected filters from the page URL. Changing a filter refreshes the report so the table, chart, and totals match the selected product, date range, month, year, or region.',
+                ],
+            ];
+        ?>
+        <div class="space-y-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <h1 class="text-xl font-medium text-slate-950">Help & Center</h1>
+                    <p class="mt-1 text-xs font-medium text-slate-500">Quick answers for using the Area Sales Manager dashboard.</p>
+                </div>
+                <button type="button" class="inline-flex h-10 w-fit items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-medium text-white shadow-sm transition-colors hover:bg-primary-700">
+                    Add Question
+                </button>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 md:flex-row md:items-center md:justify-between">
+                    <p class="text-sm font-semibold text-slate-600">Help and Center</p>
+                    <label class="relative w-full md:w-64">
+                        <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <input id="asm-faq-search" type="search" placeholder="Search" class="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-xs font-medium text-slate-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                    </label>
+                </div>
+
+                <div id="asm-faq-list" class="space-y-3 p-5">
+                    <?php foreach ($asmFaqItems as $item): ?>
+                        <details class="asm-faq-item group rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm" open>
+                            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-950">
+                                <span><?= htmlspecialchars($item['question']) ?></span>
+                                <svg class="h-4 w-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="m6 15 6-6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </summary>
+                            <p class="mt-2 text-sm leading-6 text-slate-500"><?= htmlspecialchars($item['answer']) ?></p>
+                        </details>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const search = document.getElementById('asm-faq-search');
+                const items = Array.from(document.querySelectorAll('.asm-faq-item'));
+                search?.addEventListener('input', () => {
+                    const query = search.value.trim().toLowerCase();
+                    items.forEach((item) => {
+                        item.style.display = item.innerText.toLowerCase().includes(query) ? '' : 'none';
+                    });
+                });
+            });
+        </script>
         <?php return; ?>
     <?php endif; ?>
 

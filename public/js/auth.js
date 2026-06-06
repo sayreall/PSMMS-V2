@@ -83,76 +83,12 @@ function validateAuthForm(form) {
     return ok;
 }
 
-function updateRoleFields(form) {
-    const roleField = form.querySelector('select[name="role"]');
-    if (!roleField) return;
-
-    const role = roleField.value;
-    const isAdmin = role === 'super_admin';
-    const isInhouse = role === 'inhouse_sales';
-    const isMsa = role === 'msa_partners';
-    form.classList.toggle('role-admin', isAdmin);
-    form.classList.toggle('role-inhouse', isInhouse);
-    form.classList.toggle('role-msa', isMsa);
-    const card = form.closest('.auth-card');
-    if (card) {
-        card.classList.toggle('admin-mode', isAdmin);
-        card.classList.toggle('inhouse-mode', isInhouse);
-        card.classList.toggle('msa-mode', isMsa);
-    }
-
-    const roleMatches = (value, roleValue) => {
-        return value.split(',').map((item) => item.trim()).filter(Boolean).includes(roleValue);
-    };
-
-    const setElementEnabled = (element, enabled) => {
-        element.querySelectorAll('input, select, textarea').forEach((field) => {
-            field.disabled = !enabled;
-            if (!enabled && field.type !== 'hidden') {
-                field.value = '';
-            }
-            if (!enabled && field.type === 'file') {
-                field.value = '';
-            }
-        });
-    };
-
-    const updateValidation = (element, show) => {
-        element.querySelectorAll('[data-validate-base]').forEach((field) => {
-            if (show) {
-                field.dataset.validate = field.dataset.validateBase;
-            } else {
-                delete field.dataset.validate;
-                field.value = '';
-            }
-        });
-
-        element.querySelectorAll('[data-validate]').forEach((field) => {
-            if (!show) {
-                delete field.dataset.validate;
-                field.value = '';
-            }
-        });
-
-        if (!show) {
-            element.querySelectorAll('[data-error-for]').forEach((errorEl) => {
-                errorEl.textContent = '';
-            });
+function syncCopiedFields(form) {
+    form.querySelectorAll('[data-copy-from]').forEach((field) => {
+        const source = form.querySelector(`[name="${field.dataset.copyFrom}"]`);
+        if (source) {
+            field.value = source.value;
         }
-    };
-
-    form.querySelectorAll('[data-role-only]').forEach((element) => {
-        const show = roleMatches(element.dataset.roleOnly || '', role);
-        element.hidden = !show;
-        setElementEnabled(element, show);
-        updateValidation(element, show);
-    });
-
-    form.querySelectorAll('[data-role-hide]').forEach((element) => {
-        const hide = roleMatches(element.dataset.roleHide || '', role);
-        element.hidden = hide;
-        setElementEnabled(element, !hide);
-        updateValidation(element, !hide);
     });
 }
 
@@ -165,10 +101,9 @@ function bindAuthForms() {
             ? 'Please check your login details and try again.'
             : 'Please check your form details and try again.';
 
-        updateRoleFields(form);
-
         form.querySelectorAll('[data-validate], [data-validate-base]').forEach((field) => {
             field.addEventListener('input', () => {
+                syncCopiedFields(form);
                 if (field.dataset.emailTarget) {
                     const linkedField = syncCompanyEmail(field);
                     if (linkedField) {
@@ -179,12 +114,8 @@ function bindAuthForms() {
             });
         });
 
-        const roleField = form.querySelector('select[name="role"]');
-        if (roleField) {
-            roleField.addEventListener('change', () => updateRoleFields(form));
-        }
-
         form.addEventListener('submit', async (event) => {
+            syncCopiedFields(form);
             form.querySelectorAll('[data-email-target]').forEach((field) => {
                 syncCompanyEmail(field);
             });

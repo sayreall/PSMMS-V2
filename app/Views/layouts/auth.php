@@ -7,6 +7,8 @@
     <title><?= $title ?? 'PSMMS' ?> | Authentication</title>
     <meta name="description" content="PSMMS Dashboard Authentication">
     <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken ?? '') ?>">
+    <link rel="icon" type="image/png" href="<?= App\Config\App::url('images/small%20icon%201.png') ?>">
+    <link rel="shortcut icon" type="image/png" href="<?= App\Config\App::url('images/small%20icon%201.png') ?>">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +18,11 @@
     />
     <link rel="stylesheet" href="<?= App\Config\App::url('css/auth.css') ?>">
 </head>
-<body class="auth-shell auth-login">
+<?php
+$authPath = trim(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '', '/');
+$authMode = str_contains($authPath, 'register') ? 'register' : 'login';
+?>
+<body class="auth-shell auth-<?= htmlspecialchars($authMode) ?>">
     <main class="auth-wrap">
         <section class="auth-visual" aria-hidden="true">
             <div class="auth-visual-slides">
@@ -29,7 +35,7 @@
             <div class="visual-glow"></div>
             <div class="visual-content">
                 <p class="visual-kicker">PSMMS Secure Access</p>
-                <h2>Built for reliable campus operations.</h2>
+                <h2>Built for reliable business operations.</h2>
                 <p>Unified authentication for login, recovery, and verification with a clean and focused user experience.</p>
             </div>
         </section>
@@ -57,5 +63,6 @@
     <script src="<?= App\Config\App::url('js/auth.js') ?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <?= $scripts ?? '' ?>
+
 </body>
 </html>
