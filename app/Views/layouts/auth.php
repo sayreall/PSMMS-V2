@@ -42,6 +42,12 @@ $authMode = str_contains($authPath, 'register') ? 'register' : 'login';
 
         <section class="auth-panel">
             <div class="auth-card">
+                <div class="auth-card-slides" aria-hidden="true">
+                    <img src="<?= App\Config\App::url('images/loginbg.png') ?>" alt="">
+                    <img src="<?= App\Config\App::url('images/BIDA.png') ?>" alt="">
+                    <img src="<?= App\Config\App::url('images/CONVERGE%20SME.png') ?>" alt="">
+                    <img src="<?= App\Config\App::url('images/s222s.jpg') ?>" alt="">
+                </div>
                 <h1><?= $title ?? 'Welcome back' ?></h1>
                 <p class="auth-subtitle"><?= $subtitle ?? 'Sign in to continue.' ?></p>
 

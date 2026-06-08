@@ -27,7 +27,7 @@ class DashboardRouteResolver
             }
 
             if ($position === 'head_manager') {
-                return 'dashboard/asm-head-manager';
+                return 'dashboard/head-manager';
             }
 
             if (in_array($position, ['general_manager', 'manager'], true)) {

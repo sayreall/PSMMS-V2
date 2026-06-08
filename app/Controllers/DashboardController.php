@@ -272,7 +272,6 @@ class DashboardController extends BaseController
             'asm-manager' => 'ASM Manager Dashboard',
             'asm-super-manager' => 'Super Manager Dashboard',
             'asm-area-sales-manager' => 'Area Sales Manager Dashboard',
-            'asm-head-manager' => 'Head Manager Dashboard',
             'inhouse-sales' => 'In-house Sales Dashboard',
             'msa-partners' => 'MSA Partners Dashboard',
             'sme-sales' => 'SME Sales Dashboard',

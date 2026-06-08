@@ -15,7 +15,7 @@ $isAdminSidebar = (
     in_array($sidebarDashboardSlug, ['admin', 'accounting'], true)
     || strpos($sidebarDashboardSlug, 'admin-') === 0
 );
-$isAsmSidebar = in_array($sidebarDashboardSlug, ['asm-manager', 'asm-super-manager', 'asm-area-sales-manager', 'asm-head-manager'], true);
+$isAsmSidebar = in_array($sidebarDashboardSlug, ['asm-manager', 'asm-super-manager', 'asm-area-sales-manager'], true);
 $mainHeaderTitle = 'Dashboard';
 if ($sidebarDashboardSlug === 'asm-area-sales-manager') {
     $asmHeaderSectionTitles = [
@@ -34,6 +34,26 @@ if ($sidebarDashboardSlug === 'asm-area-sales-manager') {
     ];
     $mainHeaderSection = strtolower(trim((string)($_GET['section'] ?? '')));
     $mainHeaderTitle = $asmHeaderSectionTitles[$mainHeaderSection] ?? $mainHeaderTitle;
+} elseif ($sidebarDashboardSlug === 'head-manager') {
+    $headManagerHeaderSectionTitles = [
+        '' => 'Overview',
+        'summary-report' => 'Summary Report',
+        'monthly-sales-report' => 'Monthly Sales Report',
+        'daily-tech-productivity' => 'Daily Tech Productivity',
+        'technician-incentive' => 'Technician Incentive',
+        'tech-team-activation' => 'Tech Team Activation',
+        'technician-per-soc' => 'Technician Per SOC',
+        'productivity-per-area' => 'Productivity Per Area',
+        'pending-job-order' => 'Pending Job Order',
+        'sales-turn-ins' => 'Sales Turn-ins',
+        'daily-flow-thru' => 'Daily Flow Thru',
+        'partners-report' => 'Partners Report',
+        'daily-sales-activation' => 'Daily Sales Activation',
+        'tat-activation' => 'TAT Activation',
+        'faq' => 'FAQ',
+    ];
+    $mainHeaderSection = strtolower(trim((string)($_GET['section'] ?? '')));
+    $mainHeaderTitle = $headManagerHeaderSectionTitles[$mainHeaderSection] ?? $mainHeaderTitle;
 }
 
 $menuItems = [];
@@ -109,7 +129,7 @@ if ($isSuperAdminSidebar) {
     $menuItems[] = ['key' => 'daily_sales_activation', 'label' => 'Daily Sales Activation', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'daily-sales-activation'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h11m0 0l-3-3m3 3l-3 3M20 17H9m0 0l3-3m-3 3l3 3"/>'];
     $menuItems[] = ['key' => 'tat_activation', 'label' => 'TAT Activation', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'tat-activation'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h7m11-7l-4 4-2-2"/>'];
     $menuItems[] = ['key' => 'faq', 'label' => 'FAQ', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'faq'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5M4 6h16M4 18h16"/>'];
-} elseif ($sidebarDashboardSlug === 'asm-head-manager') {
+} elseif ($sidebarDashboardSlug === 'head-manager') {
     $sidebarSectionTitle = 'Components';
     $headManagerDashboardUrl = App\Config\App::url($sidebarDashboardPath);
     $menuItems[] = ['key' => 'dashboard', 'label' => 'Overview', 'url' => $headManagerDashboardUrl, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 11.5L12 4l9 7.5M5 10v10h5v-6h4v6h5V10"/>'];

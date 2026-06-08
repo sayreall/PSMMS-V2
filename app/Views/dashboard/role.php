@@ -65,7 +65,7 @@ $dispatchStatusKeyMap = [
     'RESCHED BY MSA' => 'resched_by_msa',
 ];
 
-if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager', 'asm-manager', 'asm-area-sales-manager'], true)) {
+if (in_array($dashboardSlug, ['admin-dispatcher', 'head-manager', 'asm-manager', 'asm-area-sales-manager'], true)) {
     $headManagerSectionRoutes = [
         'assigning-area' => 'assigning_area',
         'sub-agent-report' => 'sub_agent_report',
@@ -107,14 +107,13 @@ $roleHighlights = [
     'asm-manager' => 'Manager-level subscriber and activation tracking.',
     'asm-super-manager' => 'Super manager pipeline and performance snapshot.',
     'asm-area-sales-manager' => 'Area sales manager activation pipeline.',
-    'asm-head-manager' => 'Head manager approvals and performance checks.',
     'inhouse-sales' => 'In-house sales output and targets.',
     'msa-partners' => 'Partner account overview and performance.',
     'sme-sales' => 'SME sales monitoring and progress.',
     'general' => 'General dashboard overview.',
 ];
 
-if (in_array($dashboardSlug, ['admin-dispatcher', 'asm-head-manager'], true)) {
+if (in_array($dashboardSlug, ['admin-dispatcher', 'head-manager'], true)) {
     $products = [
         ['key' => 's2s', 'name' => 'Surf2Sawa', 'short' => 'S2S', 'value' => '123,452', 'delta' => '+2343', 'delta_positive' => true, 'image' => 'images/s2s.jpg', 'tone' => 'text-rose-600', 'badge' => 'bg-rose-100 text-rose-600', 'color' => '#ef4444'],
         ['key' => 'fiberx', 'name' => 'FiberX', 'short' => 'FIBERX', 'value' => '20,535', 'delta' => '+1,340', 'delta_positive' => true, 'image' => 'images/fiberx.png', 'tone' => 'text-indigo-600', 'badge' => 'bg-indigo-100 text-indigo-600', 'color' => '#4f46e5'],

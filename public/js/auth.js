@@ -230,7 +230,52 @@ function bindPasswordToggles() {
     });
 }
 
+function applyRegisterRoleLayout(form) {
+    const roleSelect = form.querySelector('select[name="role"]');
+    if (!roleSelect) return;
+
+    const card = form.closest('.auth-card');
+    const managerPosition = form.querySelector('[name="manager_position"]');
+    const role = roleSelect.value;
+
+    form.classList.remove('role-admin', 'role-inhouse', 'role-msa');
+    if (card) {
+        card.classList.remove('admin-mode', 'inhouse-mode', 'msa-mode');
+    }
+
+    if (role === 'super_admin' || role === 'accounting') {
+        form.classList.add('role-admin');
+        card?.classList.add('admin-mode');
+    } else if (role === 'inhouse_sales') {
+        form.classList.add('role-inhouse');
+        card?.classList.add('inhouse-mode');
+    } else if (role === 'msa_partners') {
+        form.classList.add('role-msa');
+        card?.classList.add('msa-mode');
+    }
+
+    if (managerPosition) {
+        managerPosition.value = role === 'asm_manager' && !managerPosition.value
+            ? 'area_sales_manager'
+            : managerPosition.value;
+    }
+}
+
+function bindRegisterRoleLayout() {
+    const form = document.getElementById('register-form');
+    if (!form) return;
+
+    const roleSelect = form.querySelector('select[name="role"]');
+    if (!roleSelect) return;
+
+    applyRegisterRoleLayout(form);
+    roleSelect.addEventListener('change', () => {
+        applyRegisterRoleLayout(form);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     bindAuthForms();
     bindPasswordToggles();
+    bindRegisterRoleLayout();
 });

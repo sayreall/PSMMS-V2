@@ -689,6 +689,10 @@ body.auth-register .auth-wrap {
     box-shadow: none;
 }
 
+.auth-card-slides {
+    display: none;
+}
+
 body.auth-register .auth-card,
 .auth-card.admin-mode,
 .auth-card.inhouse-mode,
@@ -973,5 +977,108 @@ body.auth-login .auth-form {
 
     .auth-button {
         height: 52px;
+    }
+}
+
+@media (max-width: 1180px) {
+    body.auth-login {
+        background: #ffffff;
+    }
+
+    body.auth-login .auth-wrap {
+        background: #ffffff;
+    }
+
+    body.auth-login .auth-visual {
+        display: none !important;
+    }
+
+    body.auth-login .auth-panel {
+        position: relative;
+        z-index: 1;
+        background: #ffffff;
+    }
+
+    body.auth-login .auth-card {
+        position: relative;
+        overflow: hidden;
+        padding: 28px;
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 18px 44px rgba(15, 23, 42, 0.16);
+    }
+
+    body.auth-login .auth-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.66);
+        pointer-events: none;
+    }
+
+    body.auth-login .auth-card > :not(.auth-card-slides) {
+        position: relative;
+        z-index: 2;
+    }
+
+    body.auth-login .auth-card-slides {
+        display: block;
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    body.auth-login .auth-card-slides img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        animation: authVisualFade 12s infinite;
+    }
+
+    body.auth-login .auth-card-slides img:nth-child(1) {
+        animation-delay: 0s;
+    }
+
+    body.auth-login .auth-card-slides img:nth-child(2) {
+        animation-delay: 3s;
+    }
+
+    body.auth-login .auth-card-slides img:nth-child(3) {
+        animation-delay: 6s;
+    }
+
+    body.auth-login .auth-card-slides img:nth-child(4) {
+        animation-delay: 9s;
+    }
+
+    body.auth-login .visual-content,
+    body.auth-login .visual-grid,
+    body.auth-login .visual-glow {
+        display: none !important;
+    }
+}
+
+@media (max-width: 640px) {
+    body.auth-login {
+        padding: 12px;
+    }
+
+    body.auth-login .auth-wrap {
+        min-height: auto;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        border-radius: 24px;
+    }
+
+    body.auth-login .auth-panel {
+        min-height: calc(100vh - 24px);
+    }
+
+    body.auth-login .auth-card {
+        padding: 24px;
     }
 }
