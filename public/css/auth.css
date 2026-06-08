@@ -344,7 +344,7 @@ body.auth-login .visual-glow {
 .input-suffix {
     display: inline-flex;
     align-items: center;
-    height: 42px;
+    height: 50px;
     padding: 0 12px;
     border: 1px solid #d4d4d8;
     border-left: 0;

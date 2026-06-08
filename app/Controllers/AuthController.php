@@ -158,9 +158,19 @@ class AuthController extends BaseController
         $last_name = trim($data['last_name'] ?? '');
         $email = trim($data['email'] ?? '');
         $company_email = trim($data['company_email'] ?? '');
+        $company_email_local = trim($data['company_email_local'] ?? '');
         $contact_no = trim($data['contact_no'] ?? '');
         $manager_position = trim($data['manager_position'] ?? '');
         $manager_sales_manager = trim($data['manager_sales_manager'] ?? '');
+        $admin_position = trim($data['admin_position'] ?? '');
+        $admin_employee_id = trim($data['admin_employee_id'] ?? '');
+        $admin_department = trim($data['admin_department'] ?? '');
+        $admin_address = trim($data['admin_address'] ?? '');
+        $sales_manager = trim($data['sales_manager'] ?? '');
+        $company_name = trim($data['company_name'] ?? '');
+        $sales_category = trim($data['sales_category'] ?? '');
+        $area_type = trim($data['area_type'] ?? '');
+        $address = trim($data['address'] ?? '');
         $password = $data['password'] ?? '';
         $password_confirmation = $data['password_confirmation'] ?? '';
         $role = trim($data['role'] ?? 'accounting');
@@ -168,7 +178,9 @@ class AuthController extends BaseController
         $name = $this->composeFullName($first_name, $middle_name, $last_name);
 
         if ($company_email === '') {
-            $company_email = $email;
+            $company_email = $company_email_local !== ''
+                ? $company_email_local . '@paragoncorp.com.ph'
+                : $email;
         }
 
         $rules = [
@@ -187,6 +199,21 @@ class AuthController extends BaseController
             $rules['manager_position'] = 'required|in:super_manager,area_sales_manager,head_manager';
             $rules['manager_sales_manager'] = 'max:150';
             $rules['company_email'] = 'email|unique:users.company_email';
+        } elseif ($role === 'super_admin' || $role === 'accounting') {
+            $rules['admin_position'] = 'required|max:100';
+            $rules['admin_employee_id'] = 'required|max:50|unique:admins.employee_id';
+            $rules['admin_department'] = 'required|in:operation,accounting';
+            $rules['admin_address'] = 'max:255';
+        } elseif ($role === 'inhouse_sales') {
+            $rules['sales_manager'] = 'required|max:100';
+            $rules['sales_category'] = 'required|max:100';
+            $rules['address'] = 'required|max:255';
+        } elseif ($role === 'msa_partners') {
+            $rules['sales_manager'] = 'required|max:150';
+            $rules['company_name'] = 'required|max:150';
+            $rules['sales_category'] = 'required|max:100';
+            $rules['area_type'] = 'required|max:100';
+            $rules['address'] = 'required|max:255';
         }
 
         $validator = (new Validation)->validate(
@@ -201,7 +228,16 @@ class AuthController extends BaseController
                 'password_confirmation',
                 'role',
                 'manager_position',
-                'manager_sales_manager'
+                'manager_sales_manager',
+                'admin_position',
+                'admin_employee_id',
+                'admin_department',
+                'admin_address',
+                'sales_manager',
+                'company_name',
+                'sales_category',
+                'area_type',
+                'address'
             ),
             $rules
         );
@@ -223,7 +259,17 @@ class AuthController extends BaseController
                 'contact_no',
                 'role',
                 'manager_position',
-                'manager_sales_manager'
+                'manager_sales_manager',
+                'company_email_local',
+                'admin_position',
+                'admin_employee_id',
+                'admin_department',
+                'admin_address',
+                'sales_manager',
+                'company_name',
+                'sales_category',
+                'area_type',
+                'address'
             ));
             $this->redirectBack();
         }
@@ -268,6 +314,70 @@ class AuthController extends BaseController
                         'password' => $hashedPassword,
                         'email' => $email,
                         'photos' => null,
+                        'status' => 'pending',
+                    ]);
+                }
+            } elseif ($role === 'super_admin' || $role === 'accounting') {
+                $exists = $this->adminModel->findBy('email', $email);
+                if (!$exists) {
+                    $this->adminModel->createAdmin([
+                        'user_id' => $userId,
+                        'user_type' => 'admin',
+                        'first_name' => $first_name,
+                        'middle_name' => $middle_name ?: null,
+                        'last_name' => $last_name,
+                        'username' => $name,
+                        'position' => $admin_position ?: 'admin',
+                        'area' => null,
+                        'contact_no' => $contact_no,
+                        'contact' => $contact_no,
+                        'address' => $admin_address ?: null,
+                        'employee_id' => $admin_employee_id,
+                        'department' => $admin_department,
+                        'company_email' => $company_email,
+                        'password' => $hashedPassword,
+                        'email' => $email,
+                        'photos' => null,
+                        'status' => 'pending',
+                    ]);
+                }
+            } elseif ($role === 'inhouse_sales') {
+                $exists = $this->inhouseSalesModel->findBy('email', $email);
+                if (!$exists) {
+                    $this->inhouseSalesModel->createInhouseSales([
+                        'user_id' => $userId,
+                        'user_type' => 'inhouse_sales',
+                        'sales_manager' => $sales_manager,
+                        'first_name' => $first_name,
+                        'middle_name' => $middle_name ?: null,
+                        'last_name' => $last_name,
+                        'contact' => $contact_no,
+                        'email' => $email,
+                        'password' => $hashedPassword,
+                        'photos' => null,
+                        'address' => $address,
+                        'sales_category' => $sales_category,
+                        'status' => 'pending',
+                    ]);
+                }
+            } elseif ($role === 'msa_partners') {
+                $exists = $this->msaPartnerModel->findBy('email', $email);
+                if (!$exists) {
+                    $this->msaPartnerModel->createMsaPartner([
+                        'user_id' => $userId,
+                        'user_type' => 'msa_partners',
+                        'sales_manager' => $sales_manager,
+                        'company_name' => $company_name,
+                        'first_name' => $first_name,
+                        'middle_name' => $middle_name ?: null,
+                        'last_name' => $last_name,
+                        'contact' => $contact_no,
+                        'email' => $email,
+                        'password' => $hashedPassword,
+                        'photos' => null,
+                        'area_type' => $area_type,
+                        'address' => $address,
+                        'sales_category' => $sales_category,
                         'status' => 'pending',
                     ]);
                 }

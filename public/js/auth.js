@@ -26,6 +26,8 @@ function syncCompanyEmail(localField) {
 }
 
 function validateAuthField(field) {
+    if (field.disabled) return true;
+
     const rules = (field.dataset.validate || '').split('|').filter(Boolean);
     if (!rules.length) return true;
 
@@ -237,6 +239,13 @@ function applyRegisterRoleLayout(form) {
     const card = form.closest('.auth-card');
     const managerPosition = form.querySelector('[name="manager_position"]');
     const role = roleSelect.value;
+    const activeSection = role === 'super_admin' || role === 'accounting'
+        ? 'admin'
+        : role === 'inhouse_sales'
+            ? 'inhouse'
+            : role === 'msa_partners'
+                ? 'msa'
+                : 'manager';
 
     form.classList.remove('role-admin', 'role-inhouse', 'role-msa');
     if (card) {
@@ -259,6 +268,25 @@ function applyRegisterRoleLayout(form) {
             ? 'area_sales_manager'
             : managerPosition.value;
     }
+
+    form.querySelectorAll('[data-role-section]').forEach((section) => {
+        const sections = (section.dataset.roleSection || '').split(/\s+/).filter(Boolean);
+        const isActive = sections.includes(activeSection);
+        section.classList.toggle('is-hidden', !isActive);
+        section.querySelectorAll('input, select, textarea').forEach((field) => {
+            field.disabled = !isActive;
+            const roleRules = field.dataset.validateRole || '';
+            if (!roleRules) return;
+
+            const [roleList, rules] = roleRules.split('|', 2);
+            const allowedRoles = (roleList || '').split(',').map((item) => item.trim()).filter(Boolean);
+            if (isActive && allowedRoles.includes(activeSection)) {
+                field.dataset.validate = rules || '';
+            } else {
+                delete field.dataset.validate;
+            }
+        });
+    });
 }
 
 function bindRegisterRoleLayout() {
