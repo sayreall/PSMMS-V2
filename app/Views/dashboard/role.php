@@ -66,8 +66,12 @@ $dispatchStatusKeyMap = [
 ];
 
 if (in_array($dashboardSlug, ['admin-dispatcher', 'head-manager', 'asm-manager', 'asm-area-sales-manager'], true)) {
+    // Convert dashboard section slugs from the URL into sidebar active-route keys.
     $headManagerSectionRoutes = [
         'assigning-area' => 'assigning_area',
+        'omd-monitoring' => 'omd_monitoring',
+        'dispatcher-monitoring' => 'dispatcher_monitoring',
+        'qa-monitoring' => 'qa_monitoring',
         'sub-agent-report' => 'sub_agent_report',
         'sales-status' => 'sales_status',
         'summary-report' => 'summary_report',
@@ -82,6 +86,7 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'head-manager', 'asm-manager',
         'sales-turn-ins' => 'sales_turn_ins',
         'daily-flow-thru' => 'daily_flow_thru',
         'daily-sales-activation' => 'daily_sales_activation',
+        'sales-tl-productivity' => 'sales_tl_productivity',
         'partners-report' => 'partners_report',
         'tat-activation' => 'tat_activation',
         'faq' => 'faq',

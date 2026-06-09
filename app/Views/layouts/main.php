@@ -2,14 +2,17 @@
 <?php
 $authUser = Auth::user();
 $sidebarResolver = new \App\Models\DashboardRouteResolver();
+// Resolve the signed-in user's dashboard path so the sidebar can match their actual role/position.
 $sidebarDashboardPath = $sidebarResolver->resolvePath($authUser ?? []);
 $sidebarDashboardSlug = basename($sidebarDashboardPath);
 $sidebarDisplayRole = $sidebarResolver->resolveDisplayRole($authUser ?? []);
+// Keep dashboard section URLs consistent for role dashboards that use /dashboard/{role}/{section}.
 $dashboardSectionUrl = static function (string $dashboardPath, string $section): string {
     return App\Config\App::url(trim($dashboardPath, '/') . '/' . trim($section, '/'));
 };
 $sidebarSectionTitle = 'Main Menu';
 $currentUserRole = strtolower(trim((string)($authUser['role'] ?? '')));
+// These flags decide which role-specific sidebar menu should be rendered below.
 $isSuperAdminSidebar = ($currentUserRole === 'super_admin' && $sidebarDashboardSlug === 'super-admin');
 $isAdminSidebar = (
     in_array($sidebarDashboardSlug, ['admin', 'accounting'], true)
@@ -18,6 +21,7 @@ $isAdminSidebar = (
 $isAsmSidebar = in_array($sidebarDashboardSlug, ['asm-manager', 'asm-super-manager', 'asm-area-sales-manager'], true);
 $mainHeaderTitle = 'Dashboard';
 if ($sidebarDashboardSlug === 'asm-area-sales-manager') {
+    // Area Sales Manager section titles shown in the top dashboard header.
     $asmHeaderSectionTitles = [
         '' => 'Overview',
         'assigning-area' => 'Assigning Area',
@@ -35,6 +39,7 @@ if ($sidebarDashboardSlug === 'asm-area-sales-manager') {
     $mainHeaderSection = strtolower(trim((string)($_GET['section'] ?? '')));
     $mainHeaderTitle = $asmHeaderSectionTitles[$mainHeaderSection] ?? $mainHeaderTitle;
 } elseif ($sidebarDashboardSlug === 'head-manager') {
+    // Head Manager section titles shown in the top dashboard header.
     $headManagerHeaderSectionTitles = [
         '' => 'Overview',
         'summary-report' => 'Summary Report',
@@ -54,10 +59,26 @@ if ($sidebarDashboardSlug === 'asm-area-sales-manager') {
     ];
     $mainHeaderSection = strtolower(trim((string)($_GET['section'] ?? '')));
     $mainHeaderTitle = $headManagerHeaderSectionTitles[$mainHeaderSection] ?? $mainHeaderTitle;
+} elseif ($sidebarDashboardSlug === 'admin-dispatcher') {
+    // Dispatcher-only section titles for the monitoring tabs under the dispatcher dashboard.
+    $dispatcherHeaderSectionTitles = [
+        '' => 'Operations Dashboard',
+        'omd-monitoring' => 'OMD Monitoring',
+        'dispatcher-monitoring' => 'Dispatcher Monitoring',
+        'qa-monitoring' => 'QA Monitoring',
+        'daily-tech-productivity' => 'Daily Tech Productivity',
+        'sales-turn-ins' => 'Sales Turn-ins',
+        'daily-flow-thru' => 'Daily Flow Thru',
+        'daily-sales-activation' => 'Daily Sales Activation',
+        'sales-tl-productivity' => 'Sales TL Productivity',
+    ];
+    $mainHeaderSection = strtolower(trim((string)($_GET['section'] ?? '')));
+    $mainHeaderTitle = $dispatcherHeaderSectionTitles[$mainHeaderSection] ?? $mainHeaderTitle;
 }
 
 $menuItems = [];
 if ($isSuperAdminSidebar) {
+    // Super Admin gets full maintenance menus for users, sales records, addresses, dispatch records, and products.
     $menuItems[] = ['key' => 'dashboard', 'label' => 'Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
     $menuItems[] = ['key' => 'admins', 'label' => 'Admins', 'url' => App\Config\App::url('admins'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' ];
     $menuItems[] = ['key' => 'managers', 'label' => 'Managers', 'url' => App\Config\App::url('managers'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>' ];
@@ -115,6 +136,7 @@ if ($isSuperAdminSidebar) {
     $menuItems[] = ['key' => 'products', 'label' => 'Products', 'url' => App\Config\App::url('products'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>' ];
     $menuItems[] = ['key' => 'users', 'label' => 'User Management', 'url' => App\Config\App::url('users'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>' ];
 } elseif (in_array($sidebarDashboardSlug, ['asm-manager', 'asm-area-sales-manager'], true)) {
+    // ASM roles use report-style component tabs under their dashboard route.
     $sidebarSectionTitle = 'Components';
     $areaSalesManagerDashboardUrl = App\Config\App::url($sidebarDashboardPath);
     $menuItems[] = ['key' => 'dashboard', 'label' => 'Overview', 'url' => $areaSalesManagerDashboardUrl, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 11.5L12 4l9 7.5M5 10v10h5v-6h4v6h5V10"/>'];
@@ -130,6 +152,7 @@ if ($isSuperAdminSidebar) {
     $menuItems[] = ['key' => 'tat_activation', 'label' => 'TAT Activation', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'tat-activation'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h7m11-7l-4 4-2-2"/>'];
     $menuItems[] = ['key' => 'faq', 'label' => 'FAQ', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'faq'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5M4 6h16M4 18h16"/>'];
 } elseif ($sidebarDashboardSlug === 'head-manager') {
+    // Head Manager uses the wider management report set, including installer and productivity reports.
     $sidebarSectionTitle = 'Components';
     $headManagerDashboardUrl = App\Config\App::url($sidebarDashboardPath);
     $menuItems[] = ['key' => 'dashboard', 'label' => 'Overview', 'url' => $headManagerDashboardUrl, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 11.5L12 4l9 7.5M5 10v10h5v-6h4v6h5V10"/>'];
@@ -155,15 +178,24 @@ if ($isSuperAdminSidebar) {
     $menuItems[] = ['key' => 'tat_activation', 'label' => 'TAT Activation', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'tat-activation'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>'];
     $menuItems[] = ['key' => 'faq', 'label' => 'FAQ', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'faq'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5M4 6h16M4 18h16"/>'];
 } elseif ($isAdminSidebar) {
+    // Admin-position users share the operations dashboard entry, then receive position-specific tabs.
     $menuItems[] = ['key' => 'dashboard', 'label' => 'Operations Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
     if ($sidebarDashboardSlug === 'admin-dispatcher') {
+        // Dispatcher-specific tabs live under /dashboard/admin-dispatcher/{section}.
+        $menuItems[] = ['key' => 'omd_monitoring', 'label' => 'OMD Monitoring', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'omd-monitoring'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h10"/>'];
+        $menuItems[] = ['key' => 'dispatcher_monitoring', 'label' => 'Dispatcher Monitoring', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'dispatcher-monitoring'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V5a2 2 0 012-2h9a2 2 0 012 2v12a2 2 0 01-2 2h-9a2 2 0 01-2-2zM9 17H5a2 2 0 01-2-2V9a2 2 0 012-2h4m0 10h4"/>'];
+        $menuItems[] = ['key' => 'qa_monitoring', 'label' => 'QA Monitoring', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'qa-monitoring'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'];
         $menuItems[] = ['key' => 'daily_tech_productivity', 'label' => 'Daily Tech Productivity', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'daily-tech-productivity'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/>'];
         $menuItems[] = ['key' => 'sales_turn_ins', 'label' => 'Sales Turn-ins', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'sales-turn-ins'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l2 13h11l2-9H7m3 13a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/>'];
         $menuItems[] = ['key' => 'daily_flow_thru', 'label' => 'Daily Flow Thru', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'daily-flow-thru'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h11m0 0l-3-3m3 3l-3 3M20 17H9m0 0l3-3m-3 3l3 3"/>'];
+        $menuItems[] = ['key' => 'daily_sales_activation', 'label' => 'Daily Sales Activation', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'daily-sales-activation'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h11m0 0l-3-3m3 3l-3 3M20 17H9m0 0l3-3m-3 3l3 3"/>'];
+        $menuItems[] = ['key' => 'sales_tl_productivity', 'label' => 'Sales TL Productivity', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'sales-tl-productivity'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17V9m4 8V5m4 12v-6M5 21h14"/>'];
     }
 } elseif ($isAsmSidebar) {
+    // Fallback ASM sidebar for ASM dashboard slugs that do not use the component-tab layout above.
     $menuItems[] = ['key' => 'dashboard', 'label' => $sidebarDisplayRole . ' Dashboard', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
 } else {
+    // General fallback for roles without a custom sidebar definition.
     $menuItems[] = ['key' => 'dashboard', 'label' => 'Overview', 'url' => App\Config\App::url($sidebarDashboardPath), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/>' ];
 }
 ?>
