@@ -71,6 +71,9 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'head-manager', 'asm-manager',
         'assigning-area' => 'assigning_area',
         'omd-monitoring' => 'omd_monitoring',
         'dispatcher-monitoring' => 'dispatcher_monitoring',
+        'assign-installer' => 'assign_technician',
+        'assign-technician' => 'assign_technician',
+        'regional-monitoring' => 'regional_monitoring',
         'qa-monitoring' => 'qa_monitoring',
         'sub-agent-report' => 'sub_agent_report',
         'sales-status' => 'sales_status',
@@ -304,6 +307,783 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'head-manager'], true)) {
         }
     }
     $selectedMonthlyProduct = $selectedMonthlyProduct ?? $products[0];
+    $adminDispatcherColumnIndex = [
+        'Reference Number' => 0,
+        'Subscriber Name' => 1,
+        'Barangay' => 2,
+        'Municipality' => 3,
+        'Contact Number' => 4,
+    ];
+    $adminDispatcherSortColumns = [
+        'reference' => 0,
+        'subscriber' => 1,
+        'barangay' => 2,
+        'municipality' => 3,
+        'contact' => 4,
+    ];
+    $adminDispatcherMunicipalityRegion = [
+        'CALOOCAN' => 'NCRR',
+        'NAVOTAS' => 'NCRR',
+        'MANILA' => 'NCRR',
+        'MALABON' => 'NCRR',
+        'TONDO MANILA' => 'NCRR',
+        'QUEZON CITY' => 'NCRR',
+        'PARANAQUE' => 'NCRR',
+        'MANDALUYONG' => 'NCRR',
+        'PASIG' => 'NCRR',
+    ];
+    $filterAdminDispatcherRows = static function (array $rows, string $search, string $filter, array $columnIndex, array $extraFilters = []) use ($adminDispatcherMunicipalityRegion): array {
+        $search = trim($search);
+        $filterIndex = $columnIndex[$filter] ?? null;
+
+        return array_values(array_filter($rows, static function (array $row) use ($search, $filterIndex, $extraFilters, $adminDispatcherMunicipalityRegion): bool {
+            if ($search !== '') {
+                $haystack = $filterIndex === null ? implode(' ', array_slice($row, 0, 5)) : (string)($row[$filterIndex] ?? '');
+                if (stripos($haystack, $search) === false) {
+                    return false;
+                }
+            }
+
+            if (isset($extraFilters['municipality']) && $extraFilters['municipality'] !== 'All Municipality' && $extraFilters['municipality'] !== '') {
+                if (strcasecmp((string)($row[3] ?? ''), (string)$extraFilters['municipality']) !== 0) {
+                    return false;
+                }
+            }
+
+            if (isset($extraFilters['region']) && !in_array($extraFilters['region'], ['', 'Select Region'], true)) {
+                $rowRegion = $adminDispatcherMunicipalityRegion[strtoupper((string)($row[3] ?? ''))] ?? 'OTHERS';
+                if (strcasecmp($rowRegion, (string)$extraFilters['region']) !== 0) {
+                    return false;
+                }
+            }
+
+            if (isset($extraFilters['leader']) && !in_array($extraFilters['leader'], ['', 'Select Technician Leaders'], true)) {
+                if (strcasecmp((string)($row[5] ?? ''), (string)$extraFilters['leader']) !== 0) {
+                    return false;
+                }
+            }
+
+            return true;
+        }));
+    };
+    $sortAdminDispatcherRows = static function (array $rows, array $sortColumns): array {
+        $sort = strtolower(trim((string)($_GET['sort'] ?? '')));
+        $order = strtolower(trim((string)($_GET['order'] ?? 'asc')));
+        if (!isset($sortColumns[$sort])) {
+            return $rows;
+        }
+
+        $index = $sortColumns[$sort];
+        usort($rows, static function (array $left, array $right) use ($index, $order): int {
+            $result = strnatcasecmp((string)($left[$index] ?? ''), (string)($right[$index] ?? ''));
+            return $order === 'desc' ? -$result : $result;
+        });
+
+        return $rows;
+    };
+    $sortHeaderUrl = static function (string $sortKey): string {
+        $params = $_GET;
+        $currentSort = strtolower(trim((string)($params['sort'] ?? '')));
+        $currentOrder = strtolower(trim((string)($params['order'] ?? 'asc')));
+        $params['sort'] = $sortKey;
+        $params['order'] = ($currentSort === $sortKey && $currentOrder === 'asc') ? 'desc' : 'asc';
+        return '?' . http_build_query($params);
+    };
+    $sortArrow = static function (string $sortKey): string {
+        $currentSort = strtolower(trim((string)($_GET['sort'] ?? '')));
+        $currentOrder = strtolower(trim((string)($_GET['order'] ?? 'asc')));
+        if ($currentSort !== $sortKey) {
+            return '&#9662;';
+        }
+        return $currentOrder === 'desc' ? '&#9652;' : '&#9662;';
+    };
+    $renderAdminDispatcherControlsScript = static function (): void {
+        ?>
+        <script>
+            (() => {
+                if (window.adminDispatcherControlsReady) return;
+                window.adminDispatcherControlsReady = true;
+
+                const storageKey = 'psmms.adminDispatcher.savedViews';
+                const readViews = () => {
+                    try {
+                        return JSON.parse(localStorage.getItem(storageKey) || '{}');
+                    } catch (error) {
+                        return {};
+                    }
+                };
+                const writeViews = (views) => localStorage.setItem(storageKey, JSON.stringify(views));
+                const activeForm = () => document.querySelector('form[id$="-filter-form"]');
+                const formState = (form) => Object.fromEntries(new FormData(form).entries());
+                const sectionKey = (form) => form?.querySelector('[name="section"]')?.value || new URLSearchParams(window.location.search).get('section') || 'dashboard';
+                const showMessage = (message) => window.alert(message);
+
+                const saveView = (name) => {
+                    const form = activeForm();
+                    if (!form) return;
+                    const section = sectionKey(form);
+                    const views = readViews();
+                    views[section] = views[section] || {};
+                    views[section][name] = formState(form);
+                    writeViews(views);
+                    showMessage(`${name} saved.`);
+                };
+
+                const deleteView = () => {
+                    const form = activeForm();
+                    if (!form) return;
+                    const section = sectionKey(form);
+                    const views = readViews();
+                    const sectionViews = views[section] || {};
+                    const names = Object.keys(sectionViews);
+                    if (names.length === 0) {
+                        showMessage('No saved views for this tab yet.');
+                        return;
+                    }
+                    const selectedName = names.length === 1 ? names[0] : window.prompt(`Delete which view?\n${names.join('\n')}`, names[0]);
+                    if (!selectedName || !sectionViews[selectedName]) return;
+                    delete sectionViews[selectedName];
+                    if (Object.keys(sectionViews).length === 0) {
+                        delete views[section];
+                    }
+                    writeViews(views);
+                    showMessage(`${selectedName} deleted.`);
+                };
+
+                const exportTable = (button) => {
+                    const table = button.closest('.space-y-5')?.querySelector('table') || document.querySelector('table');
+                    if (!table) return;
+                    const rows = Array.from(table.querySelectorAll('tr')).map((row) => (
+                        Array.from(row.children).map((cell) => {
+                            const value = cell.innerText.replace(/\s+/g, ' ').trim();
+                            return `"${value.replace(/"/g, '""')}"`;
+                        }).join(',')
+                    ));
+                    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const form = activeForm();
+                    const section = sectionKey(form).replace(/[^a-z0-9-]/gi, '-');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `${section}-export.csv`;
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                };
+
+                document.addEventListener('click', (event) => {
+                    const button = event.target.closest('button');
+                    if (!button) return;
+                    const label = button.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
+                    const actionLabel = (button.getAttribute('aria-label') || '').toLowerCase();
+
+                    if (actionLabel === 'copy row') {
+                        const rowText = Array.from(button.closest('tr')?.children || [])
+                            .slice(1, 6)
+                            .map((cell) => cell.innerText.replace(/\s+/g, ' ').trim())
+                            .filter(Boolean)
+                            .join('\t');
+                        if (rowText) {
+                            navigator.clipboard?.writeText(rowText);
+                            showMessage('Row copied.');
+                        }
+                        return;
+                    }
+
+                    if (actionLabel === 'remove row') {
+                        button.closest('tr')?.remove();
+                        const filteredBadge = document.querySelector('.border-primary-500 [class*="bg-cyan-50"]');
+                        if (filteredBadge && filteredBadge.textContent.includes('Filtered:')) {
+                            const visibleRows = document.querySelectorAll('.border-primary-500 tbody tr').length;
+                            filteredBadge.textContent = `Filtered: ${visibleRows}`;
+                        }
+                        return;
+                    }
+
+                    if (label === 'save views') {
+                        const name = window.prompt('Save this view as:', 'My View');
+                        if (name && name.trim()) saveView(name.trim());
+                    } else if (label === 'save current') {
+                        saveView('Current');
+                    } else if (label === 'delete view') {
+                        deleteView();
+                    } else if (label === 'export') {
+                        exportTable(button);
+                    }
+                });
+            })();
+        </script>
+        <?php
+    };
+
+    if ($dashboardSlug === 'admin-dispatcher' && $activeRoute === 'omd_monitoring') {
+        $omdSearch = trim((string)($_GET['search'] ?? ''));
+        $omdActiveFilter = trim((string)($_GET['filter'] ?? 'Contact Number'));
+        $omdMunicipality = trim((string)($_GET['municipality'] ?? 'All Municipality'));
+        $omdRows = [
+            ['PCC-S2S2WE3H42S', 'SARAH NABATI', 'Bagong Bario', 'CALOOCAN', '093473423233'],
+            ['PCC-S2SYBBTUI', 'DAUMING SUGAT', 'De Jesus', 'CALOOCAN', '093473423233'],
+            ['PCC-S2SYBBTUI', 'WATSILEY BAG', 'Mapulang Lupa', 'NAVOTAS', '093473423233'],
+            ['PCC-S2SYBBTUI', 'JOHN DOE', '57', 'MANILA', '093473423233'],
+            ['PCC-S2SYBBTUI', 'AKOTO C. NATO', 'Papaya', 'MALABON', '093473423233'],
+            ['PCC-S2SYBBTUI', 'BOY ABUNDA', 'Santol', 'TONDO MANILA', '093473423233'],
+            ['PCC-S2SYBBTUI', 'PALOMA N MABUHAY', 'Sampalok', 'QUEZON CITY', '093473423233'],
+            ['PCC-S2SYBBTUI', 'DAVE LIKWATRU', 'Kalamansi', 'PARANAQUE', '093473423233'],
+            ['PCC-S2SYBBTUI', 'COCO MELON', 'Manga', 'MANDALUYONG', '093473423233'],
+            ['PCC-S2SYBBTUI', 'BEBEFIN M. FRIEND', 'Bayabas', 'PASIG', '093473423233'],
+        ];
+        $omdRows = $filterAdminDispatcherRows($omdRows, $omdSearch, $omdActiveFilter, $adminDispatcherColumnIndex, ['municipality' => $omdMunicipality]);
+        $omdRows = $sortAdminDispatcherRows($omdRows, $adminDispatcherSortColumns);
+        $omdFilteredCount = count($omdRows);
+        $omdAllCount = 265;
+        ?>
+        <div class="space-y-5">
+            <div class="rounded-xl border border-cyan-100 bg-white px-5 py-4 shadow-sm">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-950">OMD Monitoring</h2>
+                <p class="mt-1 text-base text-slate-700">OMD for validation monitoring</p>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between px-5 py-4">
+                    <div class="inline-flex items-center gap-2 text-base font-semibold text-slate-800">
+                        <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M7 12h10m-7 6h4"/>
+                        </svg>
+                        <span>Filters</span>
+                    </div>
+                    <a href="?section=omd-monitoring" class="text-sm font-medium text-slate-500 hover:text-slate-800">Clear all</a>
+                </div>
+                <form id="omd-filter-form" method="GET" class="border-t border-slate-100 px-4 py-4 sm:px-5" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+                    <input type="hidden" name="section" value="omd-monitoring">
+                    <label class="relative" style="flex: 2.4 1 520px; min-width: min(100%, 320px);">
+                        <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="search" name="search" value="<?= htmlspecialchars($omdSearch) ?>" placeholder="Search..." class="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none">
+                    </label>
+                    <select name="filter" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-500 focus:outline-none" style="flex: 1 1 180px; min-width: 180px;">
+                        <?php foreach (['Contact Number', 'Reference Number', 'Subscriber Name', 'Barangay', 'Municipality'] as $filterOption): ?>
+                            <option value="<?= htmlspecialchars($filterOption) ?>" <?= $omdActiveFilter === $filterOption ? 'selected' : '' ?>><?= htmlspecialchars($filterOption) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <select name="municipality" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-500 focus:outline-none" style="flex: 1 1 180px; min-width: 180px;">
+                        <?php foreach (['All Municipality', 'CALOOCAN', 'QUEZON CITY', 'MANILA', 'PASIG', 'NAVOTAS', 'MALABON'] as $municipalityOption): ?>
+                            <option value="<?= htmlspecialchars($municipalityOption) ?>" <?= $omdMunicipality === $municipalityOption ? 'selected' : '' ?>><?= htmlspecialchars($municipalityOption) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Save Views</button>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Save Current</button>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Delete View</button>
+                </form>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border-2 border-primary-500 bg-white shadow-sm">
+                <div class="flex flex-col gap-3 border-b border-slate-200 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex h-10 items-center rounded-lg border border-cyan-100 bg-cyan-50 px-4 text-sm font-semibold text-primary-700">Filtered: <?= htmlspecialchars((string)$omdFilteredCount) ?></span>
+                        <span class="inline-flex h-10 items-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600">All: <?= htmlspecialchars((string)$omdAllCount) ?></span>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-end gap-2">
+                        <button type="submit" form="omd-filter-form" class="inline-flex h-10 items-center justify-center rounded-lg bg-primary-600 px-5 text-sm font-bold text-white transition-colors hover:bg-primary-700">Apply</button>
+                        <button type="button" class="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 text-sm font-bold text-slate-600 transition-colors hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4h14v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Export
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-auto">
+                    <table class="min-w-[1240px] w-full border-collapse text-sm">
+                        <thead class="bg-primary-600 text-left text-white">
+                            <tr>
+                                <th class="border border-primary-400 px-4 py-4 font-medium">Action</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('reference')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Reference Number <span class="text-cyan-200"><?= $sortArrow('reference') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('subscriber')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Subscriber Name <span class="text-cyan-200"><?= $sortArrow('subscriber') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('barangay')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Barangay <span class="text-cyan-200"><?= $sortArrow('barangay') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('municipality')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Municipality <span class="text-cyan-200"><?= $sortArrow('municipality') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('contact')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Contact Number <span class="text-yellow-300"><?= $sortArrow('contact') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($omdRows as $row): ?>
+                                <tr class="bg-white text-slate-800 hover:bg-cyan-50/60">
+                                    <td class="whitespace-nowrap border border-slate-200 px-4 py-4">
+                                        <div class="flex items-center gap-4">
+                                            <button type="button" class="text-slate-400 hover:text-slate-700" aria-label="Copy row">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 8h10v10H8zM6 16H5a2 2 0 01-2-2V5a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                                </svg>
+                                            </button>
+                                            <button type="button" class="text-red-500 hover:text-red-600" aria-label="Remove row">
+                                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                    <path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="border border-slate-200 px-5 py-4 font-medium text-primary-600"><?= htmlspecialchars($row[0]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[1]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[2]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[3]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4 text-center"><?= htmlspecialchars($row[4]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php $renderAdminDispatcherControlsScript(); ?>
+        <?php
+        return;
+    }
+
+    if ($dashboardSlug === 'admin-dispatcher' && $activeRoute === 'dispatcher_monitoring') {
+        $dispatchSearch = trim((string)($_GET['search'] ?? ''));
+        $dispatchActiveFilter = trim((string)($_GET['filter'] ?? 'Contact Number'));
+        $dispatchRegion = trim((string)($_GET['region'] ?? 'Select Region'));
+        $dispatchRows = [
+            ['PCC-S2SYBBTUI', 'SARAH NABATI', 'Bagong Bario', 'CALOOCAN', '093473423233', false],
+            ['PCC-S2SYBBTUI', 'DAUMING SUGAT', 'De Jesus', 'CALOOCAN', '093473423233', false],
+            ['PCC-S2SYBBTUI', 'WATSILEY BAG', 'Mapulang Lupa', 'NAVOTAS', '093473423233', false],
+            ['PCC-S2SYBBTUI', 'JOHN DOE', '57', 'MANILA', '093473423233', true],
+            ['PCC-S2SYBBTUI', 'AKOTO C. NATO', 'Papaya', 'MALABON', '093473423233', true],
+            ['PCC-S2SYBBTUI', 'BOY ABUNDA', 'Santol', 'TONDO MANILA', '093473423233', true],
+            ['PCC-S2SYBBTUI', 'PALOMA N MABUHAY', 'Sampalok', 'QUEZON CITY', '093473423233', true],
+        ];
+        $dispatchRows = $filterAdminDispatcherRows($dispatchRows, $dispatchSearch, $dispatchActiveFilter, $adminDispatcherColumnIndex, ['region' => $dispatchRegion]);
+        $dispatchRows = $sortAdminDispatcherRows($dispatchRows, $adminDispatcherSortColumns);
+        $dispatchFilteredCount = count($dispatchRows);
+        $dispatchAllCount = 265;
+        $dispatchAreas = [
+            ['SOUTH CALOOCAN', 15],
+            ['MALABON', 25],
+            ['NAVOTAS', 10],
+            ['VALENZUELA', 5],
+        ];
+        $dispatchTotalJo = array_sum(array_column($dispatchAreas, 1));
+        ?>
+        <div class="space-y-5">
+            <div class="rounded-xl border border-cyan-100 bg-white px-5 py-4 shadow-sm">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-950">Dispatch Monitoring</h2>
+                <p class="mt-1 text-base text-slate-700">Dispatcher assigning job order for technician leader</p>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between px-5 py-4">
+                    <div class="inline-flex items-center gap-2 text-base font-semibold text-slate-800">
+                        <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M7 12h10m-7 6h4"/>
+                        </svg>
+                        <span>Filters</span>
+                    </div>
+                    <a href="?section=dispatcher-monitoring" class="text-sm font-medium text-slate-500 hover:text-slate-800">Clear all</a>
+                </div>
+                <form id="dispatch-filter-form" method="GET" class="border-t border-slate-100 px-4 py-4 sm:px-5" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+                    <input type="hidden" name="section" value="dispatcher-monitoring">
+                    <label class="relative" style="flex: 2.4 1 520px; min-width: min(100%, 320px);">
+                        <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="search" name="search" value="<?= htmlspecialchars($dispatchSearch) ?>" placeholder="Search..." class="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none">
+                    </label>
+                    <select name="filter" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-500 focus:outline-none" style="flex: 1 1 180px; min-width: 180px;">
+                        <?php foreach (['Contact Number', 'Reference Number', 'Subscriber Name', 'Barangay', 'Municipality'] as $filterOption): ?>
+                            <option value="<?= htmlspecialchars($filterOption) ?>" <?= $dispatchActiveFilter === $filterOption ? 'selected' : '' ?>><?= htmlspecialchars($filterOption) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <select name="region" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-500 focus:outline-none" style="flex: 1 1 180px; min-width: 180px;">
+                        <?php foreach (['Select Region', 'NCRR', 'NCLZ', 'SLB', 'VISMIN'] as $regionOption): ?>
+                            <option value="<?= htmlspecialchars($regionOption) ?>" <?= $dispatchRegion === $regionOption ? 'selected' : '' ?>><?= htmlspecialchars($regionOption) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Save Views</button>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Save Current</button>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Delete View</button>
+                </form>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border-2 border-primary-500 bg-white shadow-sm">
+                <div class="flex flex-col gap-3 border-b border-slate-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex h-10 items-center rounded-lg border border-cyan-100 bg-cyan-50 px-4 text-sm font-semibold text-primary-700">Filtered: <?= htmlspecialchars((string)$dispatchFilteredCount) ?></span>
+                        <span class="inline-flex h-10 items-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600">All: <?= htmlspecialchars((string)$dispatchAllCount) ?></span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
+                        <button type="submit" form="dispatch-filter-form" class="inline-flex h-10 items-center justify-center rounded-lg bg-primary-600 px-5 text-sm font-bold text-white transition-colors hover:bg-primary-700">Apply</button>
+                        <button type="button" class="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 text-sm font-bold text-slate-600 transition-colors hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4h14v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Export
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-auto">
+                    <table class="min-w-[1240px] w-full border-collapse text-sm">
+                        <thead class="bg-primary-600 text-left text-white">
+                            <tr>
+                                <th class="border border-primary-400 px-4 py-4 font-medium">Action</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('reference')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Reference Number <span class="text-cyan-200"><?= $sortArrow('reference') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('subscriber')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Subscriber Name <span class="text-cyan-200"><?= $sortArrow('subscriber') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('barangay')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Barangay <span class="text-cyan-200"><?= $sortArrow('barangay') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('municipality')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Municipality <span class="text-cyan-200"><?= $sortArrow('municipality') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('contact')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Contact Number <span class="text-yellow-300"><?= $sortArrow('contact') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($dispatchRows as $row): ?>
+                                <tr class="bg-white text-slate-800 hover:bg-cyan-50/60">
+                                    <td class="whitespace-nowrap border border-slate-200 px-4 py-4">
+                                        <div class="flex items-center gap-4">
+                                            <button type="button" class="text-slate-400 hover:text-slate-700" aria-label="Copy row">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 8h10v10H8zM6 16H5a2 2 0 01-2-2V5a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                                </svg>
+                                            </button>
+                                            <label class="inline-flex h-5 w-5 items-center justify-center">
+                                                <input type="checkbox" <?= $row[5] ? 'checked' : '' ?> class="h-4 w-4 rounded border-primary-400 text-primary-600 focus:ring-primary-500">
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td class="border border-slate-200 px-5 py-4 font-medium text-primary-600"><?= htmlspecialchars($row[0]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[1]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[2]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[3]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4 text-center"><?= htmlspecialchars($row[4]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="rounded-xl border-2 border-primary-500 bg-white p-4 shadow-sm">
+                <div class="grid gap-4 lg:grid-cols-[minmax(360px,1fr)_160px_minmax(320px,0.9fr)] lg:items-center">
+                    <div class="overflow-hidden rounded-lg border border-slate-200">
+                        <table class="w-full border-collapse text-sm text-slate-800">
+                            <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-bold">Area</th>
+                                    <th class="px-4 py-3 text-right font-bold">Count Job Orders</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($dispatchAreas as $area): ?>
+                                    <tr class="border-t border-slate-100">
+                                        <td class="px-4 py-2.5 font-semibold"><?= htmlspecialchars($area[0]) ?></td>
+                                        <td class="px-4 py-2.5 text-right font-semibold text-slate-900"><?= htmlspecialchars((string)$area[1]) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="rounded-lg border border-cyan-100 bg-cyan-50 px-4 py-5 text-center">
+                        <div class="text-xs font-bold uppercase tracking-wide text-primary-700">Total JO</div>
+                        <div class="mt-2 text-3xl font-extrabold leading-none text-slate-950"><?= htmlspecialchars((string)$dispatchTotalJo) ?></div>
+                    </div>
+                    <div class="rounded-lg border border-slate-200 bg-white p-4">
+                        <label class="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-500">Technician Leader</label>
+                        <div class="grid gap-3 sm:grid-cols-[1fr_auto]">
+                            <select class="h-11 min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15">
+                                <option>Select Technician Leader</option>
+                                <option>TEAM MARGA_MARICEL DOLETE</option>
+                                <option>TEAM MARGA_PINCAS KARRISA</option>
+                                <option>TEAM MARGA_JESSICA REGACHUELO</option>
+                            </select>
+                            <button type="button" class="inline-flex h-11 items-center justify-center rounded-lg bg-primary-600 px-7 text-sm font-bold text-white transition-colors hover:bg-primary-700">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php $renderAdminDispatcherControlsScript(); ?>
+        <?php
+        return;
+    }
+
+    if ($dashboardSlug === 'admin-dispatcher' && $activeRoute === 'assign_technician') {
+        $assignSearch = trim((string)($_GET['search'] ?? ''));
+        $assignActiveFilter = trim((string)($_GET['filter'] ?? 'Contact Number'));
+        $assignLeader = trim((string)($_GET['leader'] ?? 'Select Technician Leaders'));
+        $assignReferencePrefix = [
+            's2s' => 'PCC-S2SYBBTUI',
+            'fiberx' => 'PCC-FIBERXYBBTUI',
+            'bida' => 'PCC-BIDAYBBTUI',
+            'sme' => 'PCC-SMEYBBTUI',
+        ][$selectedMonthlyProductKey] ?? 'PCC-S2SYBBTUI';
+        $assignRows = [
+            [$assignReferencePrefix, 'SARAH NABATI', 'Bagong Bario', 'CALOOCAN', '093473423233', 'TEAM MARGA_MARICEL DOLETE'],
+            [$assignReferencePrefix, 'DAUMING SUGAT', 'De Jesus', 'CALOOCAN', '093473423233', 'TEAM MARGA_MARICEL DOLETE'],
+            [$assignReferencePrefix, 'WATSILEY BAG', 'Mapulang Lupa', 'NAVOTAS', '093473423233', 'TEAM MARGA_PINCAS KARRISA'],
+            [$assignReferencePrefix, 'JOHN DOE', '57', 'MANILA', '093473423233', 'TEAM MARGA_JESSICA REGACHUELO'],
+            [$assignReferencePrefix, 'AKOTO C. NATO', 'Papaya', 'MALABON', '093473423233', 'TEAM MARGA_PINCAS KARRISA'],
+            [$assignReferencePrefix, 'BOY ABUNDA', 'Santol', 'TONDO MANILA', '093473423233', 'TEAM MARGA_JESSICA REGACHUELO'],
+            [$assignReferencePrefix, 'PALOMA N MABUHAY', 'Sampalok', 'QUEZON CITY', '093473423233', 'TEAM MARGA_MARICEL DOLETE'],
+            [$assignReferencePrefix, 'DAVE LIKWATRU', 'Kalamansi', 'PARANAQUE', '093473423233', 'TEAM MARGA_PINCAS KARRISA'],
+            [$assignReferencePrefix, 'COCO MELON', 'Manga', 'MANDALUYONG', '093473423233', 'TEAM MARGA_JESSICA REGACHUELO'],
+            [$assignReferencePrefix, 'BEBEFIN M. FRIEND', 'Bayabas', 'PASIG', '093473423233', 'TEAM MARGA_MARICEL DOLETE'],
+        ];
+        $assignRows = $filterAdminDispatcherRows($assignRows, $assignSearch, $assignActiveFilter, $adminDispatcherColumnIndex, ['leader' => $assignLeader]);
+        $assignRows = $sortAdminDispatcherRows($assignRows, $adminDispatcherSortColumns);
+        $assignFilteredCount = count($assignRows);
+        $assignAllCount = 265;
+        ?>
+        <div class="space-y-5">
+            <div class="rounded-xl border border-cyan-100 bg-white px-5 py-4 shadow-sm">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-950">Assign Installer Monitoring</h2>
+                <p class="mt-1 text-base text-slate-700">Assign the installer of every job order</p>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between px-5 py-4">
+                    <div class="inline-flex items-center gap-2 text-base font-semibold text-slate-800">
+                        <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M7 12h10m-7 6h4"/>
+                        </svg>
+                        <span>Filters</span>
+                    </div>
+                    <a href="?section=assign-technician&product=<?= htmlspecialchars(rawurlencode($selectedMonthlyProductKey)) ?>" class="text-sm font-medium text-slate-500 hover:text-slate-800">Clear all</a>
+                </div>
+                <form id="assign-filter-form" method="GET" class="border-t border-slate-100 px-4 py-4 sm:px-5" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+                    <input type="hidden" name="section" value="assign-technician">
+                    <input type="hidden" name="product" value="<?= htmlspecialchars($selectedMonthlyProductKey) ?>">
+                    <label class="relative" style="flex: 2.4 1 520px; min-width: min(100%, 320px);">
+                        <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="search" name="search" value="<?= htmlspecialchars($assignSearch) ?>" placeholder="Search..." class="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none">
+                    </label>
+                    <select name="filter" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-500 focus:outline-none" style="flex: 1 1 180px; min-width: 180px;">
+                        <?php foreach (['Contact Number', 'Reference Number', 'Subscriber Name', 'Barangay', 'Municipality'] as $filterOption): ?>
+                            <option value="<?= htmlspecialchars($filterOption) ?>" <?= $assignActiveFilter === $filterOption ? 'selected' : '' ?>><?= htmlspecialchars($filterOption) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <select name="leader" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-500 focus:outline-none" style="flex: 1 1 180px; min-width: 180px;">
+                        <?php foreach (['Select Technician Leaders', 'TEAM MARGA_MARICEL DOLETE', 'TEAM MARGA_PINCAS KARRISA', 'TEAM MARGA_JESSICA REGACHUELO'] as $leaderOption): ?>
+                            <option value="<?= htmlspecialchars($leaderOption) ?>" <?= $assignLeader === $leaderOption ? 'selected' : '' ?>><?= htmlspecialchars($leaderOption) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Save Views</button>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Save Current</button>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Delete View</button>
+                </form>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border-2 border-primary-500 bg-white shadow-sm">
+                <div class="flex flex-col gap-3 border-b border-slate-200 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex h-10 items-center rounded-lg border border-cyan-100 bg-cyan-50 px-4 text-sm font-semibold text-primary-700">Filtered: <?= htmlspecialchars((string)$assignFilteredCount) ?></span>
+                        <span class="inline-flex h-10 items-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600">All: <?= htmlspecialchars((string)$assignAllCount) ?></span>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-end gap-2">
+                        <button type="submit" form="assign-filter-form" class="inline-flex h-10 items-center justify-center rounded-lg bg-primary-600 px-5 text-sm font-bold text-white transition-colors hover:bg-primary-700">Apply</button>
+                        <button type="button" class="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 text-sm font-bold text-slate-600 transition-colors hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4h14v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Export
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-auto">
+                    <table class="min-w-[1240px] w-full border-collapse text-sm">
+                        <thead class="bg-primary-600 text-left text-white">
+                            <tr>
+                                <th class="border border-primary-400 px-4 py-4 font-medium">Action</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('reference')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Reference Number <span class="text-cyan-200"><?= $sortArrow('reference') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('subscriber')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Subscriber Name <span class="text-cyan-200"><?= $sortArrow('subscriber') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('barangay')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Barangay <span class="text-cyan-200"><?= $sortArrow('barangay') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('municipality')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Municipality <span class="text-cyan-200"><?= $sortArrow('municipality') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('contact')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Contact Number <span class="text-yellow-300"><?= $sortArrow('contact') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($assignRows as $row): ?>
+                                <tr class="bg-white text-slate-800 hover:bg-cyan-50/60">
+                                    <td class="whitespace-nowrap border border-slate-200 px-4 py-4">
+                                        <div class="flex items-center gap-4">
+                                            <button type="button" class="text-slate-400 hover:text-slate-700" aria-label="Copy row">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 8h10v10H8zM6 16H5a2 2 0 01-2-2V5a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                                </svg>
+                                            </button>
+                                            <button type="button" class="text-red-500 hover:text-red-600" aria-label="Remove row">
+                                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                    <path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="border border-slate-200 px-5 py-4 font-medium text-primary-600"><?= htmlspecialchars($row[0]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[1]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[2]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[3]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4 text-center"><?= htmlspecialchars($row[4]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php $renderAdminDispatcherControlsScript(); ?>
+        <?php
+        return;
+    }
+
+    if ($dashboardSlug === 'admin-dispatcher' && $activeRoute === 'regional_monitoring') {
+        $regionalSearch = trim((string)($_GET['search'] ?? ''));
+        $regionalActiveFilter = trim((string)($_GET['filter'] ?? 'Contact Number'));
+        $regionalRegion = trim((string)($_GET['region'] ?? 'Select Region'));
+        $regionalReferencePrefix = [
+            's2s' => 'PCC-S2SYBBTUI',
+            'fiberx' => 'PCC-FIBERXYBBTUI',
+            'bida' => 'PCC-BIDAYBBTUI',
+            'sme' => 'PCC-SMEYBBTUI',
+        ][$selectedMonthlyProductKey] ?? 'PCC-S2SYBBTUI';
+        $regionalRows = [
+            [$regionalReferencePrefix, 'SARAH NABATI', 'Bagong Bario', 'CALOOCAN', '093473423233'],
+            [$regionalReferencePrefix, 'DAUMING SUGAT', 'De Jesus', 'CALOOCAN', '093473423233'],
+            [$regionalReferencePrefix, 'WATSILEY BAG', 'Mapulang Lupa', 'NAVOTAS', '093473423233'],
+            [$regionalReferencePrefix, 'JOHN DOE', '57', 'MANILA', '093473423233'],
+            [$regionalReferencePrefix, 'AKOTO C. NATO', 'Papaya', 'MALABON', '093473423233'],
+            [$regionalReferencePrefix, 'BOY ABUNDA', 'Santol', 'TONDO MANILA', '093473423233'],
+            [$regionalReferencePrefix, 'PALOMA N MABUHAY', 'Sampalok', 'QUEZON CITY', '093473423233'],
+            [$regionalReferencePrefix, 'DAVE LIKWATRU', 'Kalamansi', 'PARANAQUE', '093473423233'],
+            [$regionalReferencePrefix, 'COCO MELON', 'Manga', 'MANDALUYONG', '093473423233'],
+            [$regionalReferencePrefix, 'BEBEFIN M. FRIEND', 'Bayabas', 'PASIG', '093473423233'],
+        ];
+        $regionalRows = $filterAdminDispatcherRows($regionalRows, $regionalSearch, $regionalActiveFilter, $adminDispatcherColumnIndex, ['region' => $regionalRegion]);
+        $regionalRows = $sortAdminDispatcherRows($regionalRows, $adminDispatcherSortColumns);
+        $regionalFilteredCount = count($regionalRows);
+        $regionalAllCount = 265;
+        ?>
+        <div class="space-y-5">
+            <div class="rounded-xl border border-cyan-100 bg-white px-5 py-4 shadow-sm">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-950">Regional Monitoring</h2>
+                <p class="mt-1 text-base text-slate-700">Regional Sales Monitoring</p>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="flex items-center justify-between px-5 py-4">
+                    <div class="inline-flex items-center gap-2 text-base font-semibold text-slate-800">
+                        <svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M7 12h10m-7 6h4"/>
+                        </svg>
+                        <span>Filters</span>
+                    </div>
+                    <a href="?section=regional-monitoring&product=<?= htmlspecialchars(rawurlencode($selectedMonthlyProductKey)) ?>" class="text-sm font-medium text-slate-500 hover:text-slate-800">Clear all</a>
+                </div>
+                <form id="regional-filter-form" method="GET" class="border-t border-slate-100 px-4 py-4 sm:px-5" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+                    <input type="hidden" name="section" value="regional-monitoring">
+                    <input type="hidden" name="product" value="<?= htmlspecialchars($selectedMonthlyProductKey) ?>">
+                    <label class="relative" style="flex: 2.4 1 520px; min-width: min(100%, 320px);">
+                        <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="search" name="search" value="<?= htmlspecialchars($regionalSearch) ?>" placeholder="Search..." class="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none">
+                    </label>
+                    <select name="filter" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-500 focus:outline-none" style="flex: 1 1 180px; min-width: 180px;">
+                        <?php foreach (['Contact Number', 'Reference Number', 'Subscriber Name', 'Barangay', 'Municipality'] as $filterOption): ?>
+                            <option value="<?= htmlspecialchars($filterOption) ?>" <?= $regionalActiveFilter === $filterOption ? 'selected' : '' ?>><?= htmlspecialchars($filterOption) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <select name="region" class="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-500 focus:outline-none" style="flex: 1 1 180px; min-width: 180px;">
+                        <?php foreach (['Select Region', 'NCRR', 'NCLZ', 'REGION IV-A', 'SLB', 'VISMIN'] as $regionOption): ?>
+                            <option value="<?= htmlspecialchars($regionOption) ?>" <?= $regionalRegion === $regionOption ? 'selected' : '' ?>><?= htmlspecialchars($regionOption) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Save Views</button>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Save Current</button>
+                    <button type="button" class="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-cyan-50 hover:text-primary-700" style="flex: 1 1 180px; min-width: 180px;">Delete View</button>
+                </form>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border-2 border-primary-500 bg-white shadow-sm">
+                <div class="flex flex-col gap-3 border-b border-slate-200 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex h-10 items-center rounded-lg border border-cyan-100 bg-cyan-50 px-4 text-sm font-semibold text-primary-700">Filtered: <?= htmlspecialchars((string)$regionalFilteredCount) ?></span>
+                        <span class="inline-flex h-10 items-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600">All: <?= htmlspecialchars((string)$regionalAllCount) ?></span>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-end gap-2">
+                        <button type="submit" form="regional-filter-form" class="inline-flex h-10 items-center justify-center rounded-lg bg-primary-600 px-5 text-sm font-bold text-white transition-colors hover:bg-primary-700">Apply</button>
+                        <button type="button" class="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 text-sm font-bold text-slate-600 transition-colors hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4h14v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Export
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-auto">
+                    <table class="min-w-[1240px] w-full border-collapse text-sm">
+                        <thead class="bg-primary-600 text-left text-white">
+                            <tr>
+                                <th class="border border-primary-400 px-4 py-4 font-medium">Action</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('reference')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Reference Number <span class="text-cyan-200"><?= $sortArrow('reference') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('subscriber')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Subscriber Name <span class="text-cyan-200"><?= $sortArrow('subscriber') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('barangay')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Barangay <span class="text-cyan-200"><?= $sortArrow('barangay') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('municipality')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Municipality <span class="text-cyan-200"><?= $sortArrow('municipality') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium"><a href="<?= htmlspecialchars($sortHeaderUrl('contact')) ?>" class="inline-flex items-center gap-1 text-white hover:text-cyan-100">Contact Number <span class="text-yellow-300"><?= $sortArrow('contact') ?></span></a></th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                                <th class="border border-primary-400 px-5 py-4 font-medium">&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($regionalRows as $row): ?>
+                                <tr class="bg-white text-slate-800 hover:bg-cyan-50/60">
+                                    <td class="whitespace-nowrap border border-slate-200 px-4 py-4">
+                                        <div class="flex items-center gap-4">
+                                            <button type="button" class="text-slate-400 hover:text-slate-700" aria-label="Copy row">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 8h10v10H8zM6 16H5a2 2 0 01-2-2V5a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                                                </svg>
+                                            </button>
+                                            <button type="button" class="text-red-500 hover:text-red-600" aria-label="Remove row">
+                                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                    <path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="border border-slate-200 px-5 py-4 font-medium text-primary-600"><?= htmlspecialchars($row[0]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[1]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[2]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4"><?= htmlspecialchars($row[3]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4 text-center"><?= htmlspecialchars($row[4]) ?></td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                    <td class="border border-slate-200 px-5 py-4">&nbsp;</td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php $renderAdminDispatcherControlsScript(); ?>
+        <?php
+        return;
+    }
 
     if ($activeRoute === 'monthly_sales_report') {
         $monthlyTotal = array_sum($selectedMonthlyReport['values']);

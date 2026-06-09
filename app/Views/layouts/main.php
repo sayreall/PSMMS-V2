@@ -20,6 +20,26 @@ $isAdminSidebar = (
 );
 $isAsmSidebar = in_array($sidebarDashboardSlug, ['asm-manager', 'asm-super-manager', 'asm-area-sales-manager'], true);
 $mainHeaderTitle = 'Dashboard';
+$mainHeaderSection = '';
+$headerProductOptions = [
+    's2s' => ['name' => 'Surf2Sawa', 'short' => 'S2S', 'image' => 'images/icons/surf2sawa.png'],
+    'fiberx' => ['name' => 'FiberX', 'short' => 'FIBERX', 'image' => 'images/icons/fiberx.png'],
+    'bida' => ['name' => 'Bida', 'short' => 'BIDA', 'image' => 'images/icons/bida.png'],
+    'sme' => ['name' => 'Converge SME', 'short' => 'SME', 'image' => 'images/icons/converge.png'],
+];
+$productPickerDashboardSlugs = ['admin-dispatcher', 'head-manager', 'asm-manager', 'asm-area-sales-manager'];
+$showHeaderProductPicker = in_array($sidebarDashboardSlug, $productPickerDashboardSlugs, true);
+$selectedHeaderProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
+if (!isset($headerProductOptions[$selectedHeaderProductKey])) {
+    $selectedHeaderProductKey = 's2s';
+}
+$selectedHeaderProduct = $headerProductOptions[$selectedHeaderProductKey];
+$headerProductUrl = static function (string $productKey): string {
+    $params = $_GET;
+    $params['product'] = $productKey;
+    $path = strtok((string)($_SERVER['REQUEST_URI'] ?? ''), '?') ?: '';
+    return $path . '?' . http_build_query($params);
+};
 if ($sidebarDashboardSlug === 'asm-area-sales-manager') {
     // Area Sales Manager section titles shown in the top dashboard header.
     $asmHeaderSectionTitles = [
@@ -64,17 +84,22 @@ if ($sidebarDashboardSlug === 'asm-area-sales-manager') {
     $dispatcherHeaderSectionTitles = [
         '' => 'Operations Dashboard',
         'omd-monitoring' => 'OMD Monitoring',
-        'dispatcher-monitoring' => 'Dispatcher Monitoring',
-        'qa-monitoring' => 'QA Monitoring',
+        'dispatcher-monitoring' => 'Dispatch Monitoring',
+        'assign-installer' => 'Assign Technician',
+        'assign-technician' => 'Assign Technician',
+        'regional-monitoring' => 'Regional Monitoring',
+        'productivity-per-area' => 'Productivity Per Area',
         'daily-tech-productivity' => 'Daily Tech Productivity',
         'sales-turn-ins' => 'Sales Turn-ins',
         'daily-flow-thru' => 'Daily Flow Thru',
         'daily-sales-activation' => 'Daily Sales Activation',
-        'sales-tl-productivity' => 'Sales TL Productivity',
+        'pending-job-order' => 'Pending JO',
+        'faq' => 'FAQ',
     ];
     $mainHeaderSection = strtolower(trim((string)($_GET['section'] ?? '')));
     $mainHeaderTitle = $dispatcherHeaderSectionTitles[$mainHeaderSection] ?? $mainHeaderTitle;
 }
+$hideMainHeaderTitle = $sidebarDashboardSlug === 'admin-dispatcher' && $mainHeaderSection !== '';
 
 $menuItems = [];
 if ($isSuperAdminSidebar) {
@@ -183,13 +208,16 @@ if ($isSuperAdminSidebar) {
     if ($sidebarDashboardSlug === 'admin-dispatcher') {
         // Dispatcher-specific tabs live under /dashboard/admin-dispatcher/{section}.
         $menuItems[] = ['key' => 'omd_monitoring', 'label' => 'OMD Monitoring', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'omd-monitoring'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h10"/>'];
-        $menuItems[] = ['key' => 'dispatcher_monitoring', 'label' => 'Dispatcher Monitoring', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'dispatcher-monitoring'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V5a2 2 0 012-2h9a2 2 0 012 2v12a2 2 0 01-2 2h-9a2 2 0 01-2-2zM9 17H5a2 2 0 01-2-2V9a2 2 0 012-2h4m0 10h4"/>'];
-        $menuItems[] = ['key' => 'qa_monitoring', 'label' => 'QA Monitoring', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'qa-monitoring'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'];
-        $menuItems[] = ['key' => 'daily_tech_productivity', 'label' => 'Daily Tech Productivity', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'daily-tech-productivity'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/>'];
+        $menuItems[] = ['key' => 'dispatcher_monitoring', 'label' => 'Dispatch Monitoring', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'dispatcher-monitoring'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16M4 12h16M4 19h16M8 5v14M16 5v14"/>'];
+        $menuItems[] = ['key' => 'assign_technician', 'label' => 'Assign Technician', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'assign-technician'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3c4.418 0 8 1.343 8 3s-3.582 3-8 3-8-1.343-8-3 3.582-3 8-3zM4 6v6c0 1.657 3.582 3 8 3s8-1.343 8-3V6M4 12v6c0 1.657 3.582 3 8 3s8-1.343 8-3v-6"/>'];
+        $menuItems[] = ['key' => 'regional_monitoring', 'label' => 'Regional Monitoring', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'regional-monitoring'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>'];
+        $menuItems[] = ['key' => 'productivity_per_area', 'label' => 'Productivity Per Area', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'productivity-per-area'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17V9m4 8V5m4 12v-6M5 21h14"/>'];
+        $menuItems[] = ['key' => 'daily_flow_thru', 'label' => 'Daily Flow Thru', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'daily-flow-thru'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>'];
+        $menuItems[] = ['key' => 'daily_sales_activation', 'label' => 'Daily Sales Activation', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'daily-sales-activation'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>'];
         $menuItems[] = ['key' => 'sales_turn_ins', 'label' => 'Sales Turn-ins', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'sales-turn-ins'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l2 13h11l2-9H7m3 13a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z"/>'];
-        $menuItems[] = ['key' => 'daily_flow_thru', 'label' => 'Daily Flow Thru', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'daily-flow-thru'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h11m0 0l-3-3m3 3l-3 3M20 17H9m0 0l3-3m-3 3l3 3"/>'];
-        $menuItems[] = ['key' => 'daily_sales_activation', 'label' => 'Daily Sales Activation', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'daily-sales-activation'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h11m0 0l-3-3m3 3l-3 3M20 17H9m0 0l3-3m-3 3l3 3"/>'];
-        $menuItems[] = ['key' => 'sales_tl_productivity', 'label' => 'Sales TL Productivity', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'sales-tl-productivity'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17V9m4 8V5m4 12v-6M5 21h14"/>'];
+        $menuItems[] = ['key' => 'pending_job_order', 'label' => 'Pending JO', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'pending-job-order'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h13m-3-3l4 3-4 3M4 17h13m-3-3l4 3-4 3"/>'];
+        $menuItems[] = ['key' => 'daily_tech_productivity', 'label' => 'Daily Tech Productivity', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'daily-tech-productivity'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>'];
+        $menuItems[] = ['key' => 'faq', 'label' => 'FAQ', 'url' => $dashboardSectionUrl($sidebarDashboardPath, 'faq'), 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M8 6v12"/>'];
     }
 } elseif ($isAsmSidebar) {
     // Fallback ASM sidebar for ASM dashboard slugs that do not use the component-tab layout above.
@@ -355,7 +383,38 @@ if ($isSuperAdminSidebar) {
 
                 <div class="flex min-w-0 flex-1 items-center">
                     <?php if (!$isSuperAdminSidebar): ?>
-                        <h1 class="truncate text-2xl font-semibold leading-none text-slate-950 md:text-[28px]"><?= htmlspecialchars($mainHeaderTitle) ?></h1>
+                        <div class="flex min-w-0 items-center gap-3">
+                            <?php if (!$hideMainHeaderTitle): ?>
+                                <h1 class="truncate text-2xl font-semibold leading-none text-slate-950 md:text-[28px]"><?= htmlspecialchars($mainHeaderTitle) ?></h1>
+                            <?php endif; ?>
+                            <?php if ($showHeaderProductPicker): ?>
+                                <details class="group relative shrink-0">
+                                    <summary style="list-style: none; width: 128px; height: 54px; overflow: hidden;" class="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-transparent px-1 py-0 transition-colors hover:bg-slate-50/70 focus:outline-none focus:ring-2 focus:ring-primary-500/20">
+                                        <span class="flex min-w-0 flex-1 items-center justify-center overflow-hidden" style="height: 50px;">
+                                            <img src="<?= App\Config\App::url($selectedHeaderProduct['image']) ?>" alt="<?= htmlspecialchars($selectedHeaderProduct['name']) ?>" style="display: block; max-width: 96px; max-height: 46px; width: auto; height: auto; object-fit: contain;">
+                                        </span>
+                                        <svg class="h-4 w-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                            <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </summary>
+                                    <div class="absolute left-0 top-full z-40 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 shadow-xl">
+                                        <?php foreach ($headerProductOptions as $productKey => $product): ?>
+                                            <?php $isSelectedHeaderProduct = $selectedHeaderProductKey === $productKey; ?>
+                                            <a href="<?= htmlspecialchars($headerProductUrl($productKey)) ?>"
+                                               class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold transition-colors <?= $isSelectedHeaderProduct ? 'bg-cyan-50 text-primary-700' : 'text-slate-700 hover:bg-slate-50' ?>">
+                                                <span class="flex h-10 w-14 shrink-0 items-center justify-center rounded-lg border <?= $isSelectedHeaderProduct ? 'border-primary-100 bg-white' : 'border-slate-100 bg-slate-50' ?> p-1.5">
+                                                    <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-h-full max-w-full object-contain">
+                                                </span>
+                                                <span class="min-w-0">
+                                                    <span class="block truncate"><?= htmlspecialchars($product['name']) ?></span>
+                                                    <span class="block text-[10px] font-bold uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?></span>
+                                                </span>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </details>
+                            <?php endif; ?>
+                        </div>
                     <?php endif; ?>
                 </div>
 
