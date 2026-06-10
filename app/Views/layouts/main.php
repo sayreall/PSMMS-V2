@@ -27,7 +27,7 @@ $headerProductOptions = [
     'bida' => ['name' => 'Bida', 'short' => 'BIDA', 'image' => 'images/icons/bida.png'],
     'sme' => ['name' => 'Converge SME', 'short' => 'SME', 'image' => 'images/icons/converge.png'],
 ];
-$productPickerDashboardSlugs = ['admin-dispatcher', 'head-manager', 'asm-manager', 'asm-area-sales-manager'];
+$productPickerDashboardSlugs = ['admin-dispatcher'];
 $showHeaderProductPicker = in_array($sidebarDashboardSlug, $productPickerDashboardSlugs, true);
 $selectedHeaderProductKey = strtolower(trim((string)($_GET['product'] ?? 's2s')));
 if (!isset($headerProductOptions[$selectedHeaderProductKey])) {

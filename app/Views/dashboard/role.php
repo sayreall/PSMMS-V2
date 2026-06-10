@@ -2264,119 +2264,164 @@ if (in_array($dashboardSlug, ['admin-dispatcher', 'head-manager'], true)) {
             $areaRow['eom_forecast'] = $areaRow['average'] * 31;
         }
         unset($areaRow);
+
+        $areaRegion = strtolower(trim((string)($_GET['region'] ?? 'ncrr')));
+        $areaRegions = [
+            'nclz' => 'NCLZ',
+            'ncrr' => 'NCRR',
+            'region-iv-a' => 'REGION IV-A',
+            'slb' => 'SLB',
+        ];
+        if (!isset($areaRegions[$areaRegion])) {
+            $areaRegion = 'ncrr';
+        }
+        $areaRegionOffset = [
+            'nclz' => -26,
+            'ncrr' => 0,
+            'region-iv-a' => -58,
+            'slb' => -74,
+        ][$areaRegion] ?? 0;
+        $areaChartRows = array_map(static function (array $row) use ($areaRegionOffset): array {
+            return [
+                (string)$row['municipality'],
+                max(6, (int)$row['total_activation'] + $areaRegionOffset),
+            ];
+        }, $areaRows);
+        usort($areaChartRows, static fn(array $left, array $right): int => $right[1] <=> $left[1]);
+        if (count($areaChartRows) > 11) {
+            $visibleAreaChartRows = array_slice($areaChartRows, 0, 10);
+            $visibleAreaChartRows[] = ['OTHERS', array_sum(array_column(array_slice($areaChartRows, 10), 1))];
+            $areaChartRows = $visibleAreaChartRows;
+        }
+        $areaTotalOrders = array_sum(array_column($areaChartRows, 1));
+        $areaMunicipalityCount = count($areaRows);
+        $areaAverageOrders = $areaMunicipalityCount > 0 ? (int)round($areaTotalOrders / $areaMunicipalityCount) : 0;
         ?>
 
         <div class="space-y-5">
-            <div class="rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50 via-sky-50 to-slate-50 px-4 py-3">
-                <h1 class="text-lg md:text-xl font-extrabold text-primary-700 tracking-tight">Activation Per Area Report</h1>
-                <p class="text-xs text-slate-600">Productivity area monitoring by product, municipality, month, and daily activation.</p>
+            <div class="rounded-xl border border-cyan-100 bg-white px-5 py-4 shadow-sm">
+                <h2 class="text-2xl font-extrabold tracking-tight text-slate-950">Activation Per Area Report</h2>
+                <p class="mt-1 text-base text-slate-700">Productivity area monitoring by product, municipality, month, and daily activation.</p>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <?php foreach ($products as $product): ?>
-                    <?php
-                        $isAreaProductActive = $selectedAreaProductKey === $product['key'];
-                        $areaProductUrl = '?section=productivity-per-area&product=' . rawurlencode((string)$product['key'])
-                            . '&month=' . rawurlencode($areaMonth)
-                            . '&year=' . rawurlencode($areaYear);
-                    ?>
-                    <a href="<?= htmlspecialchars($areaProductUrl) ?>"
-                       class="group rounded-xl border p-3 text-center transition-all duration-200 <?= $isAreaProductActive ? 'border-primary-400 bg-cyan-50 shadow-sm ring-2 ring-primary-500/10' : 'border-slate-200 bg-white hover:border-primary-200 hover:bg-slate-50 hover:shadow-sm' ?>">
-                        <div class="w-full h-20 rounded-lg border <?= $isAreaProductActive ? 'border-primary-100 bg-white' : 'border-slate-100 bg-white' ?> p-2 mb-2 flex items-center justify-center overflow-hidden dashboard-product-logo-frame <?= in_array($product['short'], ['S2S', 'BIDA'], true) ? 'dashboard-product-logo-frame--light' : '' ?>">
-                            <img src="<?= App\Config\App::url($product['image']) ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="max-w-full max-h-full object-contain dashboard-product-logo">
-                        </div>
-                        <div class="flex items-center justify-between gap-2 text-left">
-                            <div class="min-w-0">
-                                <p class="text-sm font-bold <?= $isAreaProductActive ? 'text-primary-700' : 'text-slate-800 group-hover:text-primary-700' ?> truncate"><?= htmlspecialchars($product['name']) ?></p>
-                                <p class="text-[10px] uppercase tracking-wide text-slate-400"><?= htmlspecialchars($product['short']) ?> Area Report</p>
-                            </div>
-                            <?php if ($isAreaProductActive): ?>
-                                <span class="shrink-0 rounded-full bg-primary-600 px-2 py-1 text-[10px] font-bold text-white">Active</span>
-                            <?php endif; ?>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-
-            <div class="rounded-xl border border-slate-200 bg-white shadow-sm p-4 space-y-4">
-                <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
-                    <form method="GET" class="flex flex-wrap items-center gap-2">
-                        <input type="hidden" name="section" value="productivity-per-area">
-                        <input type="hidden" name="product" value="<?= htmlspecialchars($selectedAreaProductKey) ?>">
-                        <select name="month" class="h-9 w-40 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select month">
-                            <?php foreach ($areaMonths as $month): ?>
-                                <option value="<?= htmlspecialchars($month) ?>" <?= $areaMonth === $month ? 'selected' : '' ?>><?= htmlspecialchars($month) ?></option>
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-100 px-5 py-4">
+                    <h2 class="text-base font-medium text-primary-700"><?= htmlspecialchars($areaRegions[$areaRegion]) ?> - <?= htmlspecialchars($areaMonth) ?> <?= htmlspecialchars($areaYear) ?> (<?= (int)$areaMunicipalityCount ?> municipalities)</h2>
+                    <div class="mt-4 flex flex-wrap items-center gap-3" style="justify-content: space-between;">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <?php foreach ($areaRegions as $regionKey => $regionLabel): ?>
+                                <?php
+                                    $regionUrl = '?section=productivity-per-area&product=' . rawurlencode($selectedAreaProductKey)
+                                        . '&month=' . rawurlencode($areaMonth)
+                                        . '&year=' . rawurlencode($areaYear)
+                                        . '&region=' . rawurlencode($regionKey);
+                                ?>
+                                <a href="<?= htmlspecialchars($regionUrl) ?>"
+                                   class="inline-flex h-9 items-center justify-center rounded-lg border px-4 text-xs font-medium transition-colors <?= $areaRegion === $regionKey ? 'border-primary-500 bg-primary-600 text-white shadow-sm' : 'border-primary-200 bg-white text-primary-700 hover:bg-cyan-50' ?>">
+                                    <?= htmlspecialchars($regionLabel) ?>
+                                </a>
                             <?php endforeach; ?>
-                        </select>
-                        <select name="year" class="h-9 w-28 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select year">
-                            <?php foreach ($areaYears as $year): ?>
-                                <option value="<?= htmlspecialchars($year) ?>" <?= $areaYear === $year ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-bold text-white hover:bg-primary-700 transition-colors">Go</button>
-                    </form>
-                    <button type="button" id="productivity-area-export" class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 hover:border-primary-300 hover:bg-cyan-50 hover:text-primary-700 transition-colors">Export</button>
+                        </div>
+                        <form method="GET" class="flex flex-wrap items-center gap-2">
+                            <input type="hidden" name="section" value="productivity-per-area">
+                            <input type="hidden" name="product" value="<?= htmlspecialchars($selectedAreaProductKey) ?>">
+                            <input type="hidden" name="region" value="<?= htmlspecialchars($areaRegion) ?>">
+                            <select name="month" class="h-9 w-40 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select month">
+                                <?php foreach ($areaMonths as $month): ?>
+                                    <option value="<?= htmlspecialchars($month) ?>" <?= $areaMonth === $month ? 'selected' : '' ?>><?= htmlspecialchars($month) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <select name="year" class="h-9 w-28 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400" aria-label="Select year">
+                                <?php foreach ($areaYears as $year): ?>
+                                    <option value="<?= htmlspecialchars($year) ?>" <?= $areaYear === $year ? 'selected' : '' ?>><?= htmlspecialchars($year) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="submit" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary-600 px-4 text-xs font-medium text-white transition-colors hover:bg-primary-700">Go</button>
+                        </form>
+                    </div>
                 </div>
 
-                <div class="overflow-auto max-h-[620px] rounded-xl border border-slate-200 shadow-sm">
-                    <table id="productivity-area-table" class="min-w-[1680px] w-full border-collapse text-[10px]">
-                        <thead class="text-white">
-                            <tr class="<?= htmlspecialchars($areaTheme['header']) ?>">
-                                <th class="sticky left-0 z-20 border <?= htmlspecialchars($areaTheme['header_border']) ?> <?= htmlspecialchars($areaTheme['sticky']) ?> px-3 py-3 text-center">MUNICIPALITY</th>
-                                <th class="border <?= htmlspecialchars($areaTheme['header_border']) ?> px-3 py-3 text-center">TOTAL ACTIVATION</th>
-                                <th class="border <?= htmlspecialchars($areaTheme['header_border']) ?> px-3 py-3 text-center">AVERAGE</th>
-                                <th class="border <?= htmlspecialchars($areaTheme['header_border']) ?> px-3 py-3 text-center">EOM FORECAST</th>
-                                <?php foreach ($areaDays as $day): ?>
-                                    <th class="border <?= htmlspecialchars($areaTheme['header_border']) ?> px-2 py-3 text-center"><?= (int)$day ?></th>
-                                <?php endforeach; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($areaRows as $areaRow): ?>
-                                <tr class="bg-white text-slate-700 hover:bg-cyan-50/50 transition-colors">
-                                    <td class="sticky left-0 z-10 border border-slate-200 bg-white px-3 py-2.5 text-center font-extrabold uppercase text-slate-800"><?= htmlspecialchars($areaRow['municipality']) ?></td>
-                                    <td class="border border-slate-200 <?= htmlspecialchars($areaTheme['accent']) ?> px-3 py-2.5 text-center font-extrabold <?= htmlspecialchars($areaTheme['accent_text']) ?>"><?= (int)$areaRow['total_activation'] ?></td>
-                                    <td class="border border-slate-200 <?= htmlspecialchars($areaTheme['soft']) ?> px-3 py-2.5 text-center font-extrabold <?= htmlspecialchars($areaTheme['accent_text']) ?>"><?= number_format((float)$areaRow['average'], 2) ?></td>
-                                    <td class="border border-slate-200 <?= htmlspecialchars($areaTheme['soft']) ?> px-3 py-2.5 text-center font-extrabold <?= htmlspecialchars($areaTheme['accent_text']) ?>"><?= number_format((float)$areaRow['eom_forecast'], 2) ?></td>
-                                    <?php foreach ($areaRow['daily'] as $value): ?>
-                                        <td class="border border-slate-200 px-2 py-2.5 text-center font-semibold"><?= (int)$value ?></td>
-                                    <?php endforeach; ?>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                        <tfoot>
-                            <tr class="<?= htmlspecialchars($areaTheme['footer']) ?> text-white font-extrabold">
-                                <td class="sticky left-0 z-20 border <?= htmlspecialchars($areaTheme['footer_border']) ?> <?= htmlspecialchars($areaTheme['footer']) ?> px-3 py-3 text-center">Grand Total</td>
-                                <td class="border <?= htmlspecialchars($areaTheme['footer_border']) ?> px-3 py-3 text-center"><?= array_sum(array_column($areaRows, 'total_activation')) ?></td>
-                                <td class="border <?= htmlspecialchars($areaTheme['footer_border']) ?> px-3 py-3 text-center"><?= number_format(array_sum(array_column($areaRows, 'average')), 2) ?></td>
-                                <td class="border <?= htmlspecialchars($areaTheme['footer_border']) ?> px-3 py-3 text-center"><?= number_format(array_sum(array_column($areaRows, 'eom_forecast')), 2) ?></td>
-                                <?php foreach ($areaDays as $dayIndex => $day): ?>
-                                    <?php $dayTotal = array_sum(array_map(static fn(array $row): int => (int)$row['daily'][$dayIndex], $areaRows)); ?>
-                                    <td class="border <?= htmlspecialchars($areaTheme['footer_border']) ?> px-2 py-3 text-center"><?= (int)$dayTotal ?></td>
-                                <?php endforeach; ?>
-                            </tr>
-                        </tfoot>
-                    </table>
+                <div class="space-y-4 px-5 py-6">
+                    <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3 md:p-4">
+                        <div style="height: 420px;">
+                            <canvas id="productivity-area-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <p class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">Total Orders</p>
+                            <p class="mt-2 text-2xl font-medium text-blue-600"><?= number_format($areaTotalOrders) ?></p>
+                            <p class="text-xs text-slate-500">Activated job orders</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <p class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">Municipalities</p>
+                            <p class="mt-2 text-2xl font-medium text-slate-900"><?= (int)$areaMunicipalityCount ?></p>
+                            <p class="text-xs text-slate-500">Tracked areas</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <p class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">Average Per Municipality</p>
+                            <p class="mt-2 text-2xl font-medium text-emerald-600"><?= number_format($areaAverageOrders) ?></p>
+                            <p class="text-xs text-slate-500">Activated orders</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <script>
             window.addEventListener('DOMContentLoaded', () => {
-                const exportButton = document.getElementById('productivity-area-export');
-                const table = document.getElementById('productivity-area-table');
-                exportButton?.addEventListener('click', () => {
-                    if (!table) return;
-                    const csvRows = Array.from(table.querySelectorAll('tr')).map((row) => (
-                        Array.from(row.children).map((cell) => cell.innerText.replace(/\s+/g, ' ').trim())
-                    ));
-                    const csv = csvRows.map((line) => line.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
-                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'productivity-per-area-<?= htmlspecialchars(strtolower($selectedAreaProductKey . '-' . $areaMonth . '-' . $areaYear)) ?>.csv';
-                    link.click();
-                    URL.revokeObjectURL(link.href);
+                if (typeof Chart === 'undefined') return;
+                const areaCanvas = document.getElementById('productivity-area-chart');
+                if (!areaCanvas) return;
+                const areaAccent = '#2b7af4';
+                const areaGradient = areaCanvas.getContext('2d').createLinearGradient(0, 0, 0, 420);
+                areaGradient.addColorStop(0, areaAccent);
+                areaGradient.addColorStop(1, 'rgba(14, 116, 144, 0.45)');
+                new Chart(areaCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: <?= json_encode(array_column($areaChartRows, 0)) ?>,
+                        datasets: [{
+                            label: 'Activated Job Orders',
+                            data: <?= json_encode(array_column($areaChartRows, 1)) ?>,
+                            backgroundColor: areaGradient,
+                            borderColor: areaAccent,
+                            borderWidth: 1,
+                            borderRadius: 8,
+                            maxBarThickness: 46,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#475569', boxWidth: 14, font: { size: 11, weight: '600' } },
+                            },
+                            tooltip: {
+                                backgroundColor: '#0f172a',
+                                titleColor: '#ffffff',
+                                bodyColor: '#dbeafe',
+                                padding: 12,
+                                cornerRadius: 10,
+                                callbacks: {
+                                    label: (context) => `${context.dataset.label}: ${Number(context.raw).toLocaleString()}`,
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#64748b', font: { size: 10, weight: '600' }, maxRotation: 0, autoSkip: false },
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(14, 116, 144, .10)' },
+                                ticks: { color: '#64748b', font: { size: 11 } },
+                                title: { display: true, text: 'Number of Activated Job Orders', color: '#64748b', font: { size: 11, weight: '600' } },
+                            },
+                        },
+                    },
                 });
             });
         </script>
